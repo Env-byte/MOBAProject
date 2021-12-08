@@ -1,0 +1,14 @@
+{
+	"Targets": [
+		{
+			"Name": "MobaProject",
+			"Path": "C:\\Users\\villa\\Documents\\Unreal Projects\\MobaProject\\Source\\MobaProject.Target.cs",
+			"Type": "Game"
+		},
+		{
+			"Name": "MobaProjectEditor",
+			"Path": "C:\\Users\\villa\\Documents\\Unreal Projects\\MobaProject\\Source\\MobaProjectEditor.Target.cs",
+			"Type": "Editor"
+		}
+	]
+}

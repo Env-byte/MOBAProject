@@ -1,0 +1,63 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <None Include="..\..\MobaProject.uproject" />
+    <Filter Include="Source">
+      <UniqueIdentifier>{B641A94D-4DDB-4AE4-9F29-C4CE042DA535}</UniqueIdentifier>
+    </Filter>
+    <None Include="..\..\Source\MobaProject.Target.cs">
+      <Filter>Source</Filter>
+    </None>
+    <None Include="..\..\Source\MobaProjectEditor.Target.cs">
+      <Filter>Source</Filter>
+    </None>
+    <Filter Include="Config">
+      <UniqueIdentifier>{C4D3C453-2A4F-4234-B283-A58FE6BC51DE}</UniqueIdentifier>
+    </Filter>
+    <None Include="..\..\Config\DefaultEditor.ini">
+      <Filter>Config</Filter>
+    </None>
+    <None Include="..\..\Config\DefaultEditorPerProjectUserSettings.ini">
+      <Filter>Config</Filter>
+    </None>
+    <None Include="..\..\Config\DefaultEngine.ini">
+      <Filter>Config</Filter>
+    </None>
+    <None Include="..\..\Config\DefaultGame.ini">
+      <Filter>Config</Filter>
+    </None>
+    <None Include="..\..\Config\DefaultInput.ini">
+      <Filter>Config</Filter>
+    </None>
+    <Filter Include="Source\MobaProject">
+      <UniqueIdentifier>{591ABBA4-A563-44BD-AD70-624DDF55A6A0}</UniqueIdentifier>
+    </Filter>
+    <None Include="..\..\Source\MobaProject\MobaProject.Build.cs">
+      <Filter>Source\MobaProject</Filter>
+    </None>
+    <ClCompile Include="..\..\Source\MobaProject\MobaProject.cpp">
+      <Filter>Source\MobaProject</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\MobaProject\MobaProject.h">
+      <Filter>Source\MobaProject</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\Source\MobaProject\MobaProjectCharacter.cpp">
+      <Filter>Source\MobaProject</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\MobaProject\MobaProjectCharacter.h">
+      <Filter>Source\MobaProject</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\Source\MobaProject\MobaProjectGameMode.cpp">
+      <Filter>Source\MobaProject</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\MobaProject\MobaProjectGameMode.h">
+      <Filter>Source\MobaProject</Filter>
+    </ClInclude>
+    <ClCompile Include="..\..\Source\MobaProject\MobaProjectPlayerController.cpp">
+      <Filter>Source\MobaProject</Filter>
+    </ClCompile>
+    <ClInclude Include="..\..\Source\MobaProject\MobaProjectPlayerController.h">
+      <Filter>Source\MobaProject</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

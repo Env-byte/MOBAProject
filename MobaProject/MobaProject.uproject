@@ -1,0 +1,13 @@
+{
+	"FileVersion": 3,
+	"EngineAssociation": "{0CE4469E-4969-436E-8910-AEACABC85694}",
+	"Category": "",
+	"Description": "",
+	"Modules": [
+		{
+			"Name": "MobaProject",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	]
+}
