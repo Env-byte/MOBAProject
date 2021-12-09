@@ -17,7 +17,7 @@ ACHBase::ACHBase()
 	PrimaryActorTick.bCanEverTick = true;
 	AbilitySystemComponent = CreateDefaultSubobject<UCHAbilitySystemComponent>("AbilitySystemComponent");
 	AbilitySystemComponent->SetIsReplicated(true);
-	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Minimal);
+	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
 
 	NamePlateComponent = CreateDefaultSubobject<UCharacterNamePlate>("NamePlateComponent");
 	const FAttachmentTransformRules AttachmentRules(EAttachmentRule::KeepRelative, false);
@@ -91,6 +91,7 @@ void ACHBase::PossessedBy(AController* NewController)
 	{
 		InitializeOwningActor();
 		InitializeAttributes();
+		UE_LOG(LogCHBase, Display, TEXT("PossessedBy: %s %f:%f"), *GetFullName(), Attributes->GetHealth(), Attributes->GetMaxHealth())
 	}
 }
 

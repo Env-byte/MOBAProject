@@ -3,3 +3,7 @@
 
 #include "Characters/CHAbilitySystemComponent.h"
 
+UCHAbilitySystemComponent::UCHAbilitySystemComponent()
+{
+	SetIsReplicated(true);
+}

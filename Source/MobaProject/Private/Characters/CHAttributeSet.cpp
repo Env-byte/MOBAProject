@@ -4,10 +4,23 @@
 #include "Characters/CHAttributeSet.h"
 #include "GameplayEffectExtension.h"
 #include "Characters/CHBase.h"
+#include "Components/CharacterNamePlate.h"
 #include "Net/UnrealNetwork.h"
+#include "Widgets/WNamePlate.h"
+DEFINE_LOG_CATEGORY(LogCHAttributeSet);
 
 UCHAttributeSet::UCHAttributeSet()
 {
+}
+
+ACHBase* UCHAttributeSet::GetOwningActor() const
+{
+	AActor* OwningActor = GetOwningAbilitySystemComponent()->GetAvatarActor();
+	if (OwningActor)
+	{
+		return Cast<ACHBase>(OwningActor);
+	}
+	return nullptr;
 }
 
 void UCHAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -30,14 +43,15 @@ void UCHAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, fl
 	//if max health changes or max mana scale current health up/down
 	if (Attribute == GetMaxHealthAttribute())
 	{
-		AdjustAttributeForMaxChange(Health, MaxHealth, NewValue, GetHealthAttribute());
+		//AdjustAttributeForMaxChange(Health, MaxHealth, NewValue, GetHealthAttribute());
 	}
 	if (Attribute == GetManaAttribute())
 	{
-		AdjustAttributeForMaxChange(Mana, MaxMana, NewValue, GetManaAttribute());
+		//AdjustAttributeForMaxChange(Mana, MaxMana, NewValue, GetManaAttribute());
 	}
 }
 
+// this only happens on server
 void UCHAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
 {
 	Super::PostGameplayEffectExecute(Data);
@@ -112,11 +126,34 @@ float UCHAttributeSet::GetManaPercent() const
 void UCHAttributeSet::On_RepHealth(const FGameplayAttributeData& OldHealth)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UCHAttributeSet, Health, OldHealth)
+	UE_LOG(LogCHAttributeSet, Display, TEXT("On_RepHealth %f:%f"), GetHealth(), GetMaxHealth())
+	const ACHBase* BaseCharacter = GetOwningActor();
+	UCharacterNamePlate* NamePlateComponent = BaseCharacter->GetNamePlateComponent();
+	if (NamePlateComponent)
+	{
+		UWNamePlate* NamePlateWidget = NamePlateComponent->GetNamePlateWidget();
+		if (NamePlateWidget)
+		{
+			NamePlateWidget->SetHealthPercentage(GetHealthPercent());
+		}
+	}
 }
 
 void UCHAttributeSet::On_RepMaxHealth(const FGameplayAttributeData& OldHealth)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UCHAttributeSet, MaxHealth, OldHealth)
+	UE_LOG(LogCHAttributeSet, Display, TEXT("On_RepMaxHealth %f:%f"), GetHealth(), GetMaxHealth())
+
+	const ACHBase* BaseCharacter = GetOwningActor();
+	UCharacterNamePlate* NamePlateComponent = BaseCharacter->GetNamePlateComponent();
+	if (NamePlateComponent)
+	{
+		UWNamePlate* NamePlateWidget = NamePlateComponent->GetNamePlateWidget();
+		if (NamePlateWidget)
+		{
+			NamePlateWidget->SetHealthPercentage(GetHealthPercent());
+		}
+	}
 }
 
 void UCHAttributeSet::On_RepMana(const FGameplayAttributeData& OldMana)

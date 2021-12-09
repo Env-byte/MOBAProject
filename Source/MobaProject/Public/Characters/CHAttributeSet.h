@@ -6,12 +6,14 @@
 #include "AbilitySystemComponent.h"
 #include "AttributeSet.h"
 #include "CHAttributeSet.generated.h"
+DECLARE_LOG_CATEGORY_EXTERN(LogCHAttributeSet, Log, All);
 
 #define ATTRIBUTE_ACCESSORS(ClassName,PropertyName)\
 GAMEPLAYATTRIBUTE_PROPERTY_GETTER(ClassName,PropertyName)\
 GAMEPLAYATTRIBUTE_VALUE_GETTER(PropertyName)\
 GAMEPLAYATTRIBUTE_VALUE_SETTER(PropertyName)\
 GAMEPLAYATTRIBUTE_VALUE_INITTER(PropertyName)
+class ACHBase;
 /**
  * 
  */
@@ -21,6 +23,7 @@ class MOBAPROJECT_API UCHAttributeSet : public UAttributeSet
 	GENERATED_BODY()
 	UCHAttributeSet();
 
+	ACHBase* GetOwningActor() const;
 public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
@@ -91,13 +94,13 @@ protected:
 
 	UFUNCTION()
 	virtual void On_RepMoveSpeed(const FGameplayAttributeData& OldMoveSpeed);
-	
+
 	UFUNCTION()
 	virtual void On_RepAttackSpeed(const FGameplayAttributeData& OldAttackSpeed);
-	
+
 	UFUNCTION()
 	virtual void On_RepArmour(const FGameplayAttributeData& OldArmour);
-	
+
 	UFUNCTION()
 	virtual void On_RepAttackRange(const FGameplayAttributeData& OldAttackRange);
 };
