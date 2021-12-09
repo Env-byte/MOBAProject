@@ -5,3 +5,15 @@
 #include "CoreMinimal.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(LogMobaProject, Log, All);
+
+UENUM(BlueprintType)
+enum class EAbilityInputID : uint8
+{
+	None,
+	Confirm,
+	Cancel,
+	PrimaryAttack,
+	Ability1,
+	Ability2,
+	Ability3
+};
