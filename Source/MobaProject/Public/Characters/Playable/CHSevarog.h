@@ -9,9 +9,8 @@
 /**
  * 
  */
-UCLASS()
+UCLASS(Blueprintable)
 class MOBAPROJECT_API ACHSevarog : public ACHPlayable
 {
 	GENERATED_BODY()
-	
 };

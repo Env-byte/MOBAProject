@@ -5,7 +5,9 @@
 
 #include "Characters/CHAbilitySystemComponent.h"
 #include "Characters/CHAttributeSet.h"
+#include "Components/CharacterNamePlate.h"
 #include "MobaProject/MobaProject.h"
+#include "Widgets/WNamePlate.h"
 DEFINE_LOG_CATEGORY(LogCHBase);
 
 // Sets default values
@@ -17,6 +19,10 @@ ACHBase::ACHBase()
 	AbilitySystemComponent->SetIsReplicated(true);
 	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Minimal);
 
+	NamePlateComponent = CreateDefaultSubobject<UCharacterNamePlate>("NamePlateComponent");
+	const FAttachmentTransformRules AttachmentRules(EAttachmentRule::KeepRelative, false);
+	NamePlateComponent->AttachToComponent(GetRootComponent(), AttachmentRules);
+
 	Attributes = CreateDefaultSubobject<UCHAttributeSet>("Attributes");
 }
 
@@ -24,6 +30,11 @@ void ACHBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 	InitializeAbilityBinds();
+}
+
+FName ACHBase::GetEntityName()
+{
+	return FName(TEXT("NotSet"));
 }
 
 int32 ACHBase::GetLevel()
@@ -35,7 +46,7 @@ int32 ACHBase::GetLevel()
 void ACHBase::InitializeAttributes()
 {
 	if (!HasAuthority()) return;
-	
+
 	if (!AbilitySystemComponent)
 	{
 		UE_LOG(LogCHBase, Error, TEXT("AbilitySystemComponent not valid"));
@@ -106,4 +117,20 @@ void ACHBase::HandleHealthChanged(float DeltaValue, const FGameplayTagContainer&
 UAbilitySystemComponent* ACHBase::GetAbilitySystemComponent() const
 {
 	return AbilitySystemComponent;
+}
+
+void ACHBase::BeginPlay()
+{
+	Super::BeginPlay();
+	if (NamePlateComponent)
+	{
+		UWNamePlate* NamePlate = NamePlateComponent->GetNamePlateWidget();
+		if (NamePlate)
+		{
+			NamePlate->SetHealthPercentage(Attributes->GetHealthPercent());
+			NamePlate->SetManaPercentage(Attributes->GetManaPercent());
+			NamePlate->SetLevel(GetLevel());
+			NamePlate->SetName(GetEntityName());
+		}
+	}
 }

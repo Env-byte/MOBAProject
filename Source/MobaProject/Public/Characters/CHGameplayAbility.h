@@ -10,7 +10,7 @@
 /**
  * 
  */
-UCLASS()
+UCLASS(Abstract)
 class MOBAPROJECT_API UCHGameplayAbility : public UGameplayAbility
 {
 	GENERATED_BODY()

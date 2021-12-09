@@ -9,7 +9,7 @@
 /**
  * 
  */
-UCLASS()
+UCLASS(Blueprintable)
 class MOBAPROJECT_API ACHMinion : public ACHBase
 {
 	GENERATED_BODY()

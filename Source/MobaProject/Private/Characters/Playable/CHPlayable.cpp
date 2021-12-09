@@ -84,17 +84,29 @@ void ACHPlayable::UpdateCursorDecal()
 
 void ACHPlayable::GiveAbilities()
 {
-	if (HasAuthority() && !bAbilitiesInitialized)
+	if (HasAuthority() && !bAbilitiesInitialized && AbilitySystemComponent)
 	{
 		const int32 Level = GetLevel();
-		AbilitySystemComponent->GiveAbility(
-			FGameplayAbilitySpec(PrimaryAttack, Level, static_cast<int32>(PrimaryAttack.GetDefaultObject()->AbilityInputID), this));
-		AbilitySystemComponent->GiveAbility(
-			FGameplayAbilitySpec(Ability1, Level, static_cast<int32>(Ability1.GetDefaultObject()->AbilityInputID), this));
-		AbilitySystemComponent->GiveAbility(
-			FGameplayAbilitySpec(Ability2, Level, static_cast<int32>(Ability2.GetDefaultObject()->AbilityInputID), this));
-		AbilitySystemComponent->GiveAbility(
-			FGameplayAbilitySpec(Ability3, Level, static_cast<int32>(Ability3.GetDefaultObject()->AbilityInputID), this));
+		if (PrimaryAttack)
+		{
+			AbilitySystemComponent->GiveAbility(
+				FGameplayAbilitySpec(PrimaryAttack, Level, static_cast<int32>(PrimaryAttack.GetDefaultObject()->AbilityInputID), this));
+		}
+		if (Ability1)
+		{
+			AbilitySystemComponent->GiveAbility(
+				FGameplayAbilitySpec(Ability1, Level, static_cast<int32>(Ability1.GetDefaultObject()->AbilityInputID), this));
+		}
+		if (Ability2)
+		{
+			AbilitySystemComponent->GiveAbility(
+				FGameplayAbilitySpec(Ability2, Level, static_cast<int32>(Ability2.GetDefaultObject()->AbilityInputID), this));
+		}
+		if (Ability3)
+		{
+			AbilitySystemComponent->GiveAbility(
+				FGameplayAbilitySpec(Ability3, Level, static_cast<int32>(Ability3.GetDefaultObject()->AbilityInputID), this));
+		}
 		bAbilitiesInitialized = true;
 	}
 }

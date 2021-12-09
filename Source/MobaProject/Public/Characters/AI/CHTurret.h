@@ -9,7 +9,7 @@
 /**
  * 
  */
-UCLASS()
+UCLASS(Blueprintable)
 class MOBAPROJECT_API ACHTurret : public ACHBase
 {
 	GENERATED_BODY()

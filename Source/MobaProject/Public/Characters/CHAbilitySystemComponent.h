@@ -9,7 +9,7 @@
 /**
  * 
  */
-UCLASS()
+UCLASS(NotBlueprintable)
 class MOBAPROJECT_API UCHAbilitySystemComponent : public UAbilitySystemComponent
 {
 	GENERATED_BODY()

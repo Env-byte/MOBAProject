@@ -9,7 +9,7 @@
 /**
  * 
  */
-UCLASS()
+UCLASS(Blueprintable)
 class MOBAPROJECT_API ACHPhase : public ACHPlayable
 {
 	GENERATED_BODY()

@@ -15,7 +15,7 @@ GAMEPLAYATTRIBUTE_VALUE_INITTER(PropertyName)
 /**
  * 
  */
-UCLASS()
+UCLASS(NotBlueprintable)
 class MOBAPROJECT_API UCHAttributeSet : public UAttributeSet
 {
 	GENERATED_BODY()

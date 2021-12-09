@@ -10,14 +10,15 @@ class UCHGameplayAbility;
 /**
  * 
  */
-UCLASS()
+UCLASS(Abstract,NotBlueprintable)
 class MOBAPROJECT_API ACHPlayable : public ACHBase
 {
 	GENERATED_BODY()
+public:
 	ACHPlayable();
 	// Called every frame.
 	virtual void Tick(float DeltaSeconds) override;
-public:
+	
 	/** Returns TopDownCameraComponent subobject **/
 	FORCEINLINE class UCameraComponent* GetTopDownCameraComponent() const { return TopDownCameraComponent; }
 	/** Returns CameraBoom subobject **/

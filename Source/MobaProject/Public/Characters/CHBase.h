@@ -5,25 +5,26 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "AbilitySystemInterface.h"
+#include "CHAbilitySystemComponent.h"
 #include "CHBase.generated.h"
+class UCharacterNamePlate;
 struct FGameplayTagContainer;
 DECLARE_LOG_CATEGORY_EXTERN(LogCHBase, Log, All);
 
 class UCHAttributeSet;
-class UCHAbilitySystemComponent;
 class UGameplayEffect;
 
-UCLASS()
+UCLASS(Abstract, NotBlueprintable)
 class MOBAPROJECT_API ACHBase : public ACharacter, public IAbilitySystemInterface
 
 {
 	GENERATED_BODY()
 	// Sets default values for this character's properties
+public:
 	ACHBase();
 protected:
-
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
-	
+
 	////////// Ability System //////////
 	/**
 	 * AbilitySystemComponent for this Character
@@ -44,6 +45,17 @@ protected:
 	TSubclassOf<UGameplayEffect> DefaultAttributeEffect;
 
 	/**
+	 * Name plate component to show character health / mana level and entity name
+	 */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UCharacterNamePlate* NamePlateComponent;
+
+	/**
+	 * Used to set the NamePlateComponent Name. Ex PlayerName, or for Ai 'Minion' or 'Turret'
+	 */
+	virtual FName GetEntityName();
+
+	/**
 	 * Get this Characters level to know what attribute values to spawn it with
 	 */
 	virtual int32 GetLevel();
@@ -56,7 +68,6 @@ private:
 	virtual void InitializeOwningActor();
 	virtual void InitializeAbilityBinds();
 public:
-	
 	/**
 	 * This only happens on server 
 	 */
@@ -78,8 +89,11 @@ public:
 	virtual void HandleHealthChanged(float DeltaValue, const struct FGameplayTagContainer& EventTags);
 
 	friend UCHAttributeSet;
-	
+
 	FORCEINLINE UCHAttributeSet* GetAttributeSet() const { return Attributes; }
+	FORCEINLINE UCharacterNamePlate* GetNamePlateComponent() const { return NamePlateComponent; }
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	////////// Ability System //////////
+
+	virtual void BeginPlay() override;
 };
