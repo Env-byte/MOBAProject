@@ -34,6 +34,8 @@ int32 ACHBase::GetLevel()
 
 void ACHBase::InitializeAttributes()
 {
+	if (!HasAuthority()) return;
+	
 	if (!AbilitySystemComponent)
 	{
 		UE_LOG(LogCHBase, Error, TEXT("AbilitySystemComponent not valid"));
