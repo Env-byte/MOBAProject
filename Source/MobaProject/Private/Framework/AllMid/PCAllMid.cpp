@@ -2,12 +2,12 @@
 
 
 #include "Framework/AllMid/PCAllMid.h"
-
 #include "Blueprint/AIBlueprintHelperLibrary.h"
+#include "Framework/AllMid/HUDAllMid.h"
 
 APCAllMid::APCAllMid()
 {
-	bMoveToMouseCursor = true;
+	bMoveToMouseCursor = false;
 	DefaultMouseCursor = EMouseCursor::Crosshairs;
 }
 
@@ -28,6 +28,9 @@ void APCAllMid::SetupInputComponent()
 
 	InputComponent->BindAction("SetDestination", IE_Pressed, this, &APCAllMid::OnSetDestinationPressed);
 	InputComponent->BindAction("SetDestination", IE_Released, this, &APCAllMid::OnSetDestinationReleased);
+
+	InputComponent->BindAction("ToggleScoreboard", IE_Pressed, this, &APCAllMid::OnScoreboardPressed);
+	InputComponent->BindAction("ToggleScoreboard", IE_Released, this, &APCAllMid::OnScoreboardReleased);
 }
 
 void APCAllMid::MoveToMouseCursor()
@@ -68,4 +71,22 @@ void APCAllMid::OnSetDestinationReleased()
 {
 	// clear flag to indicate we should stop updating the destination
 	bMoveToMouseCursor = false;
+}
+
+void APCAllMid::OnScoreboardPressed()
+{
+	AHUDAllMid* Hud = GetHUD<AHUDAllMid>();
+	if (Hud)
+	{
+		Hud->ShowScoreboard();
+	}
+}
+
+void APCAllMid::OnScoreboardReleased()
+{
+	AHUDAllMid* Hud = GetHUD<AHUDAllMid>();
+	if (Hud)
+	{
+		Hud->HideScoreboard();
+	}
 }

@@ -7,7 +7,7 @@
 #include "Characters/CHAttributeSet.h"
 #include "Components/CharacterNamePlate.h"
 #include "MobaProject/MobaProject.h"
-#include "Widgets/WNamePlate.h"
+#include "Widgets/Components/WNamePlate.h"
 DEFINE_LOG_CATEGORY(LogCHBase);
 
 // Sets default values
@@ -112,7 +112,24 @@ void ACHBase::HandleDamage(float Damage, const FHitResult HitInfo, const FGamepl
 
 void ACHBase::HandleHealthChanged(float DeltaValue, const FGameplayTagContainer& EventTags)
 {
-	BP_OnHealthChanged(DeltaValue, EventTags);
+	if (!HasAuthority()) return;
+	
+	if (Attributes->GetHealth() == 0.f)
+	{
+		Destroy();
+	}
+}
+
+void ACHBase::OnRep_Attribute(const FGameplayAttribute& Attribute, const FGameplayAttributeData& OldValue, const FGameplayAttributeData& NewValue)
+{
+	if (Attribute.GetName().Equals("Health") || Attribute.GetName().Equals("MaxHealth"))
+	{
+		UWNamePlate* NamePlate = NamePlateComponent->GetNamePlateWidget();
+		if (NamePlate)
+		{
+			NamePlate->SetHealthPercentage(Attributes->GetHealthPercent());
+		}
+	}
 }
 
 UAbilitySystemComponent* ACHBase::GetAbilitySystemComponent() const

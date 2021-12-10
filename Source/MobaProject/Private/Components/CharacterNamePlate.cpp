@@ -3,7 +3,7 @@
 
 #include "Components/CharacterNamePlate.h"
 
-#include "Widgets/WNamePlate.h"
+#include "Widgets/Components//WNamePlate.h"
 
 UCharacterNamePlate::UCharacterNamePlate()
 {

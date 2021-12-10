@@ -6,7 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "Bushes.generated.h"
 
-UCLASS()
+UCLASS(Abstract)
 class MOBAPROJECT_API ABushes : public AActor
 {
 	GENERATED_BODY()

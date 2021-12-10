@@ -8,8 +8,11 @@
 #include "Characters/CHGameplayAbility.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/DecalComponent.h"
+#include "Framework/AllMid/HUDAllMid.h"
+#include "Framework/AllMid/PCAllMid.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Widgets/AllMid/WPlayerHud.h"
 
 ACHPlayable::ACHPlayable()
 {
@@ -115,4 +118,25 @@ void ACHPlayable::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 	GiveAbilities();
+}
+
+void ACHPlayable::OnRep_Attribute(const FGameplayAttribute& Attribute, const FGameplayAttributeData& OldValue, const FGameplayAttributeData& NewValue)
+{
+	Super::OnRep_Attribute(Attribute, OldValue, NewValue);
+	if (!IsLocallyControlled()) { return; }
+
+	APCAllMid* PC = GetController<APCAllMid>();
+	if (!PC) { return; }
+
+	AHUDAllMid* HUD = PC->GetHUD<AHUDAllMid>();
+	if (!HUD) { return; }
+
+	UWPlayerHud* PlayerHudWidget = HUD->GetPlayerHudWidget();
+	if (!PlayerHudWidget) { return; }
+
+	// if attribute updated is not health or mana then update stats 
+	if (! (Attribute.GetName().Contains("Health") || Attribute.GetName().Contains("Mana")))
+	{
+		PlayerHudWidget->BP_SetCharacterStats(Attributes);
+	}
 }

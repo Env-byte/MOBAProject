@@ -19,7 +19,6 @@ class MOBAPROJECT_API ACHBase : public ACharacter, public IAbilitySystemInterfac
 
 {
 	GENERATED_BODY()
-	// Sets default values for this character's properties
 public:
 	ACHBase();
 protected:
@@ -78,15 +77,19 @@ public:
 	 */
 	virtual void OnRep_PlayerState() override;
 
+	////////// Server only  //////////
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_OnDamaged(float Damage, const FHitResult HitInfo, const FGameplayTagContainer& DamageTags, ACHBase* InstigatorCharacter, AActor* DamageCauser);
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_OnHealthChanged(float DeltaValue, const struct FGameplayTagContainer& EventTags);
-	UFUNCTION(BlueprintImplementableEvent)
-	void BP_OnManaChanged(float DeltaValue, const struct FGameplayTagContainer& EventTags);
-
 	virtual void HandleDamage(float Damage, const FHitResult HitInfo, const FGameplayTagContainer& DamageTags, ACHBase* InstigatorCharacter, AActor* DamageCauser);
 	virtual void HandleHealthChanged(float DeltaValue, const struct FGameplayTagContainer& EventTags);
+	////////// Server only //////////
+
+	/**
+	* Client only Attribute On_Rep
+	*/
+	virtual void OnRep_Attribute(const FGameplayAttribute& Attribute, const FGameplayAttributeData& OldValue, const FGameplayAttributeData& NewValue);
 
 	friend UCHAttributeSet;
 

@@ -9,7 +9,7 @@
 /**
  * 
  */
-UCLASS()
+UCLASS(Abstract)
 class MOBAPROJECT_API UGIMoba : public UGameInstance
 {
 	GENERATED_BODY()

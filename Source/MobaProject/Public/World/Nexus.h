@@ -6,7 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "Nexus.generated.h"
 
-UCLASS()
+UCLASS(Abstract)
 class MOBAPROJECT_API ANexus : public AActor
 {
 	GENERATED_BODY()

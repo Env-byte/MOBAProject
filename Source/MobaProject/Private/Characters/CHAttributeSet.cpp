@@ -4,21 +4,25 @@
 #include "Characters/CHAttributeSet.h"
 #include "GameplayEffectExtension.h"
 #include "Characters/CHBase.h"
-#include "Components/CharacterNamePlate.h"
 #include "Net/UnrealNetwork.h"
-#include "Widgets/WNamePlate.h"
 DEFINE_LOG_CATEGORY(LogCHAttributeSet);
 
 UCHAttributeSet::UCHAttributeSet()
 {
 }
 
-ACHBase* UCHAttributeSet::GetOwningActor() const
+ACHBase* UCHAttributeSet::GetOwningActor()
 {
+	if (CharacterBaseRef)
+	{
+		return CharacterBaseRef;
+	}
+
 	AActor* OwningActor = GetOwningAbilitySystemComponent()->GetAvatarActor();
 	if (OwningActor)
 	{
-		return Cast<ACHBase>(OwningActor);
+		CharacterBaseRef = Cast<ACHBase>(OwningActor);
+		return CharacterBaseRef;
 	}
 	return nullptr;
 }
@@ -87,9 +91,6 @@ void UCHAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
 	{
 		//prevent mana going below 0 or exceeding max
 		SetMana(FMath::Clamp(GetMana(), 0.f, GetMaxMana()));
-		if (TargetCharacter)
-		{
-		}
 	}
 }
 
@@ -100,25 +101,25 @@ void UCHAttributeSet::AdjustAttributeForMaxChange(const FGameplayAttributeData& 
 	if (!FMath::IsNearlyEqual(CurrentMaxValue, NewMaxValue) && AbilitySystemComponent)
 	{
 		const float CurrentValue = AffectedAttribute.GetCurrentValue();
-		const float NewDelta = CurrentMaxValue > 0.f ? (CurrentValue * NewMaxValue / CurrentMaxValue) - CurrentValue : NewMaxValue;
+		const float NewDelta = CurrentMaxValue > 0.f ? CurrentValue * NewMaxValue / CurrentMaxValue - CurrentValue : NewMaxValue;
 		AbilitySystemComponent->ApplyModToAttributeUnsafe(AffectedAttributeProperty, EGameplayModOp::Additive, NewDelta);
 	}
 }
 
 float UCHAttributeSet::GetHealthPercent() const
 {
-	if (GetHealth() == 0)
+	if (GetHealth() == 0.f)
 	{
-		return 0;
+		return 0.f;
 	}
 	return GetHealth() / GetMaxHealth();
 }
 
 float UCHAttributeSet::GetManaPercent() const
 {
-	if (GetMana() == 0)
+	if (GetMana() == 0.f)
 	{
-		return GetMana();
+		return 0.f;
 	}
 	return GetMana() / GetMaxMana();
 }
@@ -126,67 +127,89 @@ float UCHAttributeSet::GetManaPercent() const
 void UCHAttributeSet::On_RepHealth(const FGameplayAttributeData& OldHealth)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UCHAttributeSet, Health, OldHealth)
-	UE_LOG(LogCHAttributeSet, Display, TEXT("On_RepHealth %f:%f"), GetHealth(), GetMaxHealth())
-	const ACHBase* BaseCharacter = GetOwningActor();
-	UCharacterNamePlate* NamePlateComponent = BaseCharacter->GetNamePlateComponent();
-	if (NamePlateComponent)
+	ACHBase* BaseCharacter = GetOwningActor();
+	if (BaseCharacter)
 	{
-		UWNamePlate* NamePlateWidget = NamePlateComponent->GetNamePlateWidget();
-		if (NamePlateWidget)
-		{
-			NamePlateWidget->SetHealthPercentage(GetHealthPercent());
-		}
+		BaseCharacter->OnRep_Attribute(GetHealthAttribute(), OldHealth, Health);
 	}
 }
 
 void UCHAttributeSet::On_RepMaxHealth(const FGameplayAttributeData& OldHealth)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UCHAttributeSet, MaxHealth, OldHealth)
-	UE_LOG(LogCHAttributeSet, Display, TEXT("On_RepMaxHealth %f:%f"), GetHealth(), GetMaxHealth())
-
-	const ACHBase* BaseCharacter = GetOwningActor();
-	UCharacterNamePlate* NamePlateComponent = BaseCharacter->GetNamePlateComponent();
-	if (NamePlateComponent)
+	ACHBase* BaseCharacter = GetOwningActor();
+	if (BaseCharacter)
 	{
-		UWNamePlate* NamePlateWidget = NamePlateComponent->GetNamePlateWidget();
-		if (NamePlateWidget)
-		{
-			NamePlateWidget->SetHealthPercentage(GetHealthPercent());
-		}
+		BaseCharacter->OnRep_Attribute(GetMaxHealthAttribute(), OldHealth, MaxHealth);
 	}
 }
 
 void UCHAttributeSet::On_RepMana(const FGameplayAttributeData& OldMana)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UCHAttributeSet, Mana, OldMana)
+	ACHBase* BaseCharacter = GetOwningActor();
+	if (BaseCharacter)
+	{
+		BaseCharacter->OnRep_Attribute(GetManaAttribute(), OldMana, Mana);
+	}
 }
 
 void UCHAttributeSet::On_RepMaxMana(const FGameplayAttributeData& OldMaxMana)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UCHAttributeSet, MaxMana, OldMaxMana)
+	ACHBase* BaseCharacter = GetOwningActor();
+	if (BaseCharacter)
+	{
+		BaseCharacter->OnRep_Attribute(GetMaxManaAttribute(), OldMaxMana, MaxMana);
+	}
 }
 
 void UCHAttributeSet::On_RepAttackDamage(const FGameplayAttributeData& OldAttackDamage)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UCHAttributeSet, AttackDamage, OldAttackDamage)
+	ACHBase* BaseCharacter = GetOwningActor();
+	if (BaseCharacter)
+	{
+		BaseCharacter->OnRep_Attribute(GetAttackDamageAttribute(), OldAttackDamage, AttackDamage);
+	}
 }
 
 void UCHAttributeSet::On_RepMoveSpeed(const FGameplayAttributeData& OldMoveSpeed)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UCHAttributeSet, MoveSpeed, OldMoveSpeed)
+	ACHBase* BaseCharacter = GetOwningActor();
+	if (BaseCharacter)
+	{
+		BaseCharacter->OnRep_Attribute(GetMoveSpeedAttribute(), OldMoveSpeed, MoveSpeed);
+	}
 }
 
 void UCHAttributeSet::On_RepAttackSpeed(const FGameplayAttributeData& OldAttackSpeed)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UCHAttributeSet, AttackSpeed, OldAttackSpeed)
+	ACHBase* BaseCharacter = GetOwningActor();
+	if (BaseCharacter)
+	{
+		BaseCharacter->OnRep_Attribute(GetAttackSpeedAttribute(), OldAttackSpeed, AttackSpeed);
+	}
 }
 
 void UCHAttributeSet::On_RepArmour(const FGameplayAttributeData& OldArmour)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UCHAttributeSet, Armour, OldArmour)
+	ACHBase* BaseCharacter = GetOwningActor();
+	if (BaseCharacter)
+	{
+		BaseCharacter->OnRep_Attribute(GetAttackSpeedAttribute(), OldArmour, Armour);
+	}
 }
 
 void UCHAttributeSet::On_RepAttackRange(const FGameplayAttributeData& OldAttackRange)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UCHAttributeSet, AttackRange, OldAttackRange)
+	ACHBase* BaseCharacter = GetOwningActor();
+	if (BaseCharacter)
+	{
+		BaseCharacter->OnRep_Attribute(GetAttackSpeedAttribute(), OldAttackRange, AttackRange);
+	}
 }

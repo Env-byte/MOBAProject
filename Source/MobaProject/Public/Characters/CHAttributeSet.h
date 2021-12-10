@@ -23,7 +23,9 @@ class MOBAPROJECT_API UCHAttributeSet : public UAttributeSet
 	GENERATED_BODY()
 	UCHAttributeSet();
 
-	ACHBase* GetOwningActor() const;
+	ACHBase* GetOwningActor();
+	UPROPERTY()
+	ACHBase* CharacterBaseRef;
 public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 

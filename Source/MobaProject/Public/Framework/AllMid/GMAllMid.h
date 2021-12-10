@@ -9,7 +9,7 @@
 /**
  * 
  */
-UCLASS()
+UCLASS(Abstract)
 class MOBAPROJECT_API AGMAllMid : public AGameMode
 {
 	GENERATED_BODY()

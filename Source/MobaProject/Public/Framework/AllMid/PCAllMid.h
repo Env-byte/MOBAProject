@@ -9,18 +9,18 @@
 /**
  * 
  */
-UCLASS()
+UCLASS(Abstract)
 class MOBAPROJECT_API APCAllMid : public APlayerController
 {
 	GENERATED_BODY()
 
 	APCAllMid();
 protected:
+	virtual void SetupInputComponent() override;
+
 	////////// PLAYER MOVEMENT //////////
 	bool bMoveToMouseCursor;
 	virtual void PlayerTick(float DeltaTime) override;
-	virtual void SetupInputComponent() override;
-
 	/** Navigate player to the current mouse cursor location. */
 	void MoveToMouseCursor();
 
@@ -30,6 +30,10 @@ protected:
 	/** Input handlers for SetDestination action. */
 	void OnSetDestinationPressed();
 	void OnSetDestinationReleased();
-
 	////////// PLAYER MOVEMENT //////////
+	
+	////////// Scoreboard //////////
+	void OnScoreboardPressed();
+	void OnScoreboardReleased();
+	////////// Scoreboard //////////
 };

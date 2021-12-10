@@ -10,7 +10,7 @@ class UCHGameplayAbility;
 /**
  * 
  */
-UCLASS(Abstract,NotBlueprintable)
+UCLASS(Abstract, NotBlueprintable)
 class MOBAPROJECT_API ACHPlayable : public ACHBase
 {
 	GENERATED_BODY()
@@ -18,7 +18,7 @@ public:
 	ACHPlayable();
 	// Called every frame.
 	virtual void Tick(float DeltaSeconds) override;
-	
+
 	/** Returns TopDownCameraComponent subobject **/
 	FORCEINLINE class UCameraComponent* GetTopDownCameraComponent() const { return TopDownCameraComponent; }
 	/** Returns CameraBoom subobject **/
@@ -99,5 +99,6 @@ public:
 	UFUNCTION(BlueprintPure, Category="Attack")
 	FORCEINLINE UAnimMontage* GetPrimaryAttackMontage(const int32 AtIndex) const { return PrimaryAttackMontages[AtIndex]; };
 
+	virtual void OnRep_Attribute(const FGameplayAttribute& Attribute, const FGameplayAttributeData& OldValue, const FGameplayAttributeData& NewValue) override;
 	////////// Ability System //////////
 };
