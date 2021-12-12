@@ -3,7 +3,9 @@
 
 #include "Framework/AllMid/PCAllMid.h"
 #include "Blueprint/AIBlueprintHelperLibrary.h"
+#include "Characters/Playable/CHPlayable.h"
 #include "Framework/AllMid/HUDAllMid.h"
+#include "GameFramework/SpringArmComponent.h"
 
 APCAllMid::APCAllMid()
 {
@@ -32,6 +34,9 @@ void APCAllMid::SetupInputComponent()
 
 	InputComponent->BindAction("ToggleScoreboard", IE_Pressed, this, &APCAllMid::OnScoreboardPressed);
 	InputComponent->BindAction("ToggleScoreboard", IE_Released, this, &APCAllMid::OnScoreboardReleased);
+
+	InputComponent->BindAction("ZoomIn", IE_Pressed, this, &APCAllMid::OnZoomInPressed);
+	InputComponent->BindAction("ZoomOut", IE_Pressed, this, &APCAllMid::OnZoomOutPressed);
 }
 
 void APCAllMid::MoveToMouseCursor()
@@ -96,4 +101,35 @@ void APCAllMid::OnScoreboardReleased()
 	{
 		Hud->HideScoreboard();
 	}
+}
+
+void APCAllMid::OnZoomInPressed()
+{
+	UE_LOG(LogTemp, Display, TEXT("OnZoomInPressed"))
+	const ACHPlayable* PlayerCharacter = GetPawn<ACHPlayable>();
+	if (!PlayerCharacter) return;
+
+	USpringArmComponent* SpringArmComponent = PlayerCharacter->GetCameraBoom();
+	if (!SpringArmComponent) return;
+
+	float CurrentLength = SpringArmComponent->TargetArmLength;
+	CurrentLength = CurrentLength + 50;
+	UE_LOG(LogTemp, Display, TEXT("CurrentLength: %f"), CurrentLength)
+
+	SpringArmComponent->TargetArmLength = FMath::Clamp(CurrentLength, MinZoom, MaxZoom);
+}
+
+void APCAllMid::OnZoomOutPressed()
+{
+	UE_LOG(LogTemp, Display, TEXT("OnZoomOutPressed"))
+	const ACHPlayable* PlayerCharacter = GetPawn<ACHPlayable>();
+	if (!PlayerCharacter) return;
+
+	USpringArmComponent* SpringArmComponent = PlayerCharacter->GetCameraBoom();
+	if (!SpringArmComponent) return;
+
+	float CurrentLength = SpringArmComponent->TargetArmLength;
+	CurrentLength = CurrentLength - 50;
+	UE_LOG(LogTemp, Display, TEXT("CurrentLength: %f"), CurrentLength)
+	SpringArmComponent->TargetArmLength = FMath::Clamp(CurrentLength, MinZoom, MaxZoom);
 }

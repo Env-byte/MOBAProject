@@ -38,4 +38,10 @@ protected:
 	void OnScoreboardPressed();
 	void OnScoreboardReleased();
 	////////// Scoreboard //////////
+
+	////////// Camera Zoom //////////
+	float MinZoom = 700.f;
+	float MaxZoom = 1400.f;
+	void OnZoomInPressed();
+	void OnZoomOutPressed();
 };
