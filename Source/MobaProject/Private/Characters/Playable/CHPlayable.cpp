@@ -5,6 +5,7 @@
 
 #include "Camera/CameraComponent.h"
 #include "Characters/CHAbilitySystemComponent.h"
+#include "Characters/CHAttributeSet.h"
 #include "Characters/CHGameplayAbility.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/DecalComponent.h"
@@ -89,7 +90,7 @@ void ACHPlayable::GiveAbilities()
 {
 	if (HasAuthority() && !bAbilitiesInitialized && AbilitySystemComponent)
 	{
-		const int32 Level = GetLevel();
+		const int32 Level = GetCharacterLevel();
 		if (PrimaryAttack)
 		{
 			AbilitySystemComponent->GiveAbility(
@@ -139,4 +140,34 @@ void ACHPlayable::OnRep_Attribute(const FGameplayAttribute& Attribute, const FGa
 	{
 		PlayerHudWidget->BP_SetCharacterStats(Attributes);
 	}
+	else
+	{
+		if (Attribute.GetName().Contains("Health"))
+		{
+			PlayerHudWidget->BP_SetHealth(Attributes->GetHealth(), Attributes->GetMaxHealth());
+		}
+		else
+		{
+			PlayerHudWidget->BP_SetMana(Attributes->GetMana(), Attributes->GetMaxMana());
+		}
+	}
+}
+
+void ACHPlayable::HandleHealthChanged(float DeltaValue, const FGameplayTagContainer& GameplayTags)
+{
+	Client_HandleHealthChanged(DeltaValue, GameplayTags);
+	Super::HandleHealthChanged(DeltaValue, GameplayTags);
+}
+
+void ACHPlayable::Client_HandleHealthChanged_Implementation(float DeltaValue, const FGameplayTagContainer& EventTags)
+{
+	APCAllMid* PC = GetController<APCAllMid>();
+	if (!PC) { return; }
+
+	AHUDAllMid* HUD = PC->GetHUD<AHUDAllMid>();
+	if (!HUD) { return; }
+
+	UWPlayerHud* PlayerHudWidget = HUD->GetPlayerHudWidget();
+	if (!PlayerHudWidget) { return; }
+	PlayerHudWidget->BP_SetHealth(0.f, Attributes->GetMaxHealth());
 }

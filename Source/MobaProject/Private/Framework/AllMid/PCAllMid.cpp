@@ -7,6 +7,7 @@
 
 APCAllMid::APCAllMid()
 {
+	bShowMouseCursor = true;
 	bMoveToMouseCursor = false;
 	DefaultMouseCursor = EMouseCursor::Crosshairs;
 }
@@ -46,20 +47,26 @@ void APCAllMid::MoveToMouseCursor()
 	}
 }
 
+
 void APCAllMid::SetNewMoveDestination(const FVector DestLocation)
 {
+	if (!HasAuthority())
+	{
+		Server_SetNewMoveDestination(DestLocation);
+	}
 	const APawn* MyPawn = GetPawn();
 	if (MyPawn)
 	{
-		const float Distance = FVector::Dist(DestLocation, MyPawn->GetActorLocation());
-
 		// We need to issue move command only if far enough in order for walk animation to play correctly
-		if (Distance > 120.0f)
-		{
-			UAIBlueprintHelperLibrary::SimpleMoveToLocation(this, DestLocation);
-		}
+		UAIBlueprintHelperLibrary::SimpleMoveToLocation(this, DestLocation);
 	}
 }
+
+void APCAllMid::Server_SetNewMoveDestination_Implementation(const FVector& DestLocation)
+{
+	SetNewMoveDestination(DestLocation);
+}
+
 
 void APCAllMid::OnSetDestinationPressed()
 {

@@ -100,5 +100,9 @@ public:
 	FORCEINLINE UAnimMontage* GetPrimaryAttackMontage(const int32 AtIndex) const { return PrimaryAttackMontages[AtIndex]; };
 
 	virtual void OnRep_Attribute(const FGameplayAttribute& Attribute, const FGameplayAttributeData& OldValue, const FGameplayAttributeData& NewValue) override;
+
+	virtual void HandleHealthChanged(float DeltaValue, const FGameplayTagContainer& EventTags) override;
+	UFUNCTION(Client, Unreliable)
+	virtual void Client_HandleHealthChanged(float DeltaValue, const FGameplayTagContainer& EventTags);
 	////////// Ability System //////////
 };

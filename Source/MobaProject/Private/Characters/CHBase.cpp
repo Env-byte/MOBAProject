@@ -6,6 +6,8 @@
 #include "Characters/CHAbilitySystemComponent.h"
 #include "Characters/CHAttributeSet.h"
 #include "Components/CharacterNamePlate.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/PawnMovementComponent.h"
 #include "MobaProject/MobaProject.h"
 #include "Widgets/Components/WNamePlate.h"
 DEFINE_LOG_CATEGORY(LogCHBase);
@@ -13,6 +15,7 @@ DEFINE_LOG_CATEGORY(LogCHBase);
 // Sets default values
 ACHBase::ACHBase()
 {
+	bReplicates = true;
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	AbilitySystemComponent = CreateDefaultSubobject<UCHAbilitySystemComponent>("AbilitySystemComponent");
@@ -37,7 +40,7 @@ FName ACHBase::GetEntityName()
 	return FName(TEXT("NotSet"));
 }
 
-int32 ACHBase::GetLevel()
+int32 ACHBase::GetCharacterLevel() const
 {
 	//by default return 1;
 	return 1;
@@ -59,7 +62,7 @@ void ACHBase::InitializeAttributes()
 	}
 
 	const FGameplayEffectContextHandle ContextHandle = AbilitySystemComponent->MakeEffectContext();
-	const FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(DefaultAttributeEffect, GetLevel(), ContextHandle);
+	const FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(DefaultAttributeEffect, GetCharacterLevel(), ContextHandle);
 
 	if (SpecHandle.IsValid())
 	{
@@ -113,7 +116,7 @@ void ACHBase::HandleDamage(float Damage, const FHitResult HitInfo, const FGamepl
 void ACHBase::HandleHealthChanged(float DeltaValue, const FGameplayTagContainer& EventTags)
 {
 	if (!HasAuthority()) return;
-	
+
 	if (Attributes->GetHealth() == 0.f)
 	{
 		Destroy();
@@ -140,6 +143,7 @@ UAbilitySystemComponent* ACHBase::GetAbilitySystemComponent() const
 void ACHBase::BeginPlay()
 {
 	Super::BeginPlay();
+
 	if (NamePlateComponent)
 	{
 		UWNamePlate* NamePlate = NamePlateComponent->GetNamePlateWidget();
@@ -147,7 +151,7 @@ void ACHBase::BeginPlay()
 		{
 			NamePlate->SetHealthPercentage(Attributes->GetHealthPercent());
 			NamePlate->SetManaPercentage(Attributes->GetManaPercent());
-			NamePlate->SetLevel(GetLevel());
+			NamePlate->SetLevel(GetCharacterLevel());
 			NamePlate->SetName(GetEntityName());
 		}
 	}

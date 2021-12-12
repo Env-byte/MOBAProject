@@ -21,6 +21,8 @@ class MOBAPROJECT_API ACHBase : public ACharacter, public IAbilitySystemInterfac
 	GENERATED_BODY()
 public:
 	ACHBase();
+
+	
 protected:
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
@@ -57,7 +59,8 @@ protected:
 	/**
 	 * Get this Characters level to know what attribute values to spawn it with
 	 */
-	virtual int32 GetLevel();
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	virtual int32 GetCharacterLevel() const;
 
 private:
 	/**
@@ -83,7 +86,7 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_OnHealthChanged(float DeltaValue, const struct FGameplayTagContainer& EventTags);
 	virtual void HandleDamage(float Damage, const FHitResult HitInfo, const FGameplayTagContainer& DamageTags, ACHBase* InstigatorCharacter, AActor* DamageCauser);
-	virtual void HandleHealthChanged(float DeltaValue, const struct FGameplayTagContainer& EventTags);
+	virtual void HandleHealthChanged(float DeltaValue, const struct FGameplayTagContainer& EventTags) ;
 	////////// Server only //////////
 
 	/**

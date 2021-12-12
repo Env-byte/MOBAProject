@@ -10,7 +10,7 @@
 // Sets default values for this component's properties
 UInventoryComponent::UInventoryComponent()
 {
-	SetIsReplicated(true);
+	SetIsReplicatedByDefault(true);
 }
 
 FItemAddResult UInventoryComponent::TryAddItem(UBaseItem* Item)

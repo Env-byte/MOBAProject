@@ -9,7 +9,7 @@
 /**
  * 
  */
-UCLASS(Abstract)
+UCLASS()
 class MOBAPROJECT_API APCAllMid : public APlayerController
 {
 	GENERATED_BODY()
@@ -26,12 +26,14 @@ protected:
 
 	/** Navigate player to the given world location. */
 	void SetNewMoveDestination(const FVector DestLocation);
+	UFUNCTION(Server, Unreliable)
+	void Server_SetNewMoveDestination(const FVector& DestLocation);
 
 	/** Input handlers for SetDestination action. */
 	void OnSetDestinationPressed();
 	void OnSetDestinationReleased();
 	////////// PLAYER MOVEMENT //////////
-	
+
 	////////// Scoreboard //////////
 	void OnScoreboardPressed();
 	void OnScoreboardReleased();
