@@ -40,7 +40,9 @@ protected:
 	////////// Scoreboard //////////
 
 	////////// Camera Zoom //////////
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Zoom")
 	float MinZoom = 700.f;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Zoom")
 	float MaxZoom = 1400.f;
 	void OnZoomInPressed();
 	void OnZoomOutPressed();
