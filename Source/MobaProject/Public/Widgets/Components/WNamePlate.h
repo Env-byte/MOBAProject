@@ -13,7 +13,14 @@ UCLASS(Abstract)
 class MOBAPROJECT_API UWNamePlate : public UUserWidget
 {
 	GENERATED_BODY()
+
 public:
+	UFUNCTION(BlueprintImplementableEvent)
+	void HideLevel();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void HideMana();
+
 	UFUNCTION(BlueprintImplementableEvent)
 	void SetHealthPercentage(const float Percent);
 

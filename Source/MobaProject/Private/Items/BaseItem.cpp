@@ -12,8 +12,8 @@ UBaseItem::UBaseItem()
 
 void UBaseItem::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
-	UObject::GetLifetimeReplicatedProps(OutLifetimeProps);
-	DOREPLIFETIME(UBaseItem, Quantity)
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(UBaseItem, Quantity);
 }
 
 bool UBaseItem::IsSupportedForNetworking() const
@@ -30,6 +30,10 @@ void UBaseItem::MarkDirtyForReplication()
 	}
 }
 
+void UBaseItem::AddedToInventory(UInventoryComponent* Inventory)
+{
+}
+
 void UBaseItem::SetQuantity(const int32 NewQuantity)
 {
 	if (NewQuantity != Quantity)
@@ -37,14 +41,6 @@ void UBaseItem::SetQuantity(const int32 NewQuantity)
 		Quantity = FMath::Clamp(NewQuantity, 0, bStackable ? MaxStackSize : 1);
 		MarkDirtyForReplication();
 	}
-}
-
-void UBaseItem::Use(ACHBase* Character)
-{
-}
-
-void UBaseItem::AddedToInventory(UInventoryComponent* Inventory)
-{
 }
 
 void UBaseItem::OnRep_Quantity()

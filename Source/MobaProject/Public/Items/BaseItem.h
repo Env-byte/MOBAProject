@@ -5,17 +5,15 @@
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
 #include "BaseItem.generated.h"
-
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnItemModified);
 
 class UInventoryComponent;
-class ACHBase;
 class UWItemTooltip;
 
 /**
  * 
  */
-UCLASS(Abstract)
+UCLASS(Blueprintable, BlueprintType)
 class MOBAPROJECT_API UBaseItem : public UObject
 {
 	GENERATED_BODY()
@@ -48,6 +46,14 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Item")
 	FText Description;
 
+	//The tooltip in the inventory for this item
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Item")
+	TSubclassOf<UWItemTooltip> ItemTooltip;
+
+	//The inventory that owns this item
+	UPROPERTY()
+	UInventoryComponent* OwningInventory;
+
 	//Whether this item can be stacked
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Item")
 	bool bStackable;
@@ -56,17 +62,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Item", meta=(ClampMin=2, EditCondition=bStackable))
 	int32 MaxStackSize;
 
-	//The tooltip in the inventory for this item
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Item")
-	TSubclassOf<UWItemTooltip> ItemTooltip;
-
-	//the quantity of this item
-	UPROPERTY(ReplicatedUsing=OnRep_Quantity, EditAnywhere, Category="Item", meta=(UIMin=1, EditCondition=bStackable))
-	int32 Quantity;
-
-	//The inventory that owns this item
-	UPROPERTY()
-	UInventoryComponent* OwningInventory;
+	virtual void AddedToInventory(UInventoryComponent* Inventory);
 
 	UPROPERTY(BlueprintAssignable)
 	FOnItemModified OnItemModified;
@@ -77,8 +73,10 @@ public:
 	UFUNCTION(BlueprintPure, Category="Item")
 	FORCEINLINE int32 GetQuantity() const { return Quantity; }
 
-	virtual void Use(ACHBase* Character);
-	virtual void AddedToInventory(UInventoryComponent* Inventory);
+protected:
+	//the quantity of this item
+	UPROPERTY(ReplicatedUsing=OnRep_Quantity, EditAnywhere, Category="Item", meta=(UIMin=1, EditCondition=bStackable))
+	int32 Quantity;
 
 	UFUNCTION()
 	void OnRep_Quantity();

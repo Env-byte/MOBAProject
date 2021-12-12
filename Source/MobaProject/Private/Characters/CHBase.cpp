@@ -140,19 +140,31 @@ UAbilitySystemComponent* ACHBase::GetAbilitySystemComponent() const
 	return AbilitySystemComponent;
 }
 
-void ACHBase::BeginPlay()
+void ACHBase::SetupNamePlateWidget()
 {
-	Super::BeginPlay();
-
 	if (NamePlateComponent)
 	{
 		UWNamePlate* NamePlate = NamePlateComponent->GetNamePlateWidget();
 		if (NamePlate)
 		{
 			NamePlate->SetHealthPercentage(Attributes->GetHealthPercent());
-			NamePlate->SetManaPercentage(Attributes->GetManaPercent());
 			NamePlate->SetLevel(GetCharacterLevel());
 			NamePlate->SetName(GetEntityName());
+
+			if (Attributes->GetMaxMana() == 0.f)
+			{
+				NamePlate->HideMana();
+			}
+			else
+			{
+				NamePlate->SetManaPercentage(Attributes->GetManaPercent());
+			}
 		}
 	}
+}
+
+void ACHBase::BeginPlay()
+{
+	Super::BeginPlay();
+	SetupNamePlateWidget();
 }

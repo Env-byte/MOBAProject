@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "Components/InventoryComponent.h"
@@ -13,25 +13,12 @@ UInventoryComponent::UInventoryComponent()
 	SetIsReplicatedByDefault(true);
 }
 
-FItemAddResult UInventoryComponent::TryAddItem(UBaseItem* Item)
-{
-	return TryAddItem_Internal(Item);
-}
 
 FItemAddResult UInventoryComponent::TryAddItemFromClass(TSubclassOf<UBaseItem> ItemClass, const int32 Quantity)
 {
 	UBaseItem* Item = NewObject<UBaseItem>(GetOwner(), ItemClass);
 	Item->SetQuantity(Quantity);
 	return TryAddItem_Internal(Item);
-}
-
-int32 UInventoryComponent::ConsumeItem(UBaseItem* Item)
-{
-	if (Item)
-	{
-		ConsumeItem(Item, Item->GetQuantity());
-	}
-	return 0;
 }
 
 int32 UInventoryComponent::ConsumeItem(UBaseItem* Item, const int32 Quantity)
@@ -51,7 +38,7 @@ int32 UInventoryComponent::ConsumeItem(UBaseItem* Item, const int32 Quantity)
 		}
 		else
 		{
-			ClientRefreshInventory();
+			Client_RefreshInventory();
 		}
 		return RemoveQuantity;
 	}
@@ -74,15 +61,6 @@ bool UInventoryComponent::RemoveItem(UBaseItem* Item)
 	return false;
 }
 
-bool UInventoryComponent::HasItem(const TSubclassOf<UBaseItem> ItemClass, const int32 Quantity) const
-{
-	if (const UBaseItem* ItemToFind = FindItemByClass(ItemClass))
-	{
-		return ItemToFind->GetQuantity() >= Quantity;
-	}
-	return false;
-}
-
 UBaseItem* UInventoryComponent::FindItem(UBaseItem* Item) const
 {
 	if (Item)
@@ -98,38 +76,13 @@ UBaseItem* UInventoryComponent::FindItem(UBaseItem* Item) const
 	return nullptr;
 }
 
-UBaseItem* UInventoryComponent::FindItemByClass(const TSubclassOf<UBaseItem> ItemClass) const
-{
-	for (auto& InvItem : Items)
-	{
-		if (InvItem && InvItem->GetClass() == ItemClass)
-		{
-			return InvItem;
-		}
-	}
-	return nullptr;
-}
-
-TArray<UBaseItem*> UInventoryComponent::FindItemsByClass(const TSubclassOf<UBaseItem> ItemClass) const
-{
-	TArray<UBaseItem*> ItemsOfClass;
-	for (auto& InvItem : Items)
-	{
-		if (InvItem && InvItem->GetClass()->IsChildOf(ItemClass))
-		{
-			ItemsOfClass.Add(InvItem);
-		}
-	}
-	return ItemsOfClass;
-}
-
 void UInventoryComponent::SetCapacity(const int32 NewCapacity)
 {
 	Capacity = NewCapacity;
 	OnInventoryUpdated.Broadcast();
 }
 
-void UInventoryComponent::ClientRefreshInventory_Implementation()
+void UInventoryComponent::Client_RefreshInventory_Implementation()
 {
 	OnInventoryUpdated.Broadcast();
 }
@@ -174,6 +127,9 @@ FItemAddResult UInventoryComponent::TryAddItem_Internal(UBaseItem* Item)
 			return FItemAddResult::AddedNone(AddAmount, Error);
 		}
 
+
+		//todo rewrite this using guard statements rather than nested ifs
+		
 		//if the item is stackable, check if we already have it and add it to their stack
 		if (Item->bStackable)
 		{
@@ -188,8 +144,8 @@ FItemAddResult UInventoryComponent::TryAddItem_Internal(UBaseItem* Item)
 					int32 ActualAddAmount = FMath::Min(AddAmount, CapacityMaxAddAmount);
 					FText ErrorText = LOCTEXT("InventoryErrorText", "Could not add all of the items to your Inventory.");
 
-				
-					 if (ActualAddAmount < AddAmount)
+
+					if (ActualAddAmount < AddAmount)
 					{
 						//if the item weighs none and we cant take it, then there was a capacity issue (not enough inventory slots)
 						ErrorText = FText::Format(LOCTEXT("InventoryCapacityFullText",

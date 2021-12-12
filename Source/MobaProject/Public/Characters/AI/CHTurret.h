@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Characters/CHBase.h"
+#include "CHNonPlayable.h"
 #include "CHTurret.generated.h"
 
 /**
  * 
  */
 UCLASS(Blueprintable)
-class MOBAPROJECT_API ACHTurret : public ACHBase
+class MOBAPROJECT_API ACHTurret : public ACHNonPlayable
 {
 	GENERATED_BODY()
 	

@@ -47,11 +47,11 @@ void UCHAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, fl
 	//if max health changes or max mana scale current health up/down
 	if (Attribute == GetMaxHealthAttribute())
 	{
-		//AdjustAttributeForMaxChange(Health, MaxHealth, NewValue, GetHealthAttribute());
+		AdjustAttributeForMaxChange(Health, MaxHealth, NewValue, GetHealthAttribute());
 	}
 	if (Attribute == GetManaAttribute())
 	{
-		//AdjustAttributeForMaxChange(Mana, MaxMana, NewValue, GetManaAttribute());
+		AdjustAttributeForMaxChange(Mana, MaxMana, NewValue, GetManaAttribute());
 	}
 }
 
@@ -100,8 +100,9 @@ void UCHAttributeSet::AdjustAttributeForMaxChange(const FGameplayAttributeData& 
 	const float CurrentMaxValue = MaxAttribute.GetCurrentValue();
 	if (!FMath::IsNearlyEqual(CurrentMaxValue, NewMaxValue) && AbilitySystemComponent)
 	{
+		const float Difference = NewMaxValue - CurrentMaxValue;
 		const float CurrentValue = AffectedAttribute.GetCurrentValue();
-		const float NewDelta = CurrentMaxValue > 0.f ? CurrentValue * NewMaxValue / CurrentMaxValue - CurrentValue : NewMaxValue;
+		const float NewDelta = Difference +  CurrentValue;
 		AbilitySystemComponent->ApplyModToAttributeUnsafe(AffectedAttributeProperty, EGameplayModOp::Additive, NewDelta);
 	}
 }

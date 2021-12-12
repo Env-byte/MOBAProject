@@ -3,3 +3,10 @@
 
 #include "Framework/AllMid/PSAllMid.h"
 
+#include "Components/InventoryComponent.h"
+
+APSAllMid::APSAllMid()
+{
+	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>("InventoryComponent");
+	InventoryComponent->SetCapacity(6);
+}

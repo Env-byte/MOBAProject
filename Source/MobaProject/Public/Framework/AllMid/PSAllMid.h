@@ -6,6 +6,7 @@
 #include "GameFramework/PlayerState.h"
 #include "PSAllMid.generated.h"
 
+class UInventoryComponent;
 /**
  * 
  */
@@ -13,5 +14,10 @@ UCLASS(Abstract)
 class MOBAPROJECT_API APSAllMid : public APlayerState
 {
 	GENERATED_BODY()
-	
+
+public:
+	APSAllMid();
+
+	UPROPERTY(BlueprintReadOnly)
+	UInventoryComponent* InventoryComponent;
 };

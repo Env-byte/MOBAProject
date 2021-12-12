@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -95,50 +95,26 @@ public:
 	UInventoryComponent();
 
 	/**
-	 * Add an item to the inventory.
-	 */
-	UFUNCTION(BlueprintCallable, Category="Inventory")
-	FItemAddResult TryAddItem(UBaseItem* Item);
-
-	/**
 	* Add an item to the inventory using the item class instead of an item instance.
 	*/
 	UFUNCTION(BlueprintCallable, Category="Inventory")
 	FItemAddResult TryAddItemFromClass(TSubclassOf<UBaseItem> ItemClass, const int32 Quantity);
 
 	/**
-	 * Take some quantity away from the item, and remove it from inventory when it reaches 0.
-	 * Useful for ammo, food
+	 * Take some quantity away from the item
 	 */
-	int32 ConsumeItem(UBaseItem* Item);
-	int32 ConsumeItem(UBaseItem* Item, const int32 Quantity);
+	UFUNCTION(BlueprintCallable, Category="Inventory")
+	int32 ConsumeItem(UBaseItem* Item, int32 Quantity);
 
 	//Remove the item from inventory
 	UFUNCTION(BlueprintCallable, Category="Inventory")
 	bool RemoveItem(UBaseItem* Item);
 
-	//Return true if we have the given amount of the item
-	UFUNCTION(BlueprintPure, Category="Inventory")
-	bool HasItem(TSubclassOf<UBaseItem> ItemClass, const int32 Quantity = 1) const;
-
-	//Return the first item with the same class as a given item
-	UFUNCTION(BlueprintPure, Category="Inventory")
+	UFUNCTION(BlueprintCallable, Category="Inventory")
 	UBaseItem* FindItem(UBaseItem* Item) const;
-
-	//Return the first item with the same class as ItemClass
-	UFUNCTION(BlueprintPure, Category="Inventory")
-	UBaseItem* FindItemByClass(TSubclassOf<UBaseItem> ItemClass) const;
-
-	//Get all inventory item that are a child of ItemClass
-	UFUNCTION(BlueprintPure, Category="Inventory")
-	TArray<UBaseItem*> FindItemsByClass(TSubclassOf<UBaseItem> ItemClass) const;
-
+	
 	UFUNCTION(BlueprintCallable, Category="Inventory")
 	void SetCapacity(const int32 NewCapacity);
-
-	//blueprint pure as no values are getting set so execution order does not matter
-	UFUNCTION(BlueprintPure, Category="Inventory")
-	FORCEINLINE float GetWeightCapacity() const { return WeightCapacity; }
 
 	UFUNCTION(BlueprintPure, Category="Inventory")
 	FORCEINLINE int32 GetCapacity() const { return Capacity; }
@@ -147,20 +123,16 @@ public:
 	FORCEINLINE TArray<UBaseItem*> GetItems() const { return Items; }
 
 	UFUNCTION(Client, Reliable)
-	void ClientRefreshInventory();
+	void Client_RefreshInventory();
 
 	UPROPERTY(BlueprintAssignable, Category="Inventory")
 	FOnInventoryUpdated OnInventoryUpdated;
 protected:
-	//The maximum weight the inventory can hold. For Players, backpacks and other items increase this limit
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Inventory")
-	float WeightCapacity;
-
 	//The maximum number of items the inventory can hold. For Players, backpacks and other items increase this limit
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Inventory", meta=(ClampMin=0, ClampMax=200))
 	int32 Capacity;
 
-	UPROPERTY(ReplicatedUsing= OnRep_Items, VisibleAnywhere, Category="Inventory")
+	UPROPERTY(ReplicatedUsing=OnRep_Items, VisibleAnywhere, Category="Inventory")
 	TArray<UBaseItem*> Items;
 private:
 	UFUNCTION()

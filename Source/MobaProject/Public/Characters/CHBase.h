@@ -22,7 +22,7 @@ class MOBAPROJECT_API ACHBase : public ACharacter, public IAbilitySystemInterfac
 public:
 	ACHBase();
 
-	
+
 protected:
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
@@ -86,7 +86,7 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_OnHealthChanged(float DeltaValue, const struct FGameplayTagContainer& EventTags);
 	virtual void HandleDamage(float Damage, const FHitResult HitInfo, const FGameplayTagContainer& DamageTags, ACHBase* InstigatorCharacter, AActor* DamageCauser);
-	virtual void HandleHealthChanged(float DeltaValue, const struct FGameplayTagContainer& EventTags) ;
+	virtual void HandleHealthChanged(float DeltaValue, const struct FGameplayTagContainer& EventTags);
 	////////// Server only //////////
 
 	/**
@@ -99,6 +99,9 @@ public:
 	FORCEINLINE UCHAttributeSet* GetAttributeSet() const { return Attributes; }
 	FORCEINLINE UCharacterNamePlate* GetNamePlateComponent() const { return NamePlateComponent; }
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+protected:
+	virtual void SetupNamePlateWidget();
+
 	////////// Ability System //////////
 
 	virtual void BeginPlay() override;

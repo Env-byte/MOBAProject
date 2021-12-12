@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Characters/CHBase.h"
+#include "CHNonPlayable.h"
 #include "CHMinion.generated.h"
 
 /**
  * 
  */
 UCLASS(Blueprintable)
-class MOBAPROJECT_API ACHMinion : public ACHBase
+class MOBAPROJECT_API ACHMinion : public ACHNonPlayable
 {
 	GENERATED_BODY()
 	
