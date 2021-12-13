@@ -4,6 +4,21 @@
 #include "Framework/AllMid/PSAllMid.h"
 
 #include "Components/InventoryComponent.h"
+#include "Framework/AllMid/PCAllMid.h"
+
+void APSAllMid::BeginPlay()
+{
+	Super::BeginPlay();
+	
+	APCAllMid* PC = GetOwner<APCAllMid>();
+	if (PC)
+	{
+		if (PC->IsLocalController())
+		{
+			PC->PlayerStateReady(this);
+		}
+	}
+}
 
 APSAllMid::APSAllMid()
 {

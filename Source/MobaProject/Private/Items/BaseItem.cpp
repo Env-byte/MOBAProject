@@ -18,7 +18,7 @@ void UBaseItem::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetim
 
 bool UBaseItem::IsSupportedForNetworking() const
 {
-	return UObject::IsSupportedForNetworking();
+	return true;
 }
 
 void UBaseItem::MarkDirtyForReplication()

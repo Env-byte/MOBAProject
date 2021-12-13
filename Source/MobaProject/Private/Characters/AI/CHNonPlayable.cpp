@@ -10,6 +10,7 @@ void ACHNonPlayable::SetupNamePlateWidget()
 		UWNamePlate* NamePlate = NamePlateComponent->GetNamePlateWidget();
 		if (NamePlate)
 		{
+			NamePlate->HideMana();
 			NamePlate->HideLevel();
 		}
 	}

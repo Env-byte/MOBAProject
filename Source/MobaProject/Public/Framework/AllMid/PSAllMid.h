@@ -15,6 +15,8 @@ class MOBAPROJECT_API APSAllMid : public APlayerState
 {
 	GENERATED_BODY()
 
+	virtual void BeginPlay() override;
+	
 public:
 	APSAllMid();
 

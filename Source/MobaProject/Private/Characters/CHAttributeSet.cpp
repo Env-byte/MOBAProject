@@ -39,6 +39,7 @@ void UCHAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 	DOREPLIFETIME_CONDITION_NOTIFY(UCHAttributeSet, AttackSpeed, COND_None, REPNOTIFY_Always)
 	DOREPLIFETIME_CONDITION_NOTIFY(UCHAttributeSet, AttackRange, COND_None, REPNOTIFY_Always)
 	DOREPLIFETIME_CONDITION_NOTIFY(UCHAttributeSet, Armour, COND_None, REPNOTIFY_Always)
+	DOREPLIFETIME_CONDITION_NOTIFY(UCHAttributeSet, Gold, COND_None, REPNOTIFY_Always)
 }
 
 void UCHAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
@@ -102,7 +103,7 @@ void UCHAttributeSet::AdjustAttributeForMaxChange(const FGameplayAttributeData& 
 	{
 		const float Difference = NewMaxValue - CurrentMaxValue;
 		const float CurrentValue = AffectedAttribute.GetCurrentValue();
-		const float NewDelta = Difference +  CurrentValue;
+		const float NewDelta = Difference + CurrentValue;
 		AbilitySystemComponent->ApplyModToAttributeUnsafe(AffectedAttributeProperty, EGameplayModOp::Additive, NewDelta);
 	}
 }
@@ -212,5 +213,15 @@ void UCHAttributeSet::On_RepAttackRange(const FGameplayAttributeData& OldAttackR
 	if (BaseCharacter)
 	{
 		BaseCharacter->OnRep_Attribute(GetAttackSpeedAttribute(), OldAttackRange, AttackRange);
+	}
+}
+
+void UCHAttributeSet::On_RepGold(const FGameplayAttributeData& OldGold)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UCHAttributeSet, Gold, OldGold)
+	ACHBase* BaseCharacter = GetOwningActor();
+	if (BaseCharacter)
+	{
+		BaseCharacter->OnRep_Attribute(GetGoldAttribute(), OldGold, Gold);
 	}
 }

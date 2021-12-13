@@ -15,13 +15,9 @@ UCLASS(Abstract)
 class MOBAPROJECT_API UWPlayerHud : public UUserWidget
 {
 	GENERATED_BODY()
-
 public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_SetCharacterStats(UCHAttributeSet* AttributeSet);
-
-	UFUNCTION(BlueprintImplementableEvent)
-	void BP_SetItems(const TArray<UBaseItem*>& Items);
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_SetHealth(const float Health, const float MaxHealth);
@@ -31,4 +27,10 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_SetLevel(const int32 Level);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_SetGold(const float InGold);
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void BP_SetInventory(const TArray<UBaseItem*>& Items);
 };

@@ -5,7 +5,9 @@
 #include "CoreMinimal.h"
 #include "Characters/CHBase.h"
 #include "CHPlayable.generated.h"
+DECLARE_LOG_CATEGORY_EXTERN(LogCHPlayable, Log, All);
 
+class UBaseItem;
 class UCHGameplayAbility;
 /**
  * 
@@ -46,7 +48,14 @@ private:
 
 
 protected:
+	virtual void BeginPlay() override;
 	////////// Ability System //////////
+
+	/**
+	 *
+	 */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Gold")
+	TSubclassOf<UGameplayEffect> PassiveGold;
 
 	/**
 	 *
@@ -105,4 +114,11 @@ public:
 	UFUNCTION(Client, Unreliable)
 	virtual void Client_HandleHealthChanged(float DeltaValue, const FGameplayTagContainer& EventTags);
 	////////// Ability System //////////
+
+	////////// Items //////////
+	UFUNCTION(BlueprintCallable, Category="Items")
+	void BuyItem(TSubclassOf<UBaseItem> Item);
+
+	UFUNCTION(Server, Reliable)
+	void Server_BuyItem(TSubclassOf<UBaseItem> Item);
 };

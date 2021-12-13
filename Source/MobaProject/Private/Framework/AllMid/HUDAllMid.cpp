@@ -4,6 +4,8 @@
 #include "Framework/AllMid/HUDAllMid.h"
 
 #include "Blueprint/UserWidget.h"
+#include "Components/InventoryComponent.h"
+#include "Framework/AllMid/PSAllMid.h"
 #include "Widgets/AllMid/WGameScoreboard.h"
 #include "Widgets/AllMid/WPlayerHud.h"
 
@@ -14,7 +16,7 @@ AHUDAllMid::AHUDAllMid()
 void AHUDAllMid::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	if (GameScoreboardClass)
 	{
 		GameScoreboard = CreateWidget<UWGameScoreboard>(GetOwningPlayerController(), GameScoreboardClass, FName(TEXT("GameScoreboard")));
@@ -27,6 +29,7 @@ void AHUDAllMid::BeginPlay()
 		PlayerHud->AddToViewport(0);
 	}
 }
+
 
 void AHUDAllMid::ShowScoreboard()
 {

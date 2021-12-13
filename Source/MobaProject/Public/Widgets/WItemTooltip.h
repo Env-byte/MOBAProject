@@ -6,7 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "WItemTooltip.generated.h"
 
-class UWInventoryItemWidget;
+class UWItem;
 
 /**
  * 
@@ -18,5 +18,5 @@ class MOBAPROJECT_API UWItemTooltip : public UUserWidget
 
 public:
 	UPROPERTY(BlueprintReadOnly, Category="Tooltip", meta=(ExposeOnSpawn = true))
-	UWInventoryItemWidget* ItemWidget;
+	UWItem* ItemWidget;
 };

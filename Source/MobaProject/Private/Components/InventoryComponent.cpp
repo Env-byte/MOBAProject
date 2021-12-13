@@ -13,6 +13,11 @@ UInventoryComponent::UInventoryComponent()
 	SetIsReplicatedByDefault(true);
 }
 
+FItemAddResult UInventoryComponent::TryAddItem(UBaseItem* Item)
+{
+	return TryAddItem_Internal(Item);
+}
+
 
 FItemAddResult UInventoryComponent::TryAddItemFromClass(TSubclassOf<UBaseItem> ItemClass, const int32 Quantity)
 {
@@ -79,12 +84,12 @@ UBaseItem* UInventoryComponent::FindItem(UBaseItem* Item) const
 void UInventoryComponent::SetCapacity(const int32 NewCapacity)
 {
 	Capacity = NewCapacity;
-	OnInventoryUpdated.Broadcast();
+	OnInventoryUpdated.Broadcast(Items);
 }
 
 void UInventoryComponent::Client_RefreshInventory_Implementation()
 {
-	OnInventoryUpdated.Broadcast();
+	OnInventoryUpdated.Broadcast(Items);
 }
 
 void UInventoryComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -113,7 +118,8 @@ bool UInventoryComponent::ReplicateSubobjects(UActorChannel* Channel, FOutBunch*
 
 void UInventoryComponent::OnRep_Items()
 {
-	OnInventoryUpdated.Broadcast();
+	UE_LOG(LogTemp, Display, TEXT("OnRep_Items"))
+	OnInventoryUpdated.Broadcast(Items);
 }
 
 FItemAddResult UInventoryComponent::TryAddItem_Internal(UBaseItem* Item)
@@ -127,57 +133,55 @@ FItemAddResult UInventoryComponent::TryAddItem_Internal(UBaseItem* Item)
 			return FItemAddResult::AddedNone(AddAmount, Error);
 		}
 
-
-		//todo rewrite this using guard statements rather than nested ifs
-		
-		//if the item is stackable, check if we already have it and add it to their stack
-		if (Item->bStackable)
+		//if the item is not stackable, add one of it
+		if (!Item->bStackable)
 		{
-			//somehow the items quantity went over the max stack size. this should never happen
-			ensure(Item->GetQuantity() <= Item->MaxStackSize);
-
-			if (UBaseItem* ExistingItem = FindItem(Item))
-			{
-				if (ExistingItem->GetQuantity() < ExistingItem->MaxStackSize)
-				{
-					const int32 CapacityMaxAddAmount = ExistingItem->MaxStackSize - ExistingItem->GetQuantity();
-					int32 ActualAddAmount = FMath::Min(AddAmount, CapacityMaxAddAmount);
-					FText ErrorText = LOCTEXT("InventoryErrorText", "Could not add all of the items to your Inventory.");
-
-
-					if (ActualAddAmount < AddAmount)
-					{
-						//if the item weighs none and we cant take it, then there was a capacity issue (not enough inventory slots)
-						ErrorText = FText::Format(LOCTEXT("InventoryCapacityFullText",
-						                                  "Could not add entire stack of {ItemName} to Inventory. Inventory was full"), Item->DisplayName);
-					}
-
-					if (ActualAddAmount <= 0)
-					{
-						return FItemAddResult::AddedNone(AddAmount,LOCTEXT("InventoryErrorText", "Could not add item to Inventory."));
-					}
-
-					ExistingItem->SetQuantity(ExistingItem->GetQuantity() + ActualAddAmount);
-
-					//if we somehow get more of the item than the max stack size then something is wrong with our math
-					ensure(ExistingItem->GetQuantity() <= ExistingItem->MaxStackSize);
-
-					if (ActualAddAmount < AddAmount)
-					{
-						return FItemAddResult::AddedSome(AddAmount, ActualAddAmount, ErrorText);
-					}
-					else
-					{
-						return FItemAddResult::AddedAll(AddAmount);
-					}
-				}
-				return FItemAddResult::AddedNone(AddAmount, FText::Format(LOCTEXT("InventoryFullStackText", "Could not add {ItemName}. You already have a full stack of this item"), Item->DisplayName));
-			}
+			ensure(Item->GetQuantity() == 1);
 			AddItem(Item);
 			return FItemAddResult::AddedAll(AddAmount);
 		}
-		ensure(Item->GetQuantity() == 1);
-		AddItem(Item);
+
+		//somehow the items quantity went over the max stack size. this should never happen
+		ensure(Item->GetQuantity() <= Item->MaxStackSize);
+
+		UBaseItem* ExistingItem = FindItem(Item);
+		if (!ExistingItem)
+		{
+			AddItem(Item);
+			return FItemAddResult::AddedAll(AddAmount);
+		}
+
+		if (!(ExistingItem->GetQuantity() < ExistingItem->MaxStackSize))
+		{
+			return FItemAddResult::AddedNone(AddAmount, FText::Format(LOCTEXT("InventoryFullStackText", "Could not add {ItemName}. You already have a full stack of this item"), Item->DisplayName));
+		}
+
+		const int32 CapacityMaxAddAmount = ExistingItem->MaxStackSize - ExistingItem->GetQuantity();
+		const int32 ActualAddAmount = FMath::Min(AddAmount, CapacityMaxAddAmount);
+		FText ErrorText = LOCTEXT("InventoryErrorText", "Could not add all of the items to your Inventory.");
+
+		if (ActualAddAmount < AddAmount)
+		{
+			//if the item weighs none and we cant take it, then there was a capacity issue (not enough inventory slots)
+			ErrorText = FText::Format(LOCTEXT("InventoryCapacityFullText",
+			                                  "Could not add entire stack of {ItemName} to Inventory. Inventory was full"), Item->DisplayName);
+		}
+
+		if (ActualAddAmount <= 0)
+		{
+			return FItemAddResult::AddedNone(AddAmount,LOCTEXT("InventoryErrorText", "Could not add item to Inventory."));
+		}
+
+		ExistingItem->SetQuantity(ExistingItem->GetQuantity() + ActualAddAmount);
+
+		//if we somehow get more of the item than the max stack size then something is wrong with our math
+		ensure(ExistingItem->GetQuantity() <= ExistingItem->MaxStackSize);
+
+		if (ActualAddAmount < AddAmount)
+		{
+			return FItemAddResult::AddedSome(AddAmount, ActualAddAmount, ErrorText);
+		}
+
 		return FItemAddResult::AddedAll(AddAmount);
 	}
 
@@ -199,7 +203,7 @@ UBaseItem* UInventoryComponent::AddItem(UBaseItem* Item)
 
 		// tell item to get replicated
 		NewItem->MarkDirtyForReplication();
-
+		//Client_RefreshInventory();
 		return NewItem;
 	}
 	return nullptr;

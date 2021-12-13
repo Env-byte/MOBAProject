@@ -75,6 +75,10 @@ public:
 	FGameplayAttributeData AttackRange;
 	ATTRIBUTE_ACCESSORS(UCHAttributeSet, AttackRange)
 
+	UPROPERTY(BlueprintReadOnly, Category="Attributes", ReplicatedUsing=On_RepGold)
+	FGameplayAttributeData Gold;
+	ATTRIBUTE_ACCESSORS(UCHAttributeSet, Gold)
+
 	float GetHealthPercent() const;
 	float GetManaPercent() const;
 
@@ -105,4 +109,7 @@ protected:
 
 	UFUNCTION()
 	virtual void On_RepAttackRange(const FGameplayAttributeData& OldAttackRange);
+
+	UFUNCTION()
+	virtual void On_RepGold(const FGameplayAttributeData& OldGold);
 };

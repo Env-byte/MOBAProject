@@ -6,7 +6,8 @@
 #include "Components/ActorComponent.h"
 #include "InventoryComponent.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInventoryUpdated);
+class UBaseItem;
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnInventoryUpdated, const TArray<UBaseItem*>&, Items);
 
 UENUM(BlueprintType)
 enum class EItemAddResult : uint8
@@ -76,14 +77,22 @@ public:
 		AddAllResult.Result = EItemAddResult::IAR_AllItemsAdded;
 		return AddAllResult;
 	}
+
+	FString ToString() const
+	{
+		const FString ResultText = UEnum::GetDisplayValueAsText(Result).ToString();
+		if (Result == EItemAddResult::IAR_AllItemsAdded)
+		{
+			return FString::Printf(TEXT("Result: %s. AmountToGive: %d. ActualAmountGiven: %d"), *ResultText, AmountToGive, ActualAmountGiven);
+		}
+		return FString::Printf(TEXT("Result: %s. Error:%s. AmountToGive: %d. ActualAmountGiven: %d"), *ResultText, *ErrorText.ToString(), AmountToGive, ActualAmountGiven);
+	}
 };
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class MOBAPROJECT_API UInventoryComponent : public UActorComponent
 {
 	GENERATED_BODY()
-
-	friend class UBaseItem;
 
 protected:
 	////////// Basic Networking //////////
@@ -93,6 +102,12 @@ protected:
 public:
 	// Sets default values for this component's properties
 	UInventoryComponent();
+
+	/**
+	* Add an item to the inventory.
+	*/
+	UFUNCTION(BlueprintCallable, Category="Inventory")
+	FItemAddResult TryAddItem(UBaseItem* Item);
 
 	/**
 	* Add an item to the inventory using the item class instead of an item instance.
@@ -112,7 +127,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category="Inventory")
 	UBaseItem* FindItem(UBaseItem* Item) const;
-	
+
 	UFUNCTION(BlueprintCallable, Category="Inventory")
 	void SetCapacity(const int32 NewCapacity);
 
@@ -127,6 +142,12 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category="Inventory")
 	FOnInventoryUpdated OnInventoryUpdated;
+
+	//Dont Call Items.Add() directly, use this function instead, as it handles replication and ownership
+	UBaseItem* AddItem(UBaseItem* Item);
+
+	UPROPERTY()
+	int32 ReplicatedItemsKey;
 protected:
 	//The maximum number of items the inventory can hold. For Players, backpacks and other items increase this limit
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Inventory", meta=(ClampMin=0, ClampMax=200))
@@ -137,12 +158,6 @@ protected:
 private:
 	UFUNCTION()
 	void OnRep_Items();
-
-	UPROPERTY()
-	int32 ReplicatedItemsKey;
-
+	
 	FItemAddResult TryAddItem_Internal(UBaseItem* Item);
-
-	//Dont Call Items.Add() directly, use this function instead, as it handles replication and ownership
-	UBaseItem* AddItem(UBaseItem* Item);
 };

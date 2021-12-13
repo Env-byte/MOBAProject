@@ -6,6 +6,7 @@
 #include "GameFramework/HUD.h"
 #include "HUDAllMid.generated.h"
 
+class UBaseItem;
 class UWPlayerHud;
 class UWGameScoreboard;
 /**

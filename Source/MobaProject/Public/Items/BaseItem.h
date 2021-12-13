@@ -46,6 +46,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Item")
 	FText Description;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Item")
+	int32 ItemCost = 0;
+
 	//The tooltip in the inventory for this item
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Item")
 	TSubclassOf<UWItemTooltip> ItemTooltip;

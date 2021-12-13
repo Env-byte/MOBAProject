@@ -4,8 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
+#include "Items/BaseItem.h"
 #include "PCAllMid.generated.h"
 
+class APSAllMid;
+class UInventoryComponent;
 /**
  * 
  */
@@ -13,9 +16,17 @@ UCLASS()
 class MOBAPROJECT_API APCAllMid : public APlayerController
 {
 	GENERATED_BODY()
-
+public:
 	APCAllMid();
+	
+	/**
+	 * Called straight after player state begin play. Only called for local player controllers
+	 */
+	void PlayerStateReady(APSAllMid* PS);
 protected:
+	UFUNCTION()
+	void OnPlayerInventoryUpdated(const TArray<UBaseItem*>& Items);
+
 	virtual void SetupInputComponent() override;
 
 	////////// PLAYER MOVEMENT //////////
@@ -46,4 +57,5 @@ protected:
 	float MaxZoom = 1400.f;
 	void OnZoomInPressed();
 	void OnZoomOutPressed();
+	////////// Camera Zoom //////////
 };

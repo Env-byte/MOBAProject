@@ -4,14 +4,34 @@
 #include "Framework/AllMid/PCAllMid.h"
 #include "Blueprint/AIBlueprintHelperLibrary.h"
 #include "Characters/Playable/CHPlayable.h"
+#include "Components/InventoryComponent.h"
 #include "Framework/AllMid/HUDAllMid.h"
+#include "Framework/AllMid/PSAllMid.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Widgets/AllMid/WPlayerHud.h"
+
+
 
 APCAllMid::APCAllMid()
 {
 	bShowMouseCursor = true;
 	bMoveToMouseCursor = false;
 	DefaultMouseCursor = EMouseCursor::Crosshairs;
+}
+
+void APCAllMid::PlayerStateReady(APSAllMid* PS)
+{
+	PS->InventoryComponent->OnInventoryUpdated.AddDynamic(this, &APCAllMid::OnPlayerInventoryUpdated);
+}
+
+void APCAllMid::OnPlayerInventoryUpdated(const TArray<UBaseItem*>& Items)
+{
+	UE_LOG(LogTemp, Display, TEXT("OnPlayerInventoryUpdated"))
+	AHUDAllMid* HUD = GetHUD<AHUDAllMid>();
+	if (HUD)
+	{
+		HUD->GetPlayerHudWidget()->BP_SetInventory(Items);
+	}
 }
 
 void APCAllMid::PlayerTick(float DeltaTime)

@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "WItemsShop.generated.h"
 
+class UBaseItem;
 /**
  * 
  */
@@ -13,5 +14,7 @@ UCLASS()
 class MOBAPROJECT_API UWItemsShop : public UUserWidget
 {
 	GENERATED_BODY()
-	
+public:
+	UFUNCTION(BlueprintImplementableEvent)
+	void InitShop(const TArray<TSubclassOf<UBaseItem>>& ItemClasses);
 };

@@ -150,15 +150,7 @@ void ACHBase::SetupNamePlateWidget()
 			NamePlate->SetHealthPercentage(Attributes->GetHealthPercent());
 			NamePlate->SetLevel(GetCharacterLevel());
 			NamePlate->SetName(GetEntityName());
-
-			if (Attributes->GetMaxMana() == 0.f)
-			{
-				NamePlate->HideMana();
-			}
-			else
-			{
-				NamePlate->SetManaPercentage(Attributes->GetManaPercent());
-			}
+			NamePlate->SetManaPercentage(Attributes->GetManaPercent());
 		}
 	}
 }
