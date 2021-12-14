@@ -125,13 +125,16 @@ void ACHBase::HandleHealthChanged(float DeltaValue, const FGameplayTagContainer&
 
 void ACHBase::OnRep_Attribute(const FGameplayAttribute& Attribute, const FGameplayAttributeData& OldValue, const FGameplayAttributeData& NewValue)
 {
-	if (Attribute.GetName().Equals("Health") || Attribute.GetName().Equals("MaxHealth"))
+	UWNamePlate* NamePlate = NamePlateComponent->GetNamePlateWidget();
+	if (!NamePlate) { return; }
+
+	if (Attribute == Attributes->GetMaxHealthAttribute() || Attribute == Attributes->GetHealthAttribute())
 	{
-		UWNamePlate* NamePlate = NamePlateComponent->GetNamePlateWidget();
-		if (NamePlate)
-		{
-			NamePlate->SetHealthPercentage(Attributes->GetHealthPercent());
-		}
+		NamePlate->SetHealthPercentage(Attributes->GetHealthPercent());
+	}
+	else if (Attribute == Attributes->GetManaAttribute() || Attribute == Attributes->GetMaxManaAttribute())
+	{
+		NamePlate->SetManaPercentage(Attributes->GetManaPercent());
 	}
 }
 

@@ -205,7 +205,7 @@ void ACHPlayable::BuyItem(TSubclassOf<UBaseItem> Item)
 
 	const APSAllMid* PS = GetPlayerState<APSAllMid>();
 	const FItemAddResult AddResult = PS->InventoryComponent->TryAddItemFromClass(Item, 1);
-
+	Attributes->SetGold(Attributes->GetGold() - ItemToBuy->ItemCost);
 	UE_LOG(LogCHPlayable, Display, TEXT("AddResult: %s"), *AddResult.ToString());
 }
 

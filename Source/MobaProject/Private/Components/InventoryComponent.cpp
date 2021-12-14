@@ -118,7 +118,6 @@ bool UInventoryComponent::ReplicateSubobjects(UActorChannel* Channel, FOutBunch*
 
 void UInventoryComponent::OnRep_Items()
 {
-	UE_LOG(LogTemp, Display, TEXT("OnRep_Items"))
 	OnInventoryUpdated.Broadcast(Items);
 }
 
