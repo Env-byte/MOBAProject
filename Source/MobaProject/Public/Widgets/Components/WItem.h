@@ -14,7 +14,19 @@ class MOBAPROJECT_API UWItem : public UUserWidget
 {
 	GENERATED_BODY()
 
-public:
+protected:
 	UPROPERTY(BlueprintReadOnly, Category="Inventory Item Widget", meta=(ExposeOnSpawn=true))
 	UBaseItem* Item;
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_OnItemChange();
+public:
+	/**
+	 * Set a new item
+	 */
+	UFUNCTION(BlueprintCallable)
+	void SetItem(UBaseItem* InItem);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	FORCEINLINE UBaseItem* GetItem() const { return Item; };
 };

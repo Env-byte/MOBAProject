@@ -2,3 +2,9 @@
 
 
 #include "Widgets/Components/WItem.h"
+
+void UWItem::SetItem(UBaseItem* InItem)
+{
+	Item = InItem;
+	BP_OnItemChange();
+}
