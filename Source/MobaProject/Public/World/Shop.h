@@ -7,6 +7,7 @@
 #include "Widgets/World/WItemsShop.h"
 #include "Shop.generated.h"
 
+class APCAllMid;
 class USphereComponent;
 class UBaseItem;
 class UInventoryComponent;
@@ -21,15 +22,6 @@ public:
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category="Shop")
-	TArray<TSubclassOf<UBaseItem>> ItemsInShop;
-
-	UPROPERTY(EditDefaultsOnly, Category="Shop")
-	TSubclassOf<UWItemsShop> ShopWidgetClass;
-
-	UPROPERTY(BlueprintReadOnly, Category="Shop")
-	UWItemsShop* ShopWidget;
-
-	UPROPERTY(EditDefaultsOnly, Category="Shop")
 	UStaticMeshComponent* ShopMesh;
 
 	/**
@@ -37,9 +29,6 @@ protected:
 	 */
 	UPROPERTY(EditDefaultsOnly, Category="Shop")
 	USphereComponent* ShopRadius;
-
-	UFUNCTION(BlueprintCallable)
-	void ShowShop();
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

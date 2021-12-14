@@ -5,6 +5,7 @@
 
 #include "Blueprint/UserWidget.h"
 #include "Components/SphereComponent.h"
+#include "Framework/AllMid/PCAllMid.h"
 
 // Sets default values
 AShop::AShop()
@@ -18,22 +19,8 @@ AShop::AShop()
 	ShopRadius->SetSphereRadius(300.5);
 }
 
-void AShop::ShowShop()
-{
-	ShopWidget->SetVisibility(ESlateVisibility::Visible);
-}
-
 // Called when the game starts or when spawned
 void AShop::BeginPlay()
 {
 	Super::BeginPlay();
-
-	UUserWidget* CreatedWidget = CreateWidget(GetWorld(), ShopWidgetClass,TEXT("ShopWidget"));
-	if (CreatedWidget)
-	{
-		ShopWidget = Cast<UWItemsShop>(CreatedWidget);
-		ShopWidget->SetVisibility(ESlateVisibility::Hidden);
-		ShopWidget->AddToViewport(11);
-		ShopWidget->InitShop(ItemsInShop);
-	}
 }

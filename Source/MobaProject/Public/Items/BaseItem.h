@@ -5,6 +5,9 @@
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
 #include "BaseItem.generated.h"
+class ACHPlayable;
+DECLARE_LOG_CATEGORY_EXTERN(LogBaseItem, Log, All);
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnItemModified);
 
 class UInventoryComponent;
@@ -75,6 +78,18 @@ public:
 
 	UFUNCTION(BlueprintPure, Category="Item")
 	FORCEINLINE int32 GetQuantity() const { return Quantity; }
+
+	/**
+	 * Called on server straight after the player buys an item
+	 */
+	virtual void OnBuy(ACHPlayable* PlayerCharacter);
+	/**
+	 * Called on server straight after the player sells an item
+	 */
+	virtual void OnSell(ACHPlayable* PlayerCharacter);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	FORCEINLINE float GetSellPrice() const { return static_cast<float>(static_cast<int>(ItemCost * .6)); };
 
 protected:
 	//the quantity of this item

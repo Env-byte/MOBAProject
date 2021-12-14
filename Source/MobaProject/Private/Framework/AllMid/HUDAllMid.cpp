@@ -4,10 +4,9 @@
 #include "Framework/AllMid/HUDAllMid.h"
 
 #include "Blueprint/UserWidget.h"
-#include "Components/InventoryComponent.h"
-#include "Framework/AllMid/PSAllMid.h"
 #include "Widgets/AllMid/WGameScoreboard.h"
 #include "Widgets/AllMid/WPlayerHud.h"
+#include "Widgets/World/WItemsShop.h"
 
 AHUDAllMid::AHUDAllMid()
 {
@@ -28,8 +27,28 @@ void AHUDAllMid::BeginPlay()
 		PlayerHud = CreateWidget<UWPlayerHud>(GetOwningPlayerController(), PlayerHudClass, FName(TEXT("PlayerHud")));
 		PlayerHud->AddToViewport(0);
 	}
+	if (ShopWidgetClass)
+	{
+		ShopWidget = CreateWidget<UWItemsShop>(GetOwningPlayerController(), ShopWidgetClass,TEXT("ShopWidget"));
+		ShopWidget->SetVisibility(ESlateVisibility::Hidden);
+		ShopWidget->AddToViewport(11);
+		ShopWidget->InitShop(ItemsInShop);
+	}
+	bShopOpen = false;
 }
 
+
+void AHUDAllMid::ShowShop()
+{
+	ShopWidget->SetVisibility(ESlateVisibility::Visible);
+	bShopOpen = true;
+}
+
+void AHUDAllMid::CloseShop()
+{
+	ShopWidget->SetVisibility(ESlateVisibility::Hidden);
+	bShopOpen = false;
+}
 
 void AHUDAllMid::ShowScoreboard()
 {

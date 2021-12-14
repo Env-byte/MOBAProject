@@ -26,7 +26,7 @@ FItemAddResult UInventoryComponent::TryAddItemFromClass(TSubclassOf<UBaseItem> I
 	return TryAddItem_Internal(Item);
 }
 
-int32 UInventoryComponent::ConsumeItem(UBaseItem* Item, const int32 Quantity)
+bool UInventoryComponent::ConsumeItem(UBaseItem* Item, const int32 Quantity)
 {
 	if (GetOwner() && GetOwner()->HasAuthority() && Item)
 	{
@@ -45,9 +45,9 @@ int32 UInventoryComponent::ConsumeItem(UBaseItem* Item, const int32 Quantity)
 		{
 			Client_RefreshInventory();
 		}
-		return RemoveQuantity;
+		return true;
 	}
-	return 0;
+	return false;
 }
 
 bool UInventoryComponent::RemoveItem(UBaseItem* Item)
@@ -136,8 +136,8 @@ FItemAddResult UInventoryComponent::TryAddItem_Internal(UBaseItem* Item)
 		if (!Item->bStackable)
 		{
 			ensure(Item->GetQuantity() == 1);
-			AddItem(Item);
-			return FItemAddResult::AddedAll(AddAmount);
+
+			return FItemAddResult::AddedAll(AddAmount, AddItem(Item));
 		}
 
 		//somehow the items quantity went over the max stack size. this should never happen
@@ -146,8 +146,7 @@ FItemAddResult UInventoryComponent::TryAddItem_Internal(UBaseItem* Item)
 		UBaseItem* ExistingItem = FindItem(Item);
 		if (!ExistingItem)
 		{
-			AddItem(Item);
-			return FItemAddResult::AddedAll(AddAmount);
+			return FItemAddResult::AddedAll(AddAmount, AddItem(Item));
 		}
 
 		if (!(ExistingItem->GetQuantity() < ExistingItem->MaxStackSize))
@@ -178,10 +177,10 @@ FItemAddResult UInventoryComponent::TryAddItem_Internal(UBaseItem* Item)
 
 		if (ActualAddAmount < AddAmount)
 		{
-			return FItemAddResult::AddedSome(AddAmount, ActualAddAmount, ErrorText);
+			return FItemAddResult::AddedSome(AddAmount, ActualAddAmount, ExistingItem, ErrorText);
 		}
 
-		return FItemAddResult::AddedAll(AddAmount);
+		return FItemAddResult::AddedAll(AddAmount, ExistingItem);
 	}
 
 	//this should never happen as this is the client
@@ -189,7 +188,7 @@ FItemAddResult UInventoryComponent::TryAddItem_Internal(UBaseItem* Item)
 	return FItemAddResult::AddedNone(-1,LOCTEXT("ErrorMessage", ""));
 }
 
-UBaseItem* UInventoryComponent::AddItem(UBaseItem* Item)
+UBaseItem* UInventoryComponent::AddItem(const UBaseItem* Item)
 {
 	if (GetOwner() && GetOwner()->HasAuthority())
 	{
@@ -202,7 +201,6 @@ UBaseItem* UInventoryComponent::AddItem(UBaseItem* Item)
 
 		// tell item to get replicated
 		NewItem->MarkDirtyForReplication();
-		//Client_RefreshInventory();
 		return NewItem;
 	}
 	return nullptr;

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Items/BaseItem.h"
 #include "InventoryComponent.generated.h"
 
 class UBaseItem;
@@ -23,16 +24,16 @@ struct FItemAddResult
 	GENERATED_BODY()
 
 public:
-	FItemAddResult(): AmountToGive(0), ActualAmountGiven(0), Result()
+	FItemAddResult(): AmountToGive(0), ActualAmountGiven(0), Result(), Item(nullptr)
 	{
 	}
 
 
-	FItemAddResult(int32 InItemQuantity) : AmountToGive(InItemQuantity), ActualAmountGiven(0), Result()
+	FItemAddResult(int32 InItemQuantity) : AmountToGive(InItemQuantity), ActualAmountGiven(0), Result(), Item(nullptr)
 	{
 	}
 
-	FItemAddResult(int32 InItemQuantity, int32 InQuantityAdded) : AmountToGive(InItemQuantity), ActualAmountGiven(InQuantityAdded), Result()
+	FItemAddResult(int32 InItemQuantity, int32 InQuantityAdded) : AmountToGive(InItemQuantity), ActualAmountGiven(InQuantityAdded), Result(), Item(nullptr)
 	{
 	}
 
@@ -53,39 +54,50 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category="Item Add Result")
 	FText ErrorText;
 
+	UPROPERTY(BlueprintReadOnly)
+	UBaseItem* Item;
+
 	//Helpers
 	static FItemAddResult AddedNone(const int32 InItemQuantity, const FText& ErrorText)
 	{
 		FItemAddResult AddedNoneResult(InItemQuantity);
 		AddedNoneResult.Result = EItemAddResult::IAR_NoItemsAdded;
 		AddedNoneResult.ErrorText = ErrorText;
+		AddedNoneResult.Item = nullptr;
 		return AddedNoneResult;
 	}
 
-	static FItemAddResult AddedSome(const int32 InItemQuantity, const int32 ActualAmountGiven, const FText& ErrorText)
+	static FItemAddResult AddedSome(const int32 InItemQuantity, const int32 ActualAmountGiven, UBaseItem* InItem, const FText& ErrorText)
 	{
 		FItemAddResult AddedSomeResult(InItemQuantity, ActualAmountGiven);
 		AddedSomeResult.Result = EItemAddResult::IAR_SomeItemsAdded;
 		AddedSomeResult.ErrorText = ErrorText;
+		AddedSomeResult.Item = InItem;
 
 		return AddedSomeResult;
 	}
 
-	static FItemAddResult AddedAll(const int32 InItemQuantity)
+	static FItemAddResult AddedAll(const int32 InItemQuantity, UBaseItem* InItem)
 	{
 		FItemAddResult AddAllResult(InItemQuantity, InItemQuantity);
 		AddAllResult.Result = EItemAddResult::IAR_AllItemsAdded;
+		AddAllResult.Item = InItem;
 		return AddAllResult;
 	}
 
 	FString ToString() const
 	{
 		const FString ResultText = UEnum::GetDisplayValueAsText(Result).ToString();
+		FString ItemName = TEXT("Not Set");
+		if (Item)
+		{
+			ItemName = Item->GetName();
+		}
 		if (Result == EItemAddResult::IAR_AllItemsAdded)
 		{
-			return FString::Printf(TEXT("Result: %s. AmountToGive: %d. ActualAmountGiven: %d"), *ResultText, AmountToGive, ActualAmountGiven);
+			return FString::Printf(TEXT("Result: %s. Item: %s. AmountToGive: %d. ActualAmountGiven: %d"), *ResultText, *ItemName, AmountToGive, ActualAmountGiven);
 		}
-		return FString::Printf(TEXT("Result: %s. Error:%s. AmountToGive: %d. ActualAmountGiven: %d"), *ResultText, *ErrorText.ToString(), AmountToGive, ActualAmountGiven);
+		return FString::Printf(TEXT("Result: %s. Item: %s. Error:%s. AmountToGive: %d. ActualAmountGiven: %d"), *ResultText, *ItemName, *ErrorText.ToString(), AmountToGive, ActualAmountGiven);
 	}
 };
 
@@ -119,7 +131,7 @@ public:
 	 * Take some quantity away from the item
 	 */
 	UFUNCTION(BlueprintCallable, Category="Inventory")
-	int32 ConsumeItem(UBaseItem* Item, int32 Quantity);
+	bool ConsumeItem(UBaseItem* Item, int32 Quantity = 1);
 
 	//Remove the item from inventory
 	UFUNCTION(BlueprintCallable, Category="Inventory")
@@ -144,7 +156,7 @@ public:
 	FOnInventoryUpdated OnInventoryUpdated;
 
 	//Dont Call Items.Add() directly, use this function instead, as it handles replication and ownership
-	UBaseItem* AddItem(UBaseItem* Item);
+	UBaseItem* AddItem(const UBaseItem* Item);
 
 	UPROPERTY()
 	int32 ReplicatedItemsKey;
@@ -158,6 +170,6 @@ protected:
 private:
 	UFUNCTION()
 	void OnRep_Items();
-	
+
 	FItemAddResult TryAddItem_Internal(UBaseItem* Item);
 };

@@ -9,15 +9,13 @@
 #include "Characters/CHGameplayAbility.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/DecalComponent.h"
-#include "Components/InventoryComponent.h"
 #include "Framework/AllMid/HUDAllMid.h"
 #include "Framework/AllMid/PCAllMid.h"
-#include "Framework/AllMid/PSAllMid.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Items/ConsumableItem.h"
 #include "Kismet/GameplayStatics.h"
 #include "Widgets/AllMid/WPlayerHud.h"
-#include "World/Shop.h"
 
 DEFINE_LOG_CATEGORY(LogCHPlayable);
 
@@ -153,22 +151,28 @@ void ACHPlayable::OnRep_Attribute(const FGameplayAttribute& Attribute, const FGa
 	UWPlayerHud* PlayerHudWidget = HUD->GetPlayerHudWidget();
 	if (!PlayerHudWidget) { return; }
 
+	UE_LOG(LogCHPlayable, Display, TEXT("%s OnRep_Attribute %s From %f To %f"), *this->GetName(), *Attribute.GetName(), OldValue.GetCurrentValue(), NewValue.GetCurrentValue())
+
 	// if attribute updated is not health or mana then update stats
 	if (Attribute == Attributes->GetGoldAttribute())
 	{
 		PlayerHudWidget->BP_SetGold(NewValue.GetCurrentValue());
+		UE_LOG(LogCHPlayable, Display, TEXT("%s BP_SetGold "), *this->GetName())
 	}
 	else if (Attribute == Attributes->GetMaxHealthAttribute() || Attribute == Attributes->GetHealthAttribute())
 	{
 		PlayerHudWidget->BP_SetHealth(Attributes->GetHealth(), Attributes->GetMaxHealth());
+		UE_LOG(LogCHPlayable, Display, TEXT("%s BP_SetHealth "), *this->GetName())
 	}
 	else if (Attribute == Attributes->GetManaAttribute() || Attribute == Attributes->GetMaxManaAttribute())
 	{
 		PlayerHudWidget->BP_SetMana(Attributes->GetMana(), Attributes->GetMaxMana());
+		UE_LOG(LogCHPlayable, Display, TEXT("%s BP_SetMana "), *this->GetName())
 	}
 	else
 	{
 		PlayerHudWidget->BP_SetCharacterStats(Attributes);
+		UE_LOG(LogCHPlayable, Display, TEXT("%s BP_SetCharacterStats "), *this->GetName())
 	}
 }
 
@@ -176,42 +180,6 @@ void ACHPlayable::HandleHealthChanged(float DeltaValue, const FGameplayTagContai
 {
 	Client_HandleHealthChanged(DeltaValue, GameplayTags);
 	Super::HandleHealthChanged(DeltaValue, GameplayTags);
-}
-
-void ACHPlayable::BuyItem(TSubclassOf<UBaseItem> Item)
-{
-	if (!HasAuthority())
-	{
-		Server_BuyItem(Item);
-		return;
-	}
-
-	const UBaseItem* ItemToBuy = Item->GetDefaultObject<UBaseItem>();
-	//if user has more than or equal to then they can buy the item
-	if (Attributes->GetGold() < ItemToBuy->ItemCost)
-	{
-		UE_LOG(LogCHPlayable, Display, TEXT("Tried to buy item failed, not enough gold. Gold: %f. Cost: %f "), Attributes->GetGold(), ItemToBuy->ItemCost);
-		return;
-	}
-	// check if player is in the shop buy area
-	TArray<AActor*> FoundActors;
-	GetOverlappingActors(FoundActors, AShop::StaticClass());
-
-	if (FoundActors.Num() == 0)
-	{
-		UE_LOG(LogCHPlayable, Display, TEXT("Not in shop, cannot buy item"));
-		return;
-	}
-
-	const APSAllMid* PS = GetPlayerState<APSAllMid>();
-	const FItemAddResult AddResult = PS->InventoryComponent->TryAddItemFromClass(Item, 1);
-	Attributes->SetGold(Attributes->GetGold() - ItemToBuy->ItemCost);
-	UE_LOG(LogCHPlayable, Display, TEXT("AddResult: %s"), *AddResult.ToString());
-}
-
-void ACHPlayable::Server_BuyItem_Implementation(TSubclassOf<UBaseItem> Item)
-{
-	BuyItem(Item);
 }
 
 void ACHPlayable::Client_HandleHealthChanged_Implementation(float DeltaValue, const FGameplayTagContainer& EventTags)

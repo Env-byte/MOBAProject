@@ -1,16 +1,16 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "Framework/AllMid/PCAllMid.h"
 #include "Blueprint/AIBlueprintHelperLibrary.h"
+#include "Characters/CHAttributeSet.h"
 #include "Characters/Playable/CHPlayable.h"
 #include "Components/InventoryComponent.h"
 #include "Framework/AllMid/HUDAllMid.h"
 #include "Framework/AllMid/PSAllMid.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Items/ConsumableItem.h"
 #include "Widgets/AllMid/WPlayerHud.h"
-
-
+#include "World/Shop.h"
 
 APCAllMid::APCAllMid()
 {
@@ -52,6 +52,8 @@ void APCAllMid::SetupInputComponent()
 	InputComponent->BindAction("SetDestination", IE_Pressed, this, &APCAllMid::OnSetDestinationPressed);
 	InputComponent->BindAction("SetDestination", IE_Released, this, &APCAllMid::OnSetDestinationReleased);
 
+	InputComponent->BindAction("Select", IE_Pressed, this, &APCAllMid::OnSelect);
+
 	InputComponent->BindAction("ToggleScoreboard", IE_Pressed, this, &APCAllMid::OnScoreboardPressed);
 	InputComponent->BindAction("ToggleScoreboard", IE_Released, this, &APCAllMid::OnScoreboardReleased);
 
@@ -72,7 +74,6 @@ void APCAllMid::MoveToMouseCursor()
 	}
 }
 
-
 void APCAllMid::SetNewMoveDestination(const FVector DestLocation)
 {
 	if (!HasAuthority())
@@ -92,7 +93,6 @@ void APCAllMid::Server_SetNewMoveDestination_Implementation(const FVector& DestL
 	SetNewMoveDestination(DestLocation);
 }
 
-
 void APCAllMid::OnSetDestinationPressed()
 {
 	// set flag to keep updating destination until released
@@ -103,6 +103,23 @@ void APCAllMid::OnSetDestinationReleased()
 {
 	// clear flag to indicate we should stop updating the destination
 	bMoveToMouseCursor = false;
+}
+
+void APCAllMid::OnSelect()
+{
+	FHitResult HitResult;
+	if (GetHitResultUnderCursorByChannel(TraceTypeQuery1, true, HitResult))
+	{
+		if (HitResult.Actor.IsValid())
+		{
+			AActor* HitActor = HitResult.Actor.Get();
+			AShop* ShopActor = Cast<AShop>(HitActor);
+			if (ShopActor)
+			{
+				GetHUD<AHUDAllMid>()->ShowShop();
+			}
+		}
+	}
 }
 
 void APCAllMid::OnScoreboardPressed()
@@ -152,4 +169,95 @@ void APCAllMid::OnZoomOutPressed()
 	CurrentLength = CurrentLength - 50;
 	UE_LOG(LogTemp, Display, TEXT("CurrentLength: %f"), CurrentLength)
 	SpringArmComponent->TargetArmLength = FMath::Clamp(CurrentLength, MinZoom, MaxZoom);
+}
+
+void APCAllMid::BuyItem(const TSubclassOf<UBaseItem> Item)
+{
+	if (!Item) { return; }
+	if (!HasAuthority())
+	{
+		Server_BuyItem(Item);
+		return;
+	}
+
+	ACHPlayable* Playable = GetPawn<ACHPlayable>();
+
+	if (Playable) { return; }
+
+	const UBaseItem* ItemToBuy = Item->GetDefaultObject<UBaseItem>();
+	//if user has more than or equal to then they can buy the item
+	if (Playable->GetAttributeSet()->GetGold() < ItemToBuy->ItemCost)
+	{
+		UE_LOG(LogCHPlayable, Display, TEXT("Tried to buy item failed, not enough gold. Gold: %f. Cost: %f "), Playable->GetAttributeSet()->GetGold(), ItemToBuy->ItemCost);
+		return;
+	}
+	// check if player is in the shop buy area
+	TArray<AActor*> FoundActors;
+	GetOverlappingActors(FoundActors, AShop::StaticClass());
+
+	if (FoundActors.Num() == 0)
+	{
+		UE_LOG(LogCHPlayable, Display, TEXT("Not in shop, cannot buy item"));
+		return;
+	}
+
+	const APSAllMid* PS = GetPlayerState<APSAllMid>();
+	const FItemAddResult AddResult = PS->InventoryComponent->TryAddItemFromClass(Item, 1);
+	Playable->GetAttributeSet()->SetGold(Playable->GetAttributeSet()->GetGold() - ItemToBuy->ItemCost);
+	if (AddResult.Item)
+	{
+		AddResult.Item->OnBuy(Playable);
+	}
+	UE_LOG(LogCHPlayable, Display, TEXT("AddResult: %s"), *AddResult.ToString());
+}
+
+void APCAllMid::SellItem(UBaseItem* Item)
+{
+	if (!Item) { return; }
+	if (!HasAuthority())
+	{
+		Server_SellItem(Item);
+		return;
+	}
+	const APSAllMid* PS = GetPlayerState<APSAllMid>();
+	const bool Status = PS->InventoryComponent->RemoveItem(Item);
+	if (Status)
+	{
+		Item->OnSell(GetPawn<ACHPlayable>());
+	}
+	UE_LOG(LogCHPlayable, Display, TEXT("RemoveItem: %s"), Status ? TEXT("True") : TEXT("False"));
+}
+
+void APCAllMid::ConsumeItem(UConsumableItem* ConsumableItem)
+{
+	if (!ConsumableItem) { return; }
+	if (!HasAuthority())
+	{
+		Server_ConsumeItem(ConsumableItem);
+		return;
+	}
+
+	const APSAllMid* PS = GetPlayerState<APSAllMid>();
+	const bool Status = PS->InventoryComponent->ConsumeItem(ConsumableItem);
+
+	if (Status)
+	{
+		ConsumableItem->Use(GetPawn<ACHPlayable>());
+	}
+	UE_LOG(LogCHPlayable, Display, TEXT("ConsumableItem: %s"), Status ? TEXT("True") : TEXT("False"));
+}
+
+void APCAllMid::Server_ConsumeItem_Implementation(UConsumableItem* ConsumableItem)
+{
+	ConsumeItem(ConsumableItem);
+}
+
+void APCAllMid::Server_SellItem_Implementation(UBaseItem* Item)
+{
+	SellItem(Item);
+}
+
+void APCAllMid::Server_BuyItem_Implementation(const TSubclassOf<UBaseItem> Item)
+{
+	BuyItem(Item);
 }

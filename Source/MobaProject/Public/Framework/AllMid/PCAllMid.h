@@ -7,6 +7,8 @@
 #include "Items/BaseItem.h"
 #include "PCAllMid.generated.h"
 
+class UConsumableItem;
+class UWItemsShop;
 class APSAllMid;
 class UInventoryComponent;
 /**
@@ -18,7 +20,7 @@ class MOBAPROJECT_API APCAllMid : public APlayerController
 	GENERATED_BODY()
 public:
 	APCAllMid();
-	
+
 	/**
 	 * Called straight after player state begin play. Only called for local player controllers
 	 */
@@ -45,6 +47,11 @@ protected:
 	void OnSetDestinationReleased();
 	////////// PLAYER MOVEMENT //////////
 
+	////////// Select //////////
+	void OnSelect();
+	////////// Select //////////
+	
+	
 	////////// Scoreboard //////////
 	void OnScoreboardPressed();
 	void OnScoreboardReleased();
@@ -58,4 +65,33 @@ protected:
 	void OnZoomInPressed();
 	void OnZoomOutPressed();
 	////////// Camera Zoom //////////
+	///////////// Items //////////
+
+	/**
+	 * Buys the selected item and adds it the players inventory. Also replicates to other clients
+	 */
+	UFUNCTION(BlueprintCallable, Category="Items")
+	void BuyItem(TSubclassOf<UBaseItem> Item);
+
+	UFUNCTION(Server, Reliable)
+	void Server_BuyItem(TSubclassOf<UBaseItem> Item);
+
+	/**
+	* Sells the selected item and removes it from the players inventory. Also replicates to other clients
+	*/
+	UFUNCTION(BlueprintCallable, Category="Items")
+	void SellItem(UBaseItem* Item);
+
+	UFUNCTION(Server, Reliable)
+	void Server_SellItem(UBaseItem* Item);
+
+	/**
+	* Consume the selected item and activating it and removing 1 of it from the players inventory. Also replicates to other clients
+	*/
+	UFUNCTION(BlueprintCallable, Category="Items")
+	void ConsumeItem(UConsumableItem* ConsumableItem);
+	
+	UFUNCTION(Server, Reliable)
+	void Server_ConsumeItem(UConsumableItem* ConsumableItem);
+	////////// Items //////////
 };
