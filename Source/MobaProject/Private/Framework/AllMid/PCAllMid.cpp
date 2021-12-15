@@ -182,7 +182,7 @@ void APCAllMid::BuyItem(const TSubclassOf<UBaseItem> Item)
 
 	ACHPlayable* Playable = GetPawn<ACHPlayable>();
 
-	if (Playable) { return; }
+	if (!Playable) { return; }
 
 	const UBaseItem* ItemToBuy = Item->GetDefaultObject<UBaseItem>();
 	//if user has more than or equal to then they can buy the item
@@ -193,7 +193,7 @@ void APCAllMid::BuyItem(const TSubclassOf<UBaseItem> Item)
 	}
 	// check if player is in the shop buy area
 	TArray<AActor*> FoundActors;
-	GetOverlappingActors(FoundActors, AShop::StaticClass());
+	Playable->GetOverlappingActors(FoundActors, AShop::StaticClass());
 
 	if (FoundActors.Num() == 0)
 	{
@@ -219,11 +219,24 @@ void APCAllMid::SellItem(UBaseItem* Item)
 		Server_SellItem(Item);
 		return;
 	}
+
+	ACHPlayable* Playable = GetPawn<ACHPlayable>();
+	if (!Playable) { return; }
+
+	// check if player is in the shop buy area
+	TArray<AActor*> FoundActors;
+	Playable->GetOverlappingActors(FoundActors, AShop::StaticClass());
+	if (FoundActors.Num() == 0)
+	{
+		UE_LOG(LogCHPlayable, Display, TEXT("Not in shop, cannot sell item"));
+		return;
+	}
+	
 	const APSAllMid* PS = GetPlayerState<APSAllMid>();
 	const bool Status = PS->InventoryComponent->RemoveItem(Item);
 	if (Status)
 	{
-		Item->OnSell(GetPawn<ACHPlayable>());
+		Item->OnSell(Playable);
 	}
 	UE_LOG(LogCHPlayable, Display, TEXT("RemoveItem: %s"), Status ? TEXT("True") : TEXT("False"));
 }
@@ -236,13 +249,15 @@ void APCAllMid::ConsumeItem(UConsumableItem* ConsumableItem)
 		Server_ConsumeItem(ConsumableItem);
 		return;
 	}
+	ACHPlayable* Playable = GetPawn<ACHPlayable>();
+	if (!Playable) { return; }
 
 	const APSAllMid* PS = GetPlayerState<APSAllMid>();
 	const bool Status = PS->InventoryComponent->ConsumeItem(ConsumableItem);
 
 	if (Status)
 	{
-		ConsumableItem->Use(GetPawn<ACHPlayable>());
+		ConsumableItem->Use(Playable);
 	}
 	UE_LOG(LogCHPlayable, Display, TEXT("ConsumableItem: %s"), Status ? TEXT("True") : TEXT("False"));
 }
