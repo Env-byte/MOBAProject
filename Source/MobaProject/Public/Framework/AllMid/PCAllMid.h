@@ -50,8 +50,8 @@ protected:
 	////////// Select //////////
 	void OnSelect();
 	////////// Select //////////
-	
-	
+
+
 	////////// Scoreboard //////////
 	void OnScoreboardPressed();
 	void OnScoreboardReleased();
@@ -66,6 +66,13 @@ protected:
 	void OnZoomOutPressed();
 	////////// Camera Zoom //////////
 	///////////// Items //////////
+	TArray<FName> ItemSlotActionNames;
+	void OnUseItem(FName ActionName, int32 Index);
+
+	/**
+	 * Check if the player is in the radius of the shop
+	 */
+	bool IsInShop();
 
 	/**
 	 * Buys the selected item and adds it the players inventory. Also replicates to other clients
@@ -90,7 +97,7 @@ protected:
 	*/
 	UFUNCTION(BlueprintCallable, Category="Items")
 	void ConsumeItem(UConsumableItem* ConsumableItem);
-	
+
 	UFUNCTION(Server, Reliable)
 	void Server_ConsumeItem(UConsumableItem* ConsumableItem);
 	////////// Items //////////

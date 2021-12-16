@@ -39,77 +39,86 @@ public:
 		const FGameplayAttribute& AffectedAttributeProperty
 	);
 
-	UPROPERTY(BlueprintReadOnly, Category="Attributes", ReplicatedUsing=On_RepHealth)
+	UPROPERTY(BlueprintReadOnly, Category="Attributes", ReplicatedUsing=OnRep_Health)
 	FGameplayAttributeData Health;
 	ATTRIBUTE_ACCESSORS(UCHAttributeSet, Health)
 
-	UPROPERTY(BlueprintReadOnly, Category="Attributes", ReplicatedUsing=On_RepMaxHealth)
+	UPROPERTY(BlueprintReadOnly, Category="Attributes", ReplicatedUsing=OnRep_MaxHealth)
 	FGameplayAttributeData MaxHealth;
 	ATTRIBUTE_ACCESSORS(UCHAttributeSet, MaxHealth)
 
-	UPROPERTY(BlueprintReadOnly, Category="Attributes", ReplicatedUsing=On_RepMana)
+	UPROPERTY(BlueprintReadOnly, Category="Attributes", ReplicatedUsing=OnRep_Mana)
 	FGameplayAttributeData Mana;
 	ATTRIBUTE_ACCESSORS(UCHAttributeSet, Mana)
 
-	UPROPERTY(BlueprintReadOnly, Category="Attributes", ReplicatedUsing=On_RepMaxMana)
+	UPROPERTY(BlueprintReadOnly, Category="Attributes", ReplicatedUsing=OnRep_MaxMana)
 	FGameplayAttributeData MaxMana;
 	ATTRIBUTE_ACCESSORS(UCHAttributeSet, MaxMana)
 
-	UPROPERTY(BlueprintReadOnly, Category="Attributes", ReplicatedUsing=On_RepAttackDamage)
+	UPROPERTY(BlueprintReadOnly, Category="Attributes", ReplicatedUsing=OnRep_AttackDamage)
 	FGameplayAttributeData AttackDamage;
 	ATTRIBUTE_ACCESSORS(UCHAttributeSet, AttackDamage)
 
-	UPROPERTY(BlueprintReadOnly, Category="Attributes", ReplicatedUsing=On_RepMoveSpeed)
+	UPROPERTY(BlueprintReadOnly, Category="Attributes", ReplicatedUsing=OnRep_MoveSpeed)
 	FGameplayAttributeData MoveSpeed;
 	ATTRIBUTE_ACCESSORS(UCHAttributeSet, MoveSpeed)
 
-	UPROPERTY(BlueprintReadOnly, Category="Attributes", ReplicatedUsing=On_RepAttackSpeed)
+	UPROPERTY(BlueprintReadOnly, Category="Attributes", ReplicatedUsing=OnRep_AttackSpeed)
 	FGameplayAttributeData AttackSpeed;
 	ATTRIBUTE_ACCESSORS(UCHAttributeSet, AttackSpeed)
 
-	UPROPERTY(BlueprintReadOnly, Category="Attributes", ReplicatedUsing=On_RepArmour)
+	UPROPERTY(BlueprintReadOnly, Category="Attributes", ReplicatedUsing=OnRep_Armour)
 	FGameplayAttributeData Armour;
 	ATTRIBUTE_ACCESSORS(UCHAttributeSet, Armour)
 
-	UPROPERTY(BlueprintReadOnly, Category="Attributes", ReplicatedUsing=On_RepAttackRange)
+	UPROPERTY(BlueprintReadOnly, Category="Attributes", ReplicatedUsing=OnRep_AttackRange)
 	FGameplayAttributeData AttackRange;
 	ATTRIBUTE_ACCESSORS(UCHAttributeSet, AttackRange)
 
-	UPROPERTY(BlueprintReadOnly, Category="Attributes", ReplicatedUsing=On_RepGold)
-	FGameplayAttributeData Gold;
-	ATTRIBUTE_ACCESSORS(UCHAttributeSet, Gold)
+	UPROPERTY(BlueprintReadOnly, Category="Attributes", ReplicatedUsing=OnRep_HealthRegenRate)
+	FGameplayAttributeData HealthRegenRate;
+	ATTRIBUTE_ACCESSORS(UCHAttributeSet, HealthRegenRate)
 
+	UPROPERTY(BlueprintReadOnly, Category="Attributes", ReplicatedUsing=OnRep_ManaRegenRate)
+	FGameplayAttributeData ManaRegenRate;
+	ATTRIBUTE_ACCESSORS(UCHAttributeSet, ManaRegenRate)
+	
+	UFUNCTION(BlueprintCallable)
 	float GetHealthPercent() const;
+	UFUNCTION(BlueprintCallable)
 	float GetManaPercent() const;
 
 protected:
 	UFUNCTION()
-	virtual void On_RepHealth(const FGameplayAttributeData& OldHealth);
+	virtual void OnRep_Health(const FGameplayAttributeData& OldHealth);
 
 	UFUNCTION()
-	virtual void On_RepMaxHealth(const FGameplayAttributeData& OldHealth);
+	virtual void OnRep_MaxHealth(const FGameplayAttributeData& OldHealth);
 
 	UFUNCTION()
-	virtual void On_RepMana(const FGameplayAttributeData& OldMana);
+	virtual void OnRep_Mana(const FGameplayAttributeData& OldMana);
 
 	UFUNCTION()
-	virtual void On_RepMaxMana(const FGameplayAttributeData& OldMaxMana);
+	virtual void OnRep_MaxMana(const FGameplayAttributeData& OldMaxMana);
 
 	UFUNCTION()
-	virtual void On_RepAttackDamage(const FGameplayAttributeData& OldAttackDamage);
+	virtual void OnRep_AttackDamage(const FGameplayAttributeData& OldAttackDamage);
 
 	UFUNCTION()
-	virtual void On_RepMoveSpeed(const FGameplayAttributeData& OldMoveSpeed);
+	virtual void OnRep_MoveSpeed(const FGameplayAttributeData& OldMoveSpeed);
 
 	UFUNCTION()
-	virtual void On_RepAttackSpeed(const FGameplayAttributeData& OldAttackSpeed);
+	virtual void OnRep_AttackSpeed(const FGameplayAttributeData& OldAttackSpeed);
 
 	UFUNCTION()
-	virtual void On_RepArmour(const FGameplayAttributeData& OldArmour);
+	virtual void OnRep_Armour(const FGameplayAttributeData& OldArmour);
 
 	UFUNCTION()
-	virtual void On_RepAttackRange(const FGameplayAttributeData& OldAttackRange);
+	virtual void OnRep_AttackRange(const FGameplayAttributeData& OldAttackRange);
 
 	UFUNCTION()
-	virtual void On_RepGold(const FGameplayAttributeData& OldGold);
+	virtual void OnRep_HealthRegenRate(const FGameplayAttributeData& OldHealthRegenRate);
+
+	UFUNCTION()
+	virtual void OnRep_ManaRegenRate(const FGameplayAttributeData& OldManaRegenRate);
 };

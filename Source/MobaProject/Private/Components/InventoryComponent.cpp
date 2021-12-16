@@ -35,8 +35,8 @@ bool UInventoryComponent::ConsumeItem(UBaseItem* Item, const int32 Quantity)
 		//we should not hit a negative value
 		ensure(!(NewQuantity < 0));
 
-		//we now have zero of ths item remove it from the inventory
 		Item->SetQuantity(NewQuantity);
+		//we now have zero of ths item remove it from the inventory
 		if (Item->GetQuantity() == 0)
 		{
 			RemoveItem(Item);
@@ -57,7 +57,6 @@ bool UInventoryComponent::RemoveItem(UBaseItem* Item)
 		if (Item)
 		{
 			Items.RemoveSingle(Item);
-
 			ReplicatedItemsKey++;
 			return true;
 		}

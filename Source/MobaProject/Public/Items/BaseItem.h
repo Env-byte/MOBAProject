@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
 #include "BaseItem.generated.h"
+class APSAllMid;
 class ACHPlayable;
 DECLARE_LOG_CATEGORY_EXTERN(LogBaseItem, Log, All);
 
@@ -86,7 +87,7 @@ public:
 	/**
 	 * Called on server straight after the player sells an item
 	 */
-	virtual void OnSell(ACHPlayable* PlayerCharacter);
+	virtual void OnSell(ACHPlayable* PlayerCharacter, APSAllMid* PlayerState);
 
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	FORCEINLINE float GetSellPrice() const { return static_cast<float>(static_cast<int>(ItemCost * .6)); };

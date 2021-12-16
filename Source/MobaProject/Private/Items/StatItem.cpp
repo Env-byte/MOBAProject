@@ -35,13 +35,15 @@ void UStatItem::RemoveStats(const ACHPlayable* PlayerCharacter) const
 void UStatItem::OnBuy(ACHPlayable* PlayerCharacter)
 {
 	Super::OnBuy(PlayerCharacter);
+	if (!PlayerCharacter) { return; }
 	if (!PlayerCharacter->HasAuthority()) { return; }
 	ApplyStats(PlayerCharacter);
 }
 
-void UStatItem::OnSell(ACHPlayable* PlayerCharacter)
+void UStatItem::OnSell(ACHPlayable* PlayerCharacter, APSAllMid* PlayerState)
 {
-	Super::OnSell(PlayerCharacter);
+	Super::OnSell(PlayerCharacter, PlayerState);
+	if (!PlayerCharacter) { return; }
 	if (!PlayerCharacter->HasAuthority()) { return; }
 	RemoveStats(PlayerCharacter);
 }

@@ -39,7 +39,8 @@ void UCHAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 	DOREPLIFETIME_CONDITION_NOTIFY(UCHAttributeSet, AttackSpeed, COND_None, REPNOTIFY_Always)
 	DOREPLIFETIME_CONDITION_NOTIFY(UCHAttributeSet, AttackRange, COND_None, REPNOTIFY_Always)
 	DOREPLIFETIME_CONDITION_NOTIFY(UCHAttributeSet, Armour, COND_None, REPNOTIFY_Always)
-	DOREPLIFETIME_CONDITION_NOTIFY(UCHAttributeSet, Gold, COND_None, REPNOTIFY_Always)
+	DOREPLIFETIME_CONDITION_NOTIFY(UCHAttributeSet, HealthRegenRate, COND_None, REPNOTIFY_Always)
+	DOREPLIFETIME_CONDITION_NOTIFY(UCHAttributeSet, ManaRegenRate, COND_None, REPNOTIFY_Always)
 }
 
 void UCHAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
@@ -103,8 +104,10 @@ void UCHAttributeSet::AdjustAttributeForMaxChange(const FGameplayAttributeData& 
 	{
 		const float Difference = NewMaxValue - CurrentMaxValue;
 		const float CurrentValue = AffectedAttribute.GetCurrentValue();
-		const float NewDelta = Difference + CurrentValue;
-		AbilitySystemComponent->ApplyModToAttributeUnsafe(AffectedAttributeProperty, EGameplayModOp::Additive, NewDelta);
+		const float NewDelta = FMath::Clamp(Difference + CurrentValue, 0.f, NewMaxValue);
+		UE_LOG(LogTemp, Display, TEXT("Adjust Attribute %s Adding %f. New Value %f"), *AffectedAttributeProperty.GetName(), Difference, NewDelta)
+
+		//AbilitySystemComponent->ApplyModToAttributeUnsafe(AffectedAttributeProperty, EGameplayModOp::Additive, NewDelta);
 	}
 }
 
@@ -126,7 +129,7 @@ float UCHAttributeSet::GetManaPercent() const
 	return GetMana() / GetMaxMana();
 }
 
-void UCHAttributeSet::On_RepHealth(const FGameplayAttributeData& OldHealth)
+void UCHAttributeSet::OnRep_Health(const FGameplayAttributeData& OldHealth)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UCHAttributeSet, Health, OldHealth)
 	ACHBase* BaseCharacter = GetOwningActor();
@@ -136,7 +139,7 @@ void UCHAttributeSet::On_RepHealth(const FGameplayAttributeData& OldHealth)
 	}
 }
 
-void UCHAttributeSet::On_RepMaxHealth(const FGameplayAttributeData& OldHealth)
+void UCHAttributeSet::OnRep_MaxHealth(const FGameplayAttributeData& OldHealth)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UCHAttributeSet, MaxHealth, OldHealth)
 	ACHBase* BaseCharacter = GetOwningActor();
@@ -146,7 +149,7 @@ void UCHAttributeSet::On_RepMaxHealth(const FGameplayAttributeData& OldHealth)
 	}
 }
 
-void UCHAttributeSet::On_RepMana(const FGameplayAttributeData& OldMana)
+void UCHAttributeSet::OnRep_Mana(const FGameplayAttributeData& OldMana)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UCHAttributeSet, Mana, OldMana)
 	ACHBase* BaseCharacter = GetOwningActor();
@@ -156,7 +159,7 @@ void UCHAttributeSet::On_RepMana(const FGameplayAttributeData& OldMana)
 	}
 }
 
-void UCHAttributeSet::On_RepMaxMana(const FGameplayAttributeData& OldMaxMana)
+void UCHAttributeSet::OnRep_MaxMana(const FGameplayAttributeData& OldMaxMana)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UCHAttributeSet, MaxMana, OldMaxMana)
 	ACHBase* BaseCharacter = GetOwningActor();
@@ -166,7 +169,7 @@ void UCHAttributeSet::On_RepMaxMana(const FGameplayAttributeData& OldMaxMana)
 	}
 }
 
-void UCHAttributeSet::On_RepAttackDamage(const FGameplayAttributeData& OldAttackDamage)
+void UCHAttributeSet::OnRep_AttackDamage(const FGameplayAttributeData& OldAttackDamage)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UCHAttributeSet, AttackDamage, OldAttackDamage)
 	ACHBase* BaseCharacter = GetOwningActor();
@@ -176,7 +179,7 @@ void UCHAttributeSet::On_RepAttackDamage(const FGameplayAttributeData& OldAttack
 	}
 }
 
-void UCHAttributeSet::On_RepMoveSpeed(const FGameplayAttributeData& OldMoveSpeed)
+void UCHAttributeSet::OnRep_MoveSpeed(const FGameplayAttributeData& OldMoveSpeed)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UCHAttributeSet, MoveSpeed, OldMoveSpeed)
 	ACHBase* BaseCharacter = GetOwningActor();
@@ -186,7 +189,7 @@ void UCHAttributeSet::On_RepMoveSpeed(const FGameplayAttributeData& OldMoveSpeed
 	}
 }
 
-void UCHAttributeSet::On_RepAttackSpeed(const FGameplayAttributeData& OldAttackSpeed)
+void UCHAttributeSet::OnRep_AttackSpeed(const FGameplayAttributeData& OldAttackSpeed)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UCHAttributeSet, AttackSpeed, OldAttackSpeed)
 	ACHBase* BaseCharacter = GetOwningActor();
@@ -196,7 +199,7 @@ void UCHAttributeSet::On_RepAttackSpeed(const FGameplayAttributeData& OldAttackS
 	}
 }
 
-void UCHAttributeSet::On_RepArmour(const FGameplayAttributeData& OldArmour)
+void UCHAttributeSet::OnRep_Armour(const FGameplayAttributeData& OldArmour)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UCHAttributeSet, Armour, OldArmour)
 	ACHBase* BaseCharacter = GetOwningActor();
@@ -206,7 +209,7 @@ void UCHAttributeSet::On_RepArmour(const FGameplayAttributeData& OldArmour)
 	}
 }
 
-void UCHAttributeSet::On_RepAttackRange(const FGameplayAttributeData& OldAttackRange)
+void UCHAttributeSet::OnRep_AttackRange(const FGameplayAttributeData& OldAttackRange)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UCHAttributeSet, AttackRange, OldAttackRange)
 	ACHBase* BaseCharacter = GetOwningActor();
@@ -216,12 +219,22 @@ void UCHAttributeSet::On_RepAttackRange(const FGameplayAttributeData& OldAttackR
 	}
 }
 
-void UCHAttributeSet::On_RepGold(const FGameplayAttributeData& OldGold)
+void UCHAttributeSet::OnRep_HealthRegenRate(const FGameplayAttributeData& OldHealthRegenRate)
 {
-	GAMEPLAYATTRIBUTE_REPNOTIFY(UCHAttributeSet, Gold, OldGold)
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UCHAttributeSet, HealthRegenRate, OldHealthRegenRate)
 	ACHBase* BaseCharacter = GetOwningActor();
 	if (BaseCharacter)
 	{
-		BaseCharacter->OnRep_Attribute(GetGoldAttribute(), OldGold, Gold);
+		BaseCharacter->OnRep_Attribute(GetHealthRegenRateAttribute(), OldHealthRegenRate, HealthRegenRate);
+	}
+}
+
+void UCHAttributeSet::OnRep_ManaRegenRate(const FGameplayAttributeData& OldManaRegenRate)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UCHAttributeSet, ManaRegenRate, OldManaRegenRate)
+	ACHBase* BaseCharacter = GetOwningActor();
+	if (BaseCharacter)
+	{
+		BaseCharacter->OnRep_Attribute(GetManaRegenRateAttribute(), OldManaRegenRate, ManaRegenRate);
 	}
 }

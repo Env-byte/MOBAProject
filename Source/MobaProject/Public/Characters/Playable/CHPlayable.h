@@ -27,6 +27,7 @@ public:
 	/** Returns CursorToWorld subobject **/
 	FORCEINLINE class UDecalComponent* GetCursorToWorld() { return CursorToWorld; }
 
+	virtual void OnRep_PlayerState() override;
 private:
 	/**
 	 * Update the cursor decal
@@ -49,17 +50,20 @@ private:
 protected:
 	virtual void BeginPlay() override;
 	////////// Ability System //////////
-
-	/**
-	 *
-	 */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Gold")
-	TSubclassOf<UGameplayEffect> PassiveGold;
-
 	/**
 	 *
 	 * Character Abilities
 	 */
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category="Health")
+	float HealthTickFrequency = 1.f;
+	float LastHealthTick = 0.f;
+
+	/**
+	 * Apply Passive Health and Mana Regen
+	 */
+	void ApplyPassiveRegen();
+
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category="Attack")
 	TSubclassOf<UCHGameplayAbility> PrimaryAttack;
 
@@ -110,9 +114,7 @@ public:
 	virtual void OnRep_Attribute(const FGameplayAttribute& Attribute, const FGameplayAttributeData& OldValue, const FGameplayAttributeData& NewValue) override;
 
 	virtual void HandleHealthChanged(float DeltaValue, const FGameplayTagContainer& EventTags) override;
-	UFUNCTION(Client, Unreliable)
-	virtual void Client_HandleHealthChanged(float DeltaValue, const FGameplayTagContainer& EventTags);
-	////////// Ability System //////////
 
-	
+	virtual int32 GetCharacterLevel() const override;
+	////////// Ability System //////////
 };

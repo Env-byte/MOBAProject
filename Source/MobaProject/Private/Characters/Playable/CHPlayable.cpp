@@ -11,6 +11,8 @@
 #include "Components/DecalComponent.h"
 #include "Framework/AllMid/HUDAllMid.h"
 #include "Framework/AllMid/PCAllMid.h"
+#include "Framework/AllMid/PSAllMid.h"
+#include "Framework/AllMid/PSAttributeSet.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Items/ConsumableItem.h"
@@ -18,7 +20,6 @@
 #include "Widgets/AllMid/WPlayerHud.h"
 
 DEFINE_LOG_CATEGORY(LogCHPlayable);
-
 
 ACHPlayable::ACHPlayable()
 {
@@ -72,7 +73,29 @@ ACHPlayable::ACHPlayable()
 void ACHPlayable::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-	UpdateCursorDecal();
+	if (!HasAuthority())
+	{
+		UpdateCursorDecal();
+	}
+
+	if (GetWorld()->TimeSince(LastHealthTick) > HealthTickFrequency)
+	{
+		ApplyPassiveRegen();
+	}
+}
+
+void ACHPlayable::OnRep_PlayerState()
+{
+	Super::OnRep_PlayerState();
+	APCAllMid* PC = GetController<APCAllMid>();
+	if (!PC) { return; }
+
+	AHUDAllMid* HUD = PC->GetHUD<AHUDAllMid>();
+	if (!HUD) { return; }
+
+	UWPlayerHud* PlayerHudWidget = HUD->GetPlayerHudWidget();
+	if (!PlayerHudWidget) { return; }
+	PlayerHudWidget->BP_PlayerSpawned(this);
 }
 
 void ACHPlayable::UpdateCursorDecal()
@@ -94,12 +117,25 @@ void ACHPlayable::UpdateCursorDecal()
 void ACHPlayable::BeginPlay()
 {
 	Super::BeginPlay();
-	if (PassiveGold)
+}
+
+void ACHPlayable::ApplyPassiveRegen()
+{
+	const float CurrentMana = Attributes->GetMana();
+	const float CurrentHealth = Attributes->GetHealth();
+	const float MaxMana = Attributes->GetMaxMana();
+	const float MaxHealth = Attributes->GetMaxMana();
+
+	UE_LOG(LogCHPlayable, Display, TEXT("ApplyPassiveRegen Health %f - %f"), CurrentHealth, MaxHealth)
+	if (CurrentMana != MaxMana)
 	{
-		const FGameplayEffectContextHandle ContextHandle = AbilitySystemComponent->MakeEffectContext();
-		const FGameplayEffectSpecHandle EffectSpecHandle = AbilitySystemComponent->MakeOutgoingSpec(PassiveGold, 0, ContextHandle);
-		AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*EffectSpecHandle.Data.Get());
+		Attributes->SetMana(FMath::Clamp(CurrentMana + Attributes->GetManaRegenRate(), 0.f, MaxMana));
 	}
+	if (CurrentHealth != MaxHealth)
+	{
+		Attributes->SetHealth(FMath::Clamp(CurrentHealth + Attributes->GetHealthRegenRate(), 0.f, MaxHealth));
+	}
+	LastHealthTick = GetWorld()->GetTimeSeconds();
 }
 
 void ACHPlayable::GiveAbilities()
@@ -144,7 +180,7 @@ void ACHPlayable::OnRep_Attribute(const FGameplayAttribute& Attribute, const FGa
 
 	APCAllMid* PC = GetController<APCAllMid>();
 	if (!PC) { return; }
-
+	if (!PC->IsLocalController()) { return; }
 	AHUDAllMid* HUD = PC->GetHUD<AHUDAllMid>();
 	if (!HUD) { return; }
 
@@ -154,43 +190,28 @@ void ACHPlayable::OnRep_Attribute(const FGameplayAttribute& Attribute, const FGa
 	UE_LOG(LogCHPlayable, Display, TEXT("%s OnRep_Attribute %s From %f To %f"), *this->GetName(), *Attribute.GetName(), OldValue.GetCurrentValue(), NewValue.GetCurrentValue())
 
 	// if attribute updated is not health or mana then update stats
-	if (Attribute == Attributes->GetGoldAttribute())
-	{
-		PlayerHudWidget->BP_SetGold(NewValue.GetCurrentValue());
-		UE_LOG(LogCHPlayable, Display, TEXT("%s BP_SetGold "), *this->GetName())
-	}
-	else if (Attribute == Attributes->GetMaxHealthAttribute() || Attribute == Attributes->GetHealthAttribute())
+	if (Attribute == Attributes->GetMaxHealthAttribute() || Attribute == Attributes->GetHealthAttribute())
 	{
 		PlayerHudWidget->BP_SetHealth(Attributes->GetHealth(), Attributes->GetMaxHealth());
-		UE_LOG(LogCHPlayable, Display, TEXT("%s BP_SetHealth "), *this->GetName())
 	}
 	else if (Attribute == Attributes->GetManaAttribute() || Attribute == Attributes->GetMaxManaAttribute())
 	{
 		PlayerHudWidget->BP_SetMana(Attributes->GetMana(), Attributes->GetMaxMana());
-		UE_LOG(LogCHPlayable, Display, TEXT("%s BP_SetMana "), *this->GetName())
 	}
 	else
 	{
 		PlayerHudWidget->BP_SetCharacterStats(Attributes);
-		UE_LOG(LogCHPlayable, Display, TEXT("%s BP_SetCharacterStats "), *this->GetName())
 	}
 }
 
 void ACHPlayable::HandleHealthChanged(float DeltaValue, const FGameplayTagContainer& GameplayTags)
 {
-	Client_HandleHealthChanged(DeltaValue, GameplayTags);
 	Super::HandleHealthChanged(DeltaValue, GameplayTags);
 }
 
-void ACHPlayable::Client_HandleHealthChanged_Implementation(float DeltaValue, const FGameplayTagContainer& EventTags)
+int32 ACHPlayable::GetCharacterLevel() const
 {
-	APCAllMid* PC = GetController<APCAllMid>();
-	if (!PC) { return; }
-
-	AHUDAllMid* HUD = PC->GetHUD<AHUDAllMid>();
-	if (!HUD) { return; }
-
-	UWPlayerHud* PlayerHudWidget = HUD->GetPlayerHudWidget();
-	if (!PlayerHudWidget) { return; }
-	PlayerHudWidget->BP_SetHealth(0.f, Attributes->GetMaxHealth());
+	APSAllMid* ThisPlayerState = GetPlayerState<APSAllMid>();
+	if (!ThisPlayerState) { return 0; }
+	return static_cast<int32>(ThisPlayerState->GetAttributeSet()->GetCharacterLevel());
 }

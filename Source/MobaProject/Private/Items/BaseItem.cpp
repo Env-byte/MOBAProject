@@ -3,9 +3,10 @@
 
 #include "Items/BaseItem.h"
 
-#include "Characters/CHAttributeSet.h"
 #include "Characters/Playable/CHPlayable.h"
 #include "Components/InventoryComponent.h"
+#include "Framework/AllMid/PSAllMid.h"
+#include "Framework/AllMid/PSAttributeSet.h"
 #include "Net/UnrealNetwork.h"
 DEFINE_LOG_CATEGORY(LogBaseItem);
 
@@ -48,19 +49,17 @@ void UBaseItem::SetQuantity(const int32 NewQuantity)
 
 void UBaseItem::OnBuy(ACHPlayable* PlayerCharacter)
 {
-	if (!PlayerCharacter->HasAuthority()) { return; }
 	UE_LOG(LogBaseItem, Display, TEXT("%s OnBuy"), *this->GetName())
 }
 
-void UBaseItem::OnSell(ACHPlayable* PlayerCharacter)
+void UBaseItem::OnSell(ACHPlayable* PlayerCharacter, APSAllMid* PlayerState)
 {
-	if (!PlayerCharacter->HasAuthority()) return;
+	if (!PlayerState->HasAuthority()) return;
 	UE_LOG(LogBaseItem, Display, TEXT("%s OnSell"), *this->GetName())
 
 	const float Refund = GetSellPrice();
-	const float CurrentGold = PlayerCharacter->GetAttributeSet()->GetGold();
-
-	PlayerCharacter->GetAttributeSet()->SetGold(CurrentGold + Refund);
+	const float CurrentGold = PlayerState->GetAttributeSet()->GetGold();
+	PlayerState->GetAttributeSet()->SetGold(CurrentGold + Refund);
 }
 
 void UBaseItem::OnRep_Quantity()

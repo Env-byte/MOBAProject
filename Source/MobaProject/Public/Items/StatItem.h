@@ -31,7 +31,7 @@ protected:
 	void RemoveStats(const ACHPlayable* PlayerCharacter) const;
 public:
 	virtual void OnBuy(ACHPlayable* PlayerCharacter) override;
-	virtual void OnSell(ACHPlayable* PlayerCharacter) override;
+	virtual void OnSell(ACHPlayable* PlayerCharacter,APSAllMid* PlayerState) override;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Stats)
 	TSubclassOf<UGameplayEffect> ItemStats;

@@ -9,7 +9,7 @@
 /**
  * 
  */
-UCLASS(Blueprintable)
+UCLASS(Abstract, NotBlueprintable)
 class MOBAPROJECT_API ACHNonPlayable : public ACHBase
 {
 	GENERATED_BODY()

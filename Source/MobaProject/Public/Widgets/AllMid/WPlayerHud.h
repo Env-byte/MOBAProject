@@ -33,4 +33,7 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void BP_SetInventory(const TArray<UBaseItem*>& Items);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_PlayerSpawned(const ACHPlayable* Character);
 };
