@@ -124,7 +124,7 @@ void ACHPlayable::ApplyPassiveRegen()
 	const float CurrentMana = Attributes->GetMana();
 	const float CurrentHealth = Attributes->GetHealth();
 	const float MaxMana = Attributes->GetMaxMana();
-	const float MaxHealth = Attributes->GetMaxMana();
+	const float MaxHealth = Attributes->GetMaxHealth();
 
 	UE_LOG(LogCHPlayable, Display, TEXT("ApplyPassiveRegen Health %f - %f"), CurrentHealth, MaxHealth)
 	if (CurrentMana != MaxMana)
