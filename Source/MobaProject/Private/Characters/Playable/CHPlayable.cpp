@@ -98,7 +98,7 @@ void ACHPlayable::OnRep_PlayerState()
 	PlayerHudWidget->BP_PlayerSpawned(this);
 }
 
-void ACHPlayable::UpdateCursorDecal()
+void ACHPlayable::UpdateCursorDecal() const
 {
 	if (CursorToWorld != nullptr)
 	{

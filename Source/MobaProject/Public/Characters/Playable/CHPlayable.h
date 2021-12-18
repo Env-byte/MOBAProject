@@ -32,7 +32,7 @@ private:
 	/**
 	 * Update the cursor decal
 	 */
-	void UpdateCursorDecal();
+	void UpdateCursorDecal() const;
 
 	/** Top down camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))

@@ -135,7 +135,7 @@ void APCAllMid::OnSelect()
 			AShop* ShopActor = Cast<AShop>(HitActor);
 			if (ShopActor)
 			{
-				GetHUD<AHUDAllMid>()->ShowShop();
+				GetHUD<AHUDAllMid>()->GetPlayerHudWidget()->ShowShop();
 			}
 		}
 	}

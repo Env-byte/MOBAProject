@@ -15,7 +15,18 @@ UCLASS(Abstract)
 class MOBAPROJECT_API UWPlayerHud : public UUserWidget
 {
 	GENERATED_BODY()
+protected:
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	class UWItemsShop* ShopWidget;
+
+	bool bIsShopOpen;
+
 public:
+	UFUNCTION(BlueprintCallable)
+	void ShowShop();
+	UFUNCTION(BlueprintCallable)
+	void HideShop();
+
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_SetCharacterStats(UCHAttributeSet* AttributeSet);
 

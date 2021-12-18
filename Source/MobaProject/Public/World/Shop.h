@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "Widgets/World/WItemsShop.h"
 #include "Shop.generated.h"
 
 class APCAllMid;

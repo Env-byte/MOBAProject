@@ -4,10 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/HUD.h"
-#include "Widgets/World/WItemsShop.h"
 #include "HUDAllMid.generated.h"
 
-class UBaseItem;
 class UWPlayerHud;
 class UWGameScoreboard;
 /**
@@ -44,26 +42,4 @@ protected:
 public:
 	FORCEINLINE UWPlayerHud* GetPlayerHudWidget() const { return PlayerHud; };
 	////////// PlayerHud ///////////
-
-	////////// Shop ///////////
-protected:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Widget Classes")
-	TSubclassOf<UWItemsShop> ShopWidgetClass;
-
-	UPROPERTY(BlueprintReadOnly, Category="Shop Widget")
-	UWItemsShop* ShopWidget;
-
-	UPROPERTY(EditDefaultsOnly, Category="Shop")
-	TArray<TSubclassOf<UBaseItem>> ItemsInShop;
-public:
-	bool bShopOpen = false;
-
-	UFUNCTION(BlueprintCallable)
-	void ShowShop();
-
-	UFUNCTION(BlueprintCallable)
-	void CloseShop();
-
-	FORCEINLINE UWItemsShop* GetShopWidget() const { return ShopWidget; };
-	////////// Shop //////////
 };
