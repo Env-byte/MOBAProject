@@ -19,6 +19,9 @@ protected:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	class UWItemsShop* ShopWidget;
 
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	class UWPlayerInventory* PlayerInventory;
+
 	bool bIsShopOpen;
 
 public:
@@ -42,8 +45,8 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_SetGold(const float InGold);
 
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
-	void BP_SetInventory(const TArray<UBaseItem*>& Items);
+	UFUNCTION(BlueprintCallable)
+	void SetInventory(const TArray<UBaseItem*>& Items);
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_PlayerSpawned(const ACHPlayable* Character);

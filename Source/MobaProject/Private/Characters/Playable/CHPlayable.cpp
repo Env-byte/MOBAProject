@@ -126,7 +126,6 @@ void ACHPlayable::ApplyPassiveRegen()
 	const float MaxMana = Attributes->GetMaxMana();
 	const float MaxHealth = Attributes->GetMaxHealth();
 
-	UE_LOG(LogCHPlayable, Display, TEXT("ApplyPassiveRegen Health %f - %f"), CurrentHealth, MaxHealth)
 	if (CurrentMana != MaxMana)
 	{
 		Attributes->SetMana(FMath::Clamp(CurrentMana + Attributes->GetManaRegenRate(), 0.f, MaxMana));
@@ -187,7 +186,7 @@ void ACHPlayable::OnRep_Attribute(const FGameplayAttribute& Attribute, const FGa
 	UWPlayerHud* PlayerHudWidget = HUD->GetPlayerHudWidget();
 	if (!PlayerHudWidget) { return; }
 
-	UE_LOG(LogCHPlayable, Display, TEXT("%s OnRep_Attribute %s From %f To %f"), *this->GetName(), *Attribute.GetName(), OldValue.GetCurrentValue(), NewValue.GetCurrentValue())
+	//UE_LOG(LogCHPlayable, Display, TEXT("%s OnRep_Attribute %s From %f To %f"), *this->GetName(), *Attribute.GetName(), OldValue.GetCurrentValue(), NewValue.GetCurrentValue())
 
 	// if attribute updated is not health or mana then update stats
 	if (Attribute == Attributes->GetMaxHealthAttribute() || Attribute == Attributes->GetHealthAttribute())

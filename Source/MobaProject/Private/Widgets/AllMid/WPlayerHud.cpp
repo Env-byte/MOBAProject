@@ -3,6 +3,7 @@
 
 #include "Widgets/AllMid/WPlayerHud.h"
 #include "Widgets/AllMid/WItemsShop.h"
+#include "Widgets/AllMid/WPlayerInventory.h"
 
 void UWPlayerHud::ShowShop()
 {
@@ -14,4 +15,9 @@ void UWPlayerHud::HideShop()
 {
 	ShopWidget->SetVisibility(ESlateVisibility::Collapsed);
 	bIsShopOpen = false;
+}
+
+void UWPlayerHud::SetInventory(const TArray<UBaseItem*>& Items)
+{
+	PlayerInventory->OnInventoryUpdate(Items);
 }

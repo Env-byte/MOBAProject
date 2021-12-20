@@ -10,14 +10,22 @@
 #include "Net/UnrealNetwork.h"
 DEFINE_LOG_CATEGORY(LogBaseItem);
 
+
 UBaseItem::UBaseItem()
 {
+}
+
+void UBaseItem::SetGuid()
+{
+	UniqueId = FGuid().NewGuid();
+	MarkDirtyForReplication();
 }
 
 void UBaseItem::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(UBaseItem, Quantity);
+	DOREPLIFETIME(UBaseItem, UniqueId);
 }
 
 bool UBaseItem::IsSupportedForNetworking() const
@@ -56,13 +64,17 @@ void UBaseItem::OnSell(ACHPlayable* PlayerCharacter, APSAllMid* PlayerState)
 {
 	if (!PlayerState->HasAuthority()) return;
 	UE_LOG(LogBaseItem, Display, TEXT("%s OnSell"), *this->GetName())
-
 	const float Refund = GetSellPrice();
 	const float CurrentGold = PlayerState->GetAttributeSet()->GetGold();
 	PlayerState->GetAttributeSet()->SetGold(CurrentGold + Refund);
 }
 
 void UBaseItem::OnRep_Quantity()
+{
+	OnItemModified.Broadcast();
+}
+
+void UBaseItem::OnRep_UniqueId()
 {
 	OnItemModified.Broadcast();
 }

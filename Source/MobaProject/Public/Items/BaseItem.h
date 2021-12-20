@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
 #include "BaseItem.generated.h"
+class UWItem;
 class APSAllMid;
 class ACHPlayable;
 DECLARE_LOG_CATEGORY_EXTERN(LogBaseItem, Log, All);
@@ -21,8 +22,17 @@ UCLASS(Blueprintable, BlueprintType)
 class MOBAPROJECT_API UBaseItem : public UObject
 {
 	GENERATED_BODY()
+
+	//This item instance's unique id
+	UPROPERTY(ReplicatedUsing=OnRep_UniqueId)
+	FGuid UniqueId;
 public:
 	UBaseItem();
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	FGuid GetGuid() const { return UniqueId; }
+
+	void SetGuid();
 
 protected:
 	////////// Basic Networking //////////
@@ -38,6 +48,8 @@ public:
 	void MarkDirtyForReplication();
 	////////// Basic Networking //////////
 	////////// Item //////////
+
+
 	//The image icon for the item in inventory
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Item")
 	UTexture2D* Thumbnail;
@@ -81,6 +93,12 @@ public:
 	FORCEINLINE int32 GetQuantity() const { return Quantity; }
 
 	/**
+	 * Only used on client. The slot number this item is in. 
+	 */
+	UPROPERTY(BlueprintReadWrite)
+	UWItem* ItemSlotRef;
+
+	/**
 	 * Called on server straight after the player buys an item
 	 */
 	virtual void OnBuy(ACHPlayable* PlayerCharacter);
@@ -99,4 +117,6 @@ protected:
 
 	UFUNCTION()
 	void OnRep_Quantity();
+	UFUNCTION()
+	void OnRep_UniqueId();
 };

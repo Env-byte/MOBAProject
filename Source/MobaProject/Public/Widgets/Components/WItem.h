@@ -14,8 +14,10 @@ class MOBAPROJECT_API UWItem : public UUserWidget
 {
 	GENERATED_BODY()
 
+	virtual void NativeConstruct() override;
+	
 protected:
-	UPROPERTY(BlueprintReadOnly, Category="Inventory Item Widget", meta=(ExposeOnSpawn=true))
+	UPROPERTY(BlueprintReadOnly, Category="Inventory Item Widget")
 	UBaseItem* Item;
 
 	UFUNCTION(BlueprintImplementableEvent)

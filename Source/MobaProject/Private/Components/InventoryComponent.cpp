@@ -132,7 +132,7 @@ FItemAddResult UInventoryComponent::TryAddItem_Internal(UBaseItem* Item)
 		}
 
 		//if the item is not stackable, add one of it
-		if (!Item->bStackable)
+		if (!Item->bStackable) 
 		{
 			ensure(Item->GetQuantity() == 1);
 
@@ -196,6 +196,7 @@ UBaseItem* UInventoryComponent::AddItem(const UBaseItem* Item)
 		NewItem->SetQuantity(Item->GetQuantity());
 		NewItem->OwningInventory = this;
 		NewItem->AddedToInventory(this);
+		NewItem->SetGuid();
 		Items.Add(NewItem);
 
 		// tell item to get replicated

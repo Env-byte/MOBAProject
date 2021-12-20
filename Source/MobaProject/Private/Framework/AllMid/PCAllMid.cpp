@@ -35,7 +35,7 @@ void APCAllMid::OnPlayerInventoryUpdated(const TArray<UBaseItem*>& Items)
 	AHUDAllMid* HUD = GetHUD<AHUDAllMid>();
 	if (HUD)
 	{
-		HUD->GetPlayerHudWidget()->BP_SetInventory(Items);
+		HUD->GetPlayerHudWidget()->SetInventory(Items);
 	}
 }
 
@@ -161,7 +161,6 @@ void APCAllMid::OnScoreboardReleased()
 
 void APCAllMid::OnZoomInPressed()
 {
-	UE_LOG(LogTemp, Display, TEXT("OnZoomInPressed"))
 	const ACHPlayable* PlayerCharacter = GetPawn<ACHPlayable>();
 	if (!PlayerCharacter) return;
 
@@ -170,14 +169,11 @@ void APCAllMid::OnZoomInPressed()
 
 	float CurrentLength = SpringArmComponent->TargetArmLength;
 	CurrentLength = CurrentLength + 50;
-	UE_LOG(LogTemp, Display, TEXT("CurrentLength: %f"), CurrentLength)
-
 	SpringArmComponent->TargetArmLength = FMath::Clamp(CurrentLength, MinZoom, MaxZoom);
 }
 
 void APCAllMid::OnZoomOutPressed()
 {
-	UE_LOG(LogTemp, Display, TEXT("OnZoomOutPressed"))
 	const ACHPlayable* PlayerCharacter = GetPawn<ACHPlayable>();
 	if (!PlayerCharacter) return;
 
@@ -186,7 +182,6 @@ void APCAllMid::OnZoomOutPressed()
 
 	float CurrentLength = SpringArmComponent->TargetArmLength;
 	CurrentLength = CurrentLength - 50;
-	UE_LOG(LogTemp, Display, TEXT("CurrentLength: %f"), CurrentLength)
 	SpringArmComponent->TargetArmLength = FMath::Clamp(CurrentLength, MinZoom, MaxZoom);
 }
 
@@ -194,7 +189,6 @@ void APCAllMid::OnUseItem(const FName ActionName, const int32 Index)
 {
 	const APSAllMid* PS = GetPlayerState<APSAllMid>();
 	UE_LOG(LogCHPlayable, Display, TEXT("OnUseItem: %s %d"), *ActionName.ToString(), Index);
-
 	TArray<UBaseItem*> Items = PS->InventoryComponent->GetItems();
 	if (Items.IsValidIndex(Index))
 	{
