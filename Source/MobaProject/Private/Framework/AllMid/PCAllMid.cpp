@@ -10,6 +10,8 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Items/ConsumableItem.h"
 #include "Widgets/AllMid/WPlayerHud.h"
+#include "Widgets/AllMid/WPlayerInventory.h"
+#include "Widgets/Components/WItem.h"
 #include "World/Shop.h"
 
 APCAllMid::APCAllMid()
@@ -187,12 +189,15 @@ void APCAllMid::OnZoomOutPressed()
 
 void APCAllMid::OnUseItem(const FName ActionName, const int32 Index)
 {
-	const APSAllMid* PS = GetPlayerState<APSAllMid>();
+	AHUDAllMid* ThisHud = GetHUD<AHUDAllMid>();
+	if (!ThisHud) { return; }
 	UE_LOG(LogCHPlayable, Display, TEXT("OnUseItem: %s %d"), *ActionName.ToString(), Index);
-	TArray<UBaseItem*> Items = PS->InventoryComponent->GetItems();
-	if (Items.IsValidIndex(Index))
+	UWPlayerInventory* PlayerInventory = ThisHud->GetPlayerHudWidget()->GetPlayerInventory();
+	if (PlayerInventory->ItemSlots.IsValidIndex(Index))
 	{
-		UConsumableItem* ConsumableItem = Cast<UConsumableItem>(Items[Index]);
+		UBaseItem* Item = PlayerInventory->ItemSlots[Index]->GetItem();
+		if (!Item) { return; }
+		UConsumableItem* ConsumableItem = Cast<UConsumableItem>(Item);
 		if (ConsumableItem)
 		{
 			ConsumeItem(ConsumableItem);

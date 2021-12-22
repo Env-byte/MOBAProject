@@ -17,11 +17,10 @@ class MOBAPROJECT_API UWPlayerInventory : public UUserWidget
 {
 	GENERATED_BODY()
 protected:
-	UPROPERTY(BlueprintReadWrite, Category=Items)
-	TArray<UWItem*> ItemSlots;
-
 	UWItem* FindFirstEmptySlot();
 	UWItem* FindItemSlot(FGuid UniqueId);
 public:
 	void OnInventoryUpdate(TArray<UBaseItem*> Items);
+	UPROPERTY(BlueprintReadWrite, Category=Items)
+	TArray<UWItem*> ItemSlots;
 };

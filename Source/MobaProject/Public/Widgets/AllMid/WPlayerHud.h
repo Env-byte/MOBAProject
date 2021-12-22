@@ -25,6 +25,8 @@ protected:
 	bool bIsShopOpen;
 
 public:
+	UWPlayerInventory* GetPlayerInventory() const { return PlayerInventory; }
+
 	UFUNCTION(BlueprintCallable)
 	void ShowShop();
 	UFUNCTION(BlueprintCallable)
