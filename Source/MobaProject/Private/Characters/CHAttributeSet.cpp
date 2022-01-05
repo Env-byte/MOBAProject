@@ -17,7 +17,6 @@ ACHBase* UCHAttributeSet::GetOwningActor()
 	{
 		return CharacterBaseRef;
 	}
-
 	AActor* OwningActor = GetOwningAbilitySystemComponent()->GetAvatarActor();
 	if (OwningActor)
 	{
@@ -96,7 +95,9 @@ void UCHAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
 	}
 }
 
-void UCHAttributeSet::AdjustAttributeForMaxChange(const FGameplayAttributeData& AffectedAttribute, const FGameplayAttributeData& MaxAttribute, float NewMaxValue, const FGameplayAttribute& AffectedAttributeProperty)
+void UCHAttributeSet::AdjustAttributeForMaxChange(const FGameplayAttributeData& AffectedAttribute,
+                                                  const FGameplayAttributeData& MaxAttribute, float NewMaxValue,
+                                                  const FGameplayAttribute& AffectedAttributeProperty)
 {
 	UAbilitySystemComponent* AbilitySystemComponent = GetOwningAbilitySystemComponent();
 	const float CurrentMaxValue = MaxAttribute.GetCurrentValue();
@@ -105,7 +106,8 @@ void UCHAttributeSet::AdjustAttributeForMaxChange(const FGameplayAttributeData& 
 		const float Difference = NewMaxValue - CurrentMaxValue;
 		const float CurrentValue = AffectedAttribute.GetCurrentValue();
 		const float NewDelta = FMath::Clamp(Difference + CurrentValue, 0.f, NewMaxValue);
-		UE_LOG(LogTemp, Display, TEXT("Adjust Attribute %s Adding %f. New Value %f"), *AffectedAttributeProperty.GetName(), Difference, NewDelta)
+		UE_LOG(LogTemp, Display, TEXT("Adjust Attribute %s Adding %f. New Value %f"),
+		       *AffectedAttributeProperty.GetName(), Difference, NewDelta)
 
 		//AbilitySystemComponent->ApplyModToAttributeUnsafe(AffectedAttributeProperty, EGameplayModOp::Additive, NewDelta);
 	}
