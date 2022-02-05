@@ -19,6 +19,7 @@ APCAllMid::APCAllMid()
 	bShowMouseCursor = true;
 	bMoveToMouseCursor = false;
 	DefaultMouseCursor = EMouseCursor::Crosshairs;
+
 	ItemSlotActionNames.Add("ItemSlot1");
 	ItemSlotActionNames.Add("ItemSlot2");
 	ItemSlotActionNames.Add("ItemSlot3");
@@ -56,7 +57,6 @@ void APCAllMid::SetupInputComponent()
 {
 	Super::SetupInputComponent();
 
-
 	for (int32 i = 0, IL = ItemSlotActionNames.Num(); i < IL; i++)
 	{
 		FInputActionBinding NewActionBinding = FInputActionBinding(ItemSlotActionNames[i], IE_Pressed);
@@ -86,11 +86,25 @@ void APCAllMid::MoveToMouseCursor()
 {
 	// Trace to see what is under the mouse cursor
 	FHitResult Hit;
-	GetHitResultUnderCursor(ECC_Visibility, false, Hit);
+	GetHitResultUnderCursor(ECC_Pawn, true, Hit);
 
 	if (Hit.bBlockingHit)
 	{
+		//check what we hit, if an enemy player attack it
+		if (Hit.Actor.IsValid())
+		{
+			AActor* HitActor = Hit.Actor.Get();
+			ACHBase* BaseCharacter = Cast<ACHBase>(HitActor);
+			ACHPlayable* MyPawn = GetPawn<ACHPlayable>();
+			UE_LOG(LogTemp, Display, TEXT("OnClick hit actor HitActor: %s"), *HitActor->GetClass()->GetName())
+			if (IsValid(BaseCharacter) && IsValid(MyPawn))
+			{
+				MyPawn->CastPrimaryAttack(BaseCharacter);
+				return;
+			}
+		}
 		// We hit something, move there
+		UE_LOG(LogTemp, Display, TEXT("OnClick hit floor"))
 		SetNewMoveDestination(Hit.ImpactPoint);
 	}
 }
@@ -102,7 +116,7 @@ void APCAllMid::SetNewMoveDestination(const FVector DestLocation)
 		Server_SetNewMoveDestination(DestLocation);
 	}
 	const APawn* MyPawn = GetPawn();
-	if (MyPawn)
+	if (IsValid(MyPawn))
 	{
 		// We need to issue move command only if far enough in order for walk animation to play correctly
 		UAIBlueprintHelperLibrary::SimpleMoveToLocation(this, DestLocation);
@@ -135,7 +149,7 @@ void APCAllMid::OnSelect()
 		{
 			AActor* HitActor = HitResult.Actor.Get();
 			AShop* ShopActor = Cast<AShop>(HitActor);
-			if (ShopActor)
+			if (IsValid(ShopActor))
 			{
 				GetHUD<AHUDAllMid>()->GetPlayerHudWidget()->ShowShop();
 			}
@@ -146,7 +160,7 @@ void APCAllMid::OnSelect()
 void APCAllMid::OnScoreboardPressed()
 {
 	AHUDAllMid* Hud = GetHUD<AHUDAllMid>();
-	if (Hud)
+	if (IsValid(Hud))
 	{
 		Hud->ShowScoreboard();
 	}
@@ -155,7 +169,7 @@ void APCAllMid::OnScoreboardPressed()
 void APCAllMid::OnScoreboardReleased()
 {
 	AHUDAllMid* Hud = GetHUD<AHUDAllMid>();
-	if (Hud)
+	if (IsValid(Hud))
 	{
 		Hud->HideScoreboard();
 	}
@@ -164,7 +178,7 @@ void APCAllMid::OnScoreboardReleased()
 void APCAllMid::OnZoomInPressed()
 {
 	const ACHPlayable* PlayerCharacter = GetPawn<ACHPlayable>();
-	if (!PlayerCharacter) return;
+	if (!IsValid(PlayerCharacter)) return;
 
 	USpringArmComponent* SpringArmComponent = PlayerCharacter->GetCameraBoom();
 	if (!SpringArmComponent) return;
@@ -177,7 +191,7 @@ void APCAllMid::OnZoomInPressed()
 void APCAllMid::OnZoomOutPressed()
 {
 	const ACHPlayable* PlayerCharacter = GetPawn<ACHPlayable>();
-	if (!PlayerCharacter) return;
+	if (!IsValid(PlayerCharacter)) return;
 
 	USpringArmComponent* SpringArmComponent = PlayerCharacter->GetCameraBoom();
 	if (!SpringArmComponent) return;
@@ -233,7 +247,8 @@ void APCAllMid::BuyItem(const TSubclassOf<UBaseItem> Item)
 	//if user has more than or equal to then they can buy the item
 	if (ThisPlayerState->GetAttributeSet()->GetGold() < ItemToBuy->ItemCost)
 	{
-		UE_LOG(LogCHPlayable, Display, TEXT("Tried to buy item failed, not enough gold. Gold: %f. Cost: %f "), ThisPlayerState->GetAttributeSet()->GetGold(), ItemToBuy->ItemCost);
+		UE_LOG(LogCHPlayable, Display, TEXT("Tried to buy item failed, not enough gold. Gold: %f. Cost: %f "),
+		       ThisPlayerState->GetAttributeSet()->GetGold(), ItemToBuy->ItemCost);
 		return;
 	}
 
@@ -252,7 +267,8 @@ void APCAllMid::BuyItem(const TSubclassOf<UBaseItem> Item)
 	const FItemAddResult AddResult = PS->InventoryComponent->TryAddItemFromClass(Item, 1);
 	if (AddResult.Item)
 	{
-		ThisPlayerState->GetAttributeSet()->SetGold(ThisPlayerState->GetAttributeSet()->GetGold() - ItemToBuy->ItemCost);
+		ThisPlayerState->GetAttributeSet()->
+		                 SetGold(ThisPlayerState->GetAttributeSet()->GetGold() - ItemToBuy->ItemCost);
 		AddResult.Item->OnBuy(Playable);
 	}
 	UE_LOG(LogCHPlayable, Display, TEXT("AddResult: %s"), *AddResult.ToString());

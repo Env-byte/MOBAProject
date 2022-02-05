@@ -5,8 +5,10 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "Items/BaseItem.h"
+#include "MobaProject/MobaProject.h"
 #include "WPlayerHud.generated.h"
 
+class UWAbility;
 class UCHAttributeSet;
 /**
  * 
@@ -52,4 +54,7 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_PlayerSpawned(const ACHPlayable* Character);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	UWAbility* BP_GetAbility(EAbilityInputID AbilityInputID);
 };

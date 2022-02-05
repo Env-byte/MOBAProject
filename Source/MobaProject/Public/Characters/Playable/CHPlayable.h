@@ -15,6 +15,10 @@ UCLASS(Abstract, NotBlueprintable)
 class MOBAPROJECT_API ACHPlayable : public ACHBase
 {
 	GENERATED_BODY()
+
+protected:
+	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
+
 public:
 	ACHPlayable();
 	// Called every frame.
@@ -50,11 +54,11 @@ private:
 protected:
 	virtual void BeginPlay() override;
 	////////// Ability System //////////
+	///
 	/**
 	 *
 	 * Character Abilities
 	 */
-
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category="Health")
 	float HealthTickFrequency = 1.f;
 	float LastHealthTick = 0.f;
@@ -85,6 +89,7 @@ protected:
 	/**
 	 * The next primary attack animation to play
 	 */
+	UPROPERTY(BlueprintReadOnly)
 	int32 NextPrimaryAttackIndex;
 
 	/**
@@ -104,14 +109,54 @@ protected:
 	 * Called only on the server
 	 */
 	virtual void PossessedBy(AController* NewController) override;
+
+	/**
+	 * Tell server to CastPrimaryAttack
+	*/
+	UFUNCTION(Server, Reliable)
+	void Server_CastPrimaryAttack(ACHBase* Target);
 public:
 	UFUNCTION(BlueprintPure, Category="Attack")
 	FORCEINLINE int32 GetNextAttackIndex() const { return NextPrimaryAttackIndex; };
 
 	UFUNCTION(BlueprintPure, Category="Attack")
-	FORCEINLINE UAnimMontage* GetPrimaryAttackMontage(const int32 AtIndex) const { return PrimaryAttackMontages[AtIndex]; };
+	FORCEINLINE UAnimMontage* GetPrimaryAttackMontage(const int32 AtIndex) const
+	{
+		return PrimaryAttackMontages[AtIndex];
+	}
 
-	virtual void OnRep_Attribute(const FGameplayAttribute& Attribute, const FGameplayAttributeData& OldValue, const FGameplayAttributeData& NewValue) override;
+
+	void CastPrimaryAttack(ACHBase* Target);
+
+	/**
+		 * The target of the primary attack
+		 */
+	UPROPERTY(BlueprintReadWrite, Replicated=OnRep_PrimaryAttackTarget)
+	ACHBase* PrimaryAttackTarget;
+
+	UFUNCTION()
+	void OnRep_PrimaryAttackTarget();
+	
+	/**
+	 * For simplicity just going to minus armour from damage
+	 */
+	UFUNCTION(BlueprintCallable)
+	float GetPrimaryAttackDamage();
+
+	/**
+	 *
+	 */
+	UFUNCTION(BlueprintCallable)
+	float GetPrimaryAttackSpeedCooldown();
+
+	/**
+	 *
+	 */
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE ACHBase* GetPrimaryAttackTarget() const { return PrimaryAttackTarget; };
+
+	virtual void OnRep_Attribute(const FGameplayAttribute& Attribute, const FGameplayAttributeData& OldValue,
+	                             const FGameplayAttributeData& NewValue) override;
 
 	virtual void HandleHealthChanged(float DeltaValue, const FGameplayTagContainer& EventTags) override;
 

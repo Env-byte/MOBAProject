@@ -50,8 +50,7 @@ protected:
 	////////// Select //////////
 	void OnSelect();
 	////////// Select //////////
-
-
+	
 	////////// Scoreboard //////////
 	void OnScoreboardPressed();
 	void OnScoreboardReleased();
