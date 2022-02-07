@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "AbilitySystemInterface.h"
 #include "CHAbilitySystemComponent.h"
+#include "MobaProject/MobaProject.h"
 #include "CHBase.generated.h"
 class UCharacterNamePlate;
 struct FGameplayTagContainer;
@@ -22,15 +23,25 @@ class MOBAPROJECT_API ACHBase : public ACharacter, public IAbilitySystemInterfac
 public:
 	ACHBase();
 
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE ETeam GetTeam() const { return Team; }
 
 protected:
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
+
+	/**
+	 * Team this unit belongs too
+	 */
+	UPROPERTY(BlueprintReadWrite)
+	ETeam Team;
+
 
 	////////// Ability System //////////
 	/**
 	 * AbilitySystemComponent for this Character
 	 */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Ability", meta=(AllowPrivateAccess=true))
+	UPROPERTY
+	(VisibleAnywhere, BlueprintReadOnly, Category="Ability", meta=(AllowPrivateAccess=true))
 	UCHAbilitySystemComponent* AbilitySystemComponent;
 
 	/**
@@ -82,17 +93,20 @@ public:
 
 	////////// Server only  //////////
 	UFUNCTION(BlueprintImplementableEvent)
-	void BP_OnDamaged(float Damage, const FHitResult HitInfo, const FGameplayTagContainer& DamageTags, ACHBase* InstigatorCharacter, AActor* DamageCauser);
+	void BP_OnDamaged(float Damage, const FHitResult HitInfo, const FGameplayTagContainer& DamageTags,
+	                  ACHBase* InstigatorCharacter, AActor* DamageCauser);
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_OnHealthChanged(float DeltaValue, const struct FGameplayTagContainer& EventTags);
-	virtual void HandleDamage(float Damage, const FHitResult HitInfo, const FGameplayTagContainer& DamageTags, ACHBase* InstigatorCharacter, AActor* DamageCauser);
+	virtual void HandleDamage(float Damage, const FHitResult HitInfo, const FGameplayTagContainer& DamageTags,
+	                          ACHBase* InstigatorCharacter, AActor* DamageCauser);
 	virtual void HandleHealthChanged(float DeltaValue, const struct FGameplayTagContainer& EventTags);
 	////////// Server only //////////
 
 	/**
 	* Client only Attribute On_Rep
 	*/
-	virtual void OnRep_Attribute(const FGameplayAttribute& Attribute, const FGameplayAttributeData& OldValue, const FGameplayAttributeData& NewValue);
+	virtual void OnRep_Attribute(const FGameplayAttribute& Attribute, const FGameplayAttributeData& OldValue,
+	                             const FGameplayAttributeData& NewValue);
 
 	friend UCHAttributeSet;
 

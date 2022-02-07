@@ -17,3 +17,11 @@ enum class EAbilityInputID : uint8
 	Ability2,
 	Ability3
 };
+
+UENUM(BlueprintType)
+enum class ETeam : uint8
+{
+	NeutralTeam,
+	RedTeam,
+	BlueTeam
+};
