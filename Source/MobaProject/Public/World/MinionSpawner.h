@@ -17,15 +17,18 @@ public:
 	AMinionSpawner();
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-protected:
 
-	void Spawn();
+	virtual void BeginPlay() override;
 	
+	FTimerHandle SpawnTimerHandle;
+protected:
+	void Spawn();
+
 	/**
 	 * How often to spawn the minions 
 	 */
 	UPROPERTY(EditAnywhere, Category=Spanwer)
-	float SpawnFrequency;
+	float SpawnFrequency = 10.f;
 
 	/**
 	 * How many minions to spawn per wave
@@ -42,6 +45,6 @@ protected:
 	/**
 	 * The team the spawned minions should be set to
 	 */
-	UPROPERTY(BlueprintReadWrite)
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	ETeam Team;
 };

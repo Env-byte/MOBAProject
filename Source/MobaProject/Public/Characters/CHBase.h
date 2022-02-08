@@ -25,15 +25,18 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE ETeam GetTeam() const { return Team; }
-
+	
+	/**
+	* Team this unit belongs too
+	*/
+	UPROPERTY(BlueprintReadWrite, Replicated)
+	ETeam Team;
+	
+	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 protected:
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
-	/**
-	 * Team this unit belongs too
-	 */
-	UPROPERTY(BlueprintReadWrite)
-	ETeam Team;
+	
 
 
 	////////// Ability System //////////

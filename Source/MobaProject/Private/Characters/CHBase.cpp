@@ -9,6 +9,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PawnMovementComponent.h"
 #include "MobaProject/MobaProject.h"
+#include "Net/UnrealNetwork.h"
 #include "Widgets/Components/WNamePlate.h"
 DEFINE_LOG_CATEGORY(LogCHBase);
 
@@ -27,6 +28,12 @@ ACHBase::ACHBase()
 	NamePlateComponent->AttachToComponent(GetRootComponent(), AttachmentRules);
 
 	Attributes = CreateDefaultSubobject<UCHAttributeSet>("Attributes");
+}
+
+void ACHBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(ACHBase, Team);
 }
 
 void ACHBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -62,7 +69,8 @@ void ACHBase::InitializeAttributes()
 	}
 
 	const FGameplayEffectContextHandle ContextHandle = AbilitySystemComponent->MakeEffectContext();
-	const FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(DefaultAttributeEffect, GetCharacterLevel(), ContextHandle);
+	const FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(
+		DefaultAttributeEffect, GetCharacterLevel(), ContextHandle);
 
 	if (SpecHandle.IsValid())
 	{
@@ -94,7 +102,8 @@ void ACHBase::PossessedBy(AController* NewController)
 	{
 		InitializeOwningActor();
 		InitializeAttributes();
-		UE_LOG(LogCHBase, Display, TEXT("PossessedBy: %s %f:%f"), *GetFullName(), Attributes->GetHealth(), Attributes->GetMaxHealth())
+		UE_LOG(LogCHBase, Display, TEXT("PossessedBy: %s %f:%f"), *GetFullName(), Attributes->GetHealth(),
+		       Attributes->GetMaxHealth())
 	}
 }
 
@@ -108,7 +117,8 @@ void ACHBase::OnRep_PlayerState()
 	}
 }
 
-void ACHBase::HandleDamage(float Damage, const FHitResult HitInfo, const FGameplayTagContainer& DamageTags, ACHBase* InstigatorCharacter, AActor* DamageCauser)
+void ACHBase::HandleDamage(float Damage, const FHitResult HitInfo, const FGameplayTagContainer& DamageTags,
+                           ACHBase* InstigatorCharacter, AActor* DamageCauser)
 {
 	BP_OnDamaged(Damage, HitInfo, DamageTags, InstigatorCharacter, DamageCauser);
 }
@@ -123,7 +133,8 @@ void ACHBase::HandleHealthChanged(float DeltaValue, const FGameplayTagContainer&
 	}
 }
 
-void ACHBase::OnRep_Attribute(const FGameplayAttribute& Attribute, const FGameplayAttributeData& OldValue, const FGameplayAttributeData& NewValue)
+void ACHBase::OnRep_Attribute(const FGameplayAttribute& Attribute, const FGameplayAttributeData& OldValue,
+                              const FGameplayAttributeData& NewValue)
 {
 	UWNamePlate* NamePlate = NamePlateComponent->GetNamePlateWidget();
 	if (!NamePlate) { return; }
