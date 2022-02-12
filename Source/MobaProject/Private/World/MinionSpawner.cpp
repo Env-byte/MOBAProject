@@ -36,7 +36,7 @@ void AMinionSpawner::Spawn()
 		FRotator Rotator = GetActorRotation();
 		Rotator.Pitch = 0;
 		const FTransform Transform{Rotator, this->GetActorLocation()};
-		ACHBase* SpawnedActor = GetWorld()->SpawnActorDeferred<ACHBase>(
+		ACHMinion* SpawnedActor = GetWorld()->SpawnActorDeferred<ACHMinion>(
 			MinionClass,
 			Transform,
 			this,
@@ -45,5 +45,6 @@ void AMinionSpawner::Spawn()
 		);
 		SpawnedActor->Team = this->Team;
 		UGameplayStatics::FinishSpawningActor(SpawnedActor, Transform);
+		BP_OnSpawn(SpawnedActor);
 	}
 }

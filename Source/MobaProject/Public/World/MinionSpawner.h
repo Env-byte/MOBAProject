@@ -22,6 +22,10 @@ public:
 	
 	FTimerHandle SpawnTimerHandle;
 protected:
+
+	UFUNCTION(BlueprintImplementableEvent,Category=Spawn)
+	void BP_OnSpawn(ACHMinion* SpawnedMinion);
+	
 	void Spawn();
 
 	/**
