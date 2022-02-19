@@ -26,7 +26,6 @@ void AHUDAllMid::BeginPlay()
 		PlayerHud = CreateWidget<UWPlayerHud>(GetOwningPlayerController(), PlayerHudClass, FName(TEXT("PlayerHud")));
 		PlayerHud->AddToViewport(0);
 	}
-	
 }
 
 void AHUDAllMid::ShowScoreboard()

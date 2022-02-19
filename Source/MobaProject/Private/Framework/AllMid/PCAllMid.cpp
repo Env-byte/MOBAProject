@@ -4,6 +4,7 @@
 #include "Blueprint/AIBlueprintHelperLibrary.h"
 #include "Characters/Playable/CHPlayable.h"
 #include "Components/InventoryComponent.h"
+#include "Framework/AllMid/GMAllMid.h"
 #include "Framework/AllMid/HUDAllMid.h"
 #include "Framework/AllMid/PSAllMid.h"
 #include "Framework/AllMid/PSAttributeSet.h"
@@ -13,6 +14,7 @@
 #include "Widgets/AllMid/WPlayerInventory.h"
 #include "Widgets/Components/WItem.h"
 #include "World/Shop.h"
+DEFINE_LOG_CATEGORY(LogPCAllMid);
 
 APCAllMid::APCAllMid()
 {
@@ -26,6 +28,16 @@ APCAllMid::APCAllMid()
 	ItemSlotActionNames.Add("ItemSlot4");
 	ItemSlotActionNames.Add("ItemSlot5");
 	ItemSlotActionNames.Add("ItemSlot6");
+}
+
+void APCAllMid::BeginPlay()
+{
+	Super::BeginPlay();
+	GameMode = GetWorld()->GetAuthGameMode<AGMAllMid>();
+	if(!HasAuthority())
+	{
+		Server_ReadyToStart();
+	}
 }
 
 void APCAllMid::PlayerStateReady(APSAllMid* PS)
@@ -96,7 +108,7 @@ void APCAllMid::MoveToMouseCursor()
 			AActor* HitActor = Hit.Actor.Get();
 			ACHBase* BaseCharacter = Cast<ACHBase>(HitActor);
 			ACHPlayable* MyPawn = GetPawn<ACHPlayable>();
-			UE_LOG(LogTemp, Display, TEXT("OnClick hit actor HitActor: %s"), *HitActor->GetClass()->GetName())
+			UE_LOG(LogPCAllMid, Display, TEXT("OnClick hit actor HitActor: %s"), *HitActor->GetClass()->GetName())
 			if (IsValid(BaseCharacter) && IsValid(MyPawn))
 			{
 				MyPawn->CastPrimaryAttack(BaseCharacter);
@@ -205,7 +217,7 @@ void APCAllMid::OnUseItem(const FName ActionName, const int32 Index)
 {
 	AHUDAllMid* ThisHud = GetHUD<AHUDAllMid>();
 	if (!ThisHud) { return; }
-	UE_LOG(LogCHPlayable, Display, TEXT("OnUseItem: %s %d"), *ActionName.ToString(), Index);
+	UE_LOG(LogPCAllMid, Display, TEXT("OnUseItem: %s %d"), *ActionName.ToString(), Index);
 	UWPlayerInventory* PlayerInventory = ThisHud->GetPlayerHudWidget()->GetPlayerInventory();
 	if (PlayerInventory->ItemSlots.IsValidIndex(Index))
 	{
@@ -258,7 +270,7 @@ void APCAllMid::BuyItem(const TSubclassOf<UBaseItem> Item)
 	{
 		if (!IsInShop())
 		{
-			UE_LOG(LogCHPlayable, Display, TEXT("Not in shop, cannot buy item"));
+			UE_LOG(LogPCAllMid, Display, TEXT("Not in shop, cannot buy item"));
 			return;
 		}
 	}
@@ -289,7 +301,7 @@ void APCAllMid::SellItem(UBaseItem* Item)
 	{
 		if (!IsInShop())
 		{
-			UE_LOG(LogCHPlayable, Display, TEXT("Not in shop, cannot sell item"));
+			UE_LOG(LogPCAllMid, Display, TEXT("Not in shop, cannot sell item"));
 			return;
 		}
 	}
@@ -301,7 +313,7 @@ void APCAllMid::SellItem(UBaseItem* Item)
 		APSAllMid* ThisPlayerState = GetPlayerState<APSAllMid>();
 		Item->OnSell(Playable, ThisPlayerState);
 	}
-	UE_LOG(LogCHPlayable, Display, TEXT("RemoveItem: %s"), Status ? TEXT("True") : TEXT("False"));
+	UE_LOG(LogPCAllMid, Display, TEXT("RemoveItem: %s"), Status ? TEXT("True") : TEXT("False"));
 }
 
 void APCAllMid::ConsumeItem(UConsumableItem* ConsumableItem)
@@ -322,7 +334,35 @@ void APCAllMid::ConsumeItem(UConsumableItem* ConsumableItem)
 	{
 		ConsumableItem->Use(Playable);
 	}
-	UE_LOG(LogCHPlayable, Display, TEXT("ConsumableItem: %s"), Status ? TEXT("True") : TEXT("False"));
+	UE_LOG(LogPCAllMid, Display, TEXT("ConsumableItem: %s"), Status ? TEXT("True") : TEXT("False"));
+}
+
+void APCAllMid::Client_ShowNotification_Implementation(const FText& Message)
+{
+	BP_ShowNotification(Message);
+}
+
+void APCAllMid::Server_ReadyToStart_Implementation()
+{
+	if (GameMode != nullptr)
+	{
+		GameMode->PlayerControllerReady(this);
+	}
+}
+
+void APCAllMid::Client_StartGameCountdown_Implementation(float StartFrom)
+{
+	AHUDAllMid* HUD = GetHUD<AHUDAllMid>();
+	if(IsValid(HUD))
+	{
+		HUD->GetPlayerHudWidget()->BP_StartGameCountdown();
+	}
+}
+
+void APCAllMid::Client_OnGameStarted_Implementation()
+{
+	UE_LOG(LogCHPlayable, Display, TEXT("Client_OnGameStarted"))
+	BP_OnGameStarted();
 }
 
 void APCAllMid::Server_ConsumeItem_Implementation(UConsumableItem* ConsumableItem)

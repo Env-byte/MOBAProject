@@ -57,4 +57,7 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	UWAbility* BP_GetAbility(EAbilityInputID AbilityInputID);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_StartGameCountdown(float StartFrom);
 };

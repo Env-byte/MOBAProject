@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GMAllMid.h"
 #include "GameFramework/PlayerController.h"
 #include "Items/BaseItem.h"
 #include "PCAllMid.generated.h"
@@ -11,6 +12,9 @@ class UConsumableItem;
 class UWItemsShop;
 class APSAllMid;
 class UInventoryComponent;
+
+DECLARE_LOG_CATEGORY_EXTERN(LogPCAllMid, Log, All);
+
 /**
  * 
  */
@@ -20,6 +24,11 @@ class MOBAPROJECT_API APCAllMid : public APlayerController
 	GENERATED_BODY()
 public:
 	APCAllMid();
+
+	virtual void BeginPlay() override;
+
+	UPROPERTY()
+	AGMAllMid* GameMode;
 
 	/**
 	 * Called straight after player state begin play. Only called for local player controllers
@@ -50,7 +59,7 @@ protected:
 	////////// Select //////////
 	void OnSelect();
 	////////// Select //////////
-	
+
 	////////// Scoreboard //////////
 	void OnScoreboardPressed();
 	void OnScoreboardReleased();
@@ -100,4 +109,34 @@ protected:
 	UFUNCTION(Server, Reliable)
 	void Server_ConsumeItem(UConsumableItem* ConsumableItem);
 	////////// Items //////////
+	////////// Players Joining //////////
+public:
+	UFUNCTION(Client, Reliable)
+	void Client_OnGameStarted();
+
+	/** Start the countdown for players  */
+	UFUNCTION(Client, Reliable)
+	void Client_StartGameCountdown(float StartFrom);
+
+	/**
+	 * Called when this player controller is ready to start the game, calls the game mode to let it know
+	 */
+	UFUNCTION(Server, Reliable)
+	void Server_ReadyToStart();
+
+	/**
+	 * Runs on client, only called if ShowNotification is called on server
+	 */
+	UFUNCTION(Client, Reliable, BlueprintCallable)
+	void Client_ShowNotification(const FText& Message);
+
+	/**
+	 * Notifications is handled in blueprint
+	 */
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_ShowNotification(const FText& Message);
+protected:
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_OnGameStarted();
+	////////// Players Joining //////////
 };
