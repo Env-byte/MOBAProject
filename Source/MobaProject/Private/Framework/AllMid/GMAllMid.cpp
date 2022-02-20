@@ -82,6 +82,7 @@ void AGMAllMid::PlayerControllerReady(const APCAllMid* PlayerController)
 	ReadyPlayers++;
 	if (ReadyPlayers == ExpectedPlayerCount)
 	{
+		UE_LOG(LogArenaGM, Display, TEXT("All PlayerControllers Ready. Starting countdown"));
 		//start match if it has not already started
 		StartCountdown();
 	}

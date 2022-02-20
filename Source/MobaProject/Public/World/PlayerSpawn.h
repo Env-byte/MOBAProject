@@ -15,6 +15,6 @@ public:
 	// Sets default values for this actor's properties
 	APlayerSpawn();
 
-	UPROPERTY(EditAnywhere, BlueprintRead)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	ETeam Team;
 };

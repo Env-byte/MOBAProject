@@ -355,7 +355,7 @@ void APCAllMid::Client_StartGameCountdown_Implementation(float StartFrom)
 	AHUDAllMid* HUD = GetHUD<AHUDAllMid>();
 	if(IsValid(HUD))
 	{
-		HUD->GetPlayerHudWidget()->BP_StartGameCountdown();
+		HUD->GetPlayerHudWidget()->BP_StartGameCountdown(StartFrom);
 	}
 }
 
