@@ -55,6 +55,8 @@ void AGMAllMid::HandlePlayerJoin(APCAllMid* PlayerController)
 		PS->Team = ETeam::RedTeam;
 	}
 
+	BP_SpawnPlayer(PlayerController);
+	
 	//start match if it has not already started
 	if (!HasMatchStarted())
 	{

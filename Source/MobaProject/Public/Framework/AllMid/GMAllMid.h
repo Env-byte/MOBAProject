@@ -62,5 +62,8 @@ public:
 
 	/** When clientside is finished setting up, this function is called from the playerController */
 	void PlayerControllerReady(const APCAllMid* PlayerController);
+	
 	////////// Players Joining //////////
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_SpawnPlayer(APCAllMid* PlayerController);
 };

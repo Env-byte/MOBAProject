@@ -30,6 +30,9 @@ public:
 	UPROPERTY()
 	AGMAllMid* GameMode;
 
+	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly)
+	TSubclassOf<ACHPlayable> PlayerCharacterClass;
+
 	/**
 	 * Called straight after player state begin play. Only called for local player controllers
 	 */
