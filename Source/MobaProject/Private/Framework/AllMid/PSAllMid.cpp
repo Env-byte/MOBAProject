@@ -3,11 +3,13 @@
 
 #include "Framework/AllMid/PSAllMid.h"
 
+#include "Characters/Playable/CHPlayable.h"
 #include "Components/InventoryComponent.h"
 #include "Framework/AllMid/HUDAllMid.h"
 #include "Framework/AllMid/PCAllMid.h"
 #include "Framework/AllMid/PSAbilitySystemComponent.h"
 #include "Framework/AllMid/PSAttributeSet.h"
+#include "Net/UnrealNetwork.h"
 #include "Widgets/AllMid/WPlayerHud.h"
 DEFINE_LOG_CATEGORY(LogPSAllMid);
 
@@ -44,7 +46,8 @@ void APSAllMid::BeginPlay()
 void APSAllMid::InitializeAttributes()
 {
 	const FGameplayEffectContextHandle ContextHandle = AbilitySystemComponent->MakeEffectContext();
-	const FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(DefaultAttributeEffect, 0, ContextHandle);
+	const FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(
+		DefaultAttributeEffect, 0, ContextHandle);
 	UE_LOG(LogPSAllMid, Display, TEXT("%s InitializeAttributes"), *this->GetName())
 
 	if (SpecHandle.IsValid())
@@ -53,7 +56,8 @@ void APSAllMid::InitializeAttributes()
 	}
 
 	const FGameplayEffectContextHandle GoldContextHandle = AbilitySystemComponent->MakeEffectContext();
-	const FGameplayEffectSpecHandle GoldSpecHandle = AbilitySystemComponent->MakeOutgoingSpec(GoldPassiveEffect, 0, GoldContextHandle);
+	const FGameplayEffectSpecHandle GoldSpecHandle = AbilitySystemComponent->MakeOutgoingSpec(
+		GoldPassiveEffect, 0, GoldContextHandle);
 	if (SpecHandle.IsValid())
 	{
 		AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*GoldSpecHandle.Data.Get());
@@ -65,7 +69,14 @@ UAbilitySystemComponent* APSAllMid::GetAbilitySystemComponent() const
 	return AbilitySystemComponent;
 }
 
-void APSAllMid::OnRep_Attribute(const FGameplayAttribute& Attribute, const FGameplayAttributeData& OldValue, const FGameplayAttributeData& NewValue)
+void APSAllMid::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(APSAllMid, Team);
+}
+
+void APSAllMid::OnRep_Attribute(const FGameplayAttribute& Attribute, const FGameplayAttributeData& OldValue,
+                                const FGameplayAttributeData& NewValue)
 {
 	if (!PlayerControllerRef) { return; }
 	if (!PlayerControllerRef->IsLocalController()) { return; }
@@ -73,9 +84,19 @@ void APSAllMid::OnRep_Attribute(const FGameplayAttribute& Attribute, const FGame
 	if (!HUD) { return; }
 	UWPlayerHud* PlayerHudWidget = HUD->GetPlayerHudWidget();
 	if (!PlayerHudWidget) { return; }
-	
+
 	if (Attribute == Attributes->GetGoldAttribute())
 	{
 		PlayerHudWidget->BP_SetGold(NewValue.GetCurrentValue());
+	}
+}
+
+void APSAllMid::OnRep_Team()
+{
+	if (!PlayerControllerRef) { return; }
+	ACHPlayable* Pawn = PlayerControllerRef->GetPawn<ACHPlayable>();
+	if (Pawn)
+	{
+		Pawn->Team = Team;
 	}
 }

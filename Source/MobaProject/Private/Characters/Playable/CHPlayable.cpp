@@ -100,12 +100,22 @@ void ACHPlayable::OnRep_PlayerState()
 	APCAllMid* PC = GetController<APCAllMid>();
 	if (!PC) { return; }
 
+	APSAllMid* PS = PC->GetPlayerState<APSAllMid>();
+	Team = PS->Team;
+
 	AHUDAllMid* HUD = PC->GetHUD<AHUDAllMid>();
 	if (!HUD) { return; }
 
 	UWPlayerHud* PlayerHudWidget = HUD->GetPlayerHudWidget();
 	if (!PlayerHudWidget) { return; }
 	PlayerHudWidget->BP_PlayerSpawned(this);
+
+	GEngine->AddOnScreenDebugMessage(-1,
+	                                 10.f,
+	                                 FColor::Blue,
+	                                 FString::Printf(TEXT("Team: %s"),
+	                                                 *StaticEnum<ETeam>()->GetValueAsString(PS->Team))
+	);
 }
 
 void ACHPlayable::UpdateCursorDecal() const
@@ -232,6 +242,11 @@ void ACHPlayable::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 	GiveAbilities();
+	APCAllMid* PC = GetController<APCAllMid>();
+	if (!PC) { return; }
+	APSAllMid* PS = PC->GetPlayerState<APSAllMid>();
+	if (!PS) { return; }
+	Team = PS->Team;
 }
 
 void ACHPlayable::OnRep_Attribute(const FGameplayAttribute& Attribute, const FGameplayAttributeData& OldValue,

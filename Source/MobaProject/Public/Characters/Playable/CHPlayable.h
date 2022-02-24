@@ -32,6 +32,8 @@ public:
 	FORCEINLINE class UDecalComponent* GetCursorToWorld() { return CursorToWorld; }
 
 	virtual void OnRep_PlayerState() override;
+
+	
 private:
 	/**
 	 * Update the cursor decal

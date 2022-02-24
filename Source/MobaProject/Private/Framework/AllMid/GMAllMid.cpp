@@ -44,6 +44,17 @@ void AGMAllMid::HandlePlayerJoin(APCAllMid* PlayerController)
 {
 	PlayerControllers.Push(PlayerController);
 	UE_LOG(LogArenaGM, Display, TEXT("ClientController: %d"), PlayerControllers.Num());
+
+	APSAllMid* PS = PlayerController->GetPlayerState<APSAllMid>();
+	if (PlayerControllers.Num() == 1)
+	{
+		PS->Team = ETeam::BlueTeam;
+	}
+	else
+	{
+		PS->Team = ETeam::RedTeam;
+	}
+
 	//start match if it has not already started
 	if (!HasMatchStarted())
 	{
@@ -53,7 +64,6 @@ void AGMAllMid::HandlePlayerJoin(APCAllMid* PlayerController)
 
 void AGMAllMid::PostLogin(APlayerController* NewPlayer)
 {
-	Super::PostLogin(NewPlayer);
 	Super::PostLogin(NewPlayer);
 	APCAllMid* ClientController = Cast<APCAllMid>(NewPlayer);
 	if (ClientController != nullptr)

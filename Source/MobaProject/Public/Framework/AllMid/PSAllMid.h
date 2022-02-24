@@ -7,6 +7,7 @@
 #include "AttributeSet.h"
 #include "PCAllMid.h"
 #include "GameFramework/PlayerState.h"
+#include "MobaProject/MobaProject.h"
 #include "PSAllMid.generated.h"
 DECLARE_LOG_CATEGORY_EXTERN(LogPSAllMid, Log, All);
 
@@ -61,12 +62,21 @@ public:
 	FORCEINLINE UPSAttributeSet* GetAttributeSet() const { return Attributes; }
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 
+	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
+	
 	/**
 	* Client only Attribute On_Rep
 	*/
-	void OnRep_Attribute(const FGameplayAttribute& Attribute, const FGameplayAttributeData& OldValue, const FGameplayAttributeData& NewValue);
+	void OnRep_Attribute(const FGameplayAttribute& Attribute, const FGameplayAttributeData& OldValue,
+	                     const FGameplayAttributeData& NewValue);
 	////////// Ability System //////////
 
 	UPROPERTY(BlueprintReadOnly)
 	UInventoryComponent* InventoryComponent;
+
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing=OnRep_Team)
+	ETeam Team;
+
+	UFUNCTION()
+	void OnRep_Team();
 };
