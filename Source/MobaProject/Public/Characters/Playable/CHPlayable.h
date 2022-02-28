@@ -19,6 +19,11 @@ class MOBAPROJECT_API ACHPlayable : public ACHBase
 protected:
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 
+	/**
+	 * Use Internally to handle team changing, such as changing camera angle etc
+	 */
+	void SetTeam(ETeam ThisTeam);
+
 public:
 	ACHPlayable();
 	// Called every frame.
@@ -33,7 +38,7 @@ public:
 
 	virtual void OnRep_PlayerState() override;
 
-	
+
 private:
 	/**
 	 * Update the cursor decal
@@ -54,6 +59,7 @@ private:
 
 
 protected:
+	void PlayerSpawned();
 	virtual void BeginPlay() override;
 	////////// Ability System //////////
 	///
@@ -138,7 +144,7 @@ public:
 
 	UFUNCTION()
 	void OnRep_PrimaryAttackTarget();
-	
+
 	/**
 	 * For simplicity just going to minus armour from damage
 	 */

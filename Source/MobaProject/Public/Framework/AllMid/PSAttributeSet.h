@@ -33,23 +33,41 @@ public:
 
 	virtual void PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data) override;
 
-	UPROPERTY(BlueprintReadOnly, Category="Attributes", ReplicatedUsing=On_RepCharacterLevel)
+	UPROPERTY(BlueprintReadOnly, Category="Attributes", ReplicatedUsing=OnRep_CharacterLevel)
 	FGameplayAttributeData CharacterLevel;
 	ATTRIBUTE_ACCESSORS(UPSAttributeSet, CharacterLevel)
 
-	UPROPERTY(BlueprintReadOnly, Category="Attributes", ReplicatedUsing=On_RepCharacterExperience)
+	UPROPERTY(BlueprintReadOnly, Category="Attributes", ReplicatedUsing=OnRep_CharacterExperience)
 	FGameplayAttributeData CharacterExperience;
 	ATTRIBUTE_ACCESSORS(UPSAttributeSet, CharacterExperience)
 
-	UPROPERTY(BlueprintReadOnly, Category="Attributes", ReplicatedUsing=On_RepGold)
+	UPROPERTY(BlueprintReadOnly, Category="Attributes", ReplicatedUsing=OnRep_Gold)
 	FGameplayAttributeData Gold;
 	ATTRIBUTE_ACCESSORS(UPSAttributeSet, Gold)
+
+	UPROPERTY(BlueprintReadOnly, Category="Attributes", ReplicatedUsing=OnRep_PlayersKilled)
+	FGameplayAttributeData PlayersKilled;
+	ATTRIBUTE_ACCESSORS(UPSAttributeSet, PlayersKilled)
+
+	UPROPERTY(BlueprintReadOnly, Category="Attributes", ReplicatedUsing=OnRep_Deaths)
+	FGameplayAttributeData Deaths;
+	ATTRIBUTE_ACCESSORS(UPSAttributeSet, Deaths)
+	
+	UPROPERTY(BlueprintReadOnly, Category="Attributes", ReplicatedUsing=OnRep_MinionsKilled)
+	FGameplayAttributeData MinionsKilled;
+	ATTRIBUTE_ACCESSORS(UPSAttributeSet, MinionsKilled)
+
 protected:
 	UFUNCTION()
-	virtual void On_RepCharacterLevel(const FGameplayAttributeData& OldCharacterLevel);
+	virtual void OnRep_CharacterLevel(const FGameplayAttributeData& OldCharacterLevel);
 	UFUNCTION()
-	virtual void On_RepCharacterExperience(const FGameplayAttributeData& OldCharacterExperience);
-
+	virtual void OnRep_CharacterExperience(const FGameplayAttributeData& OldCharacterExperience);
 	UFUNCTION()
-	virtual void On_RepGold(const FGameplayAttributeData& OldGold);
+	virtual void OnRep_Gold(const FGameplayAttributeData& OldGold);
+	UFUNCTION()
+	virtual void OnRep_PlayersKilled(const FGameplayAttributeData& OldKills);
+	UFUNCTION()
+	virtual void OnRep_Deaths(const FGameplayAttributeData& OldDeaths);
+	UFUNCTION()
+	virtual void OnRep_MinionsKilled(const FGameplayAttributeData& OldMinionsKilled);
 };

@@ -7,6 +7,7 @@
 #include "Characters/CHAbilitySystemComponent.h"
 #include "Characters/CHAttributeSet.h"
 #include "GameFramework/Pawn.h"
+#include "Interfaces/TeamColours.h"
 #include "MobaProject/MobaProject.h"
 #include "CHTurret.generated.h"
 DECLARE_LOG_CATEGORY_EXTERN(LogCHTurret, Log, All);
@@ -14,7 +15,7 @@ DECLARE_LOG_CATEGORY_EXTERN(LogCHTurret, Log, All);
 class UCharacterNamePlate;
 
 UCLASS()
-class MOBAPROJECT_API ACHTurret : public APawn, public IAbilitySystemInterface
+class MOBAPROJECT_API ACHTurret : public APawn, public IAbilitySystemInterface, public ITeamColours
 {
 	GENERATED_BODY()
 public:
@@ -28,6 +29,8 @@ public:
 	*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated)
 	ETeam Team;
+
+	virtual ETeam GetTeam() override;
 
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 

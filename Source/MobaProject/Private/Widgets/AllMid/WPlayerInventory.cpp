@@ -39,6 +39,7 @@ UWItem* UWPlayerInventory::FindItemSlot(const FGuid UniqueId)
 
 void UWPlayerInventory::OnInventoryUpdate(TArray<UBaseItem*> Items)
 {
+	UE_LOG(LogTemp, Display, TEXT("OnInventoryUpdate: %d"), Items.Num());
 	//list of occupied slots
 	TArray<UWItem*> SlotsOccupied;
 
@@ -46,10 +47,12 @@ void UWPlayerInventory::OnInventoryUpdate(TArray<UBaseItem*> Items)
 	{
 		UWItem* ItemSlot;
 		ItemSlot = FindItemSlot(Item->GetGuid());
+		UE_LOG(LogTemp, Display, TEXT("FindItemSlot: %p"), ItemSlot);
 		if (!ItemSlot)
 		{
 			//if item does not exist in inventory add it to first empty slot
 			ItemSlot = FindFirstEmptySlot();
+			UE_LOG(LogTemp, Display, TEXT("FindFirstEmptySlot: %p"), ItemSlot);
 			ItemSlot->SetItem(Item);
 		}
 

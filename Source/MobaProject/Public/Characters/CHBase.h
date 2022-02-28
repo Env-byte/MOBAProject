@@ -29,7 +29,7 @@ public:
 	/**
 	* Team this unit belongs too
 	*/
-	UPROPERTY(BlueprintReadWrite, Replicated)
+	UPROPERTY(BlueprintReadWrite, Replicated, meta = (ExposeOnSpawn="true"))
 	ETeam Team;
 	
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;

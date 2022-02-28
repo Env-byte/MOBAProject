@@ -27,6 +27,11 @@ ACHTurret::ACHTurret()
 	Attributes = CreateDefaultSubobject<UCHAttributeSet>("Attributes");
 }
 
+ETeam ACHTurret::GetTeam()
+{
+	return Team;
+}
+
 void ACHTurret::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
@@ -154,6 +159,7 @@ void ACHTurret::BeginPlay()
 {
 	Super::BeginPlay();
 	SetupNamePlateWidget();
+	Execute_SetColour(this, GetColour(GetClientTeam(GetWorld())));
 }
 
 // Called to bind functionality to input

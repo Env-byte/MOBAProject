@@ -33,14 +33,7 @@ public:
 	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly)
 	TSubclassOf<ACHPlayable> PlayerCharacterClass;
 
-	/**
-	 * Called straight after player state begin play. Only called for local player controllers
-	 */
-	void PlayerStateReady(APSAllMid* PS);
 protected:
-	UFUNCTION()
-	void OnPlayerInventoryUpdated(const TArray<UBaseItem*>& Items);
-
 	virtual void SetupInputComponent() override;
 
 	////////// PLAYER MOVEMENT //////////

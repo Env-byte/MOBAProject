@@ -16,3 +16,14 @@ void ACHNonPlayable::SetupNamePlateWidget()
 	}
 	Super::SetupNamePlateWidget();
 }
+
+ETeam ACHNonPlayable::GetTeam()
+{
+	return Team;
+}
+
+void ACHNonPlayable::BeginPlay()
+{
+	Super::BeginPlay();
+	Execute_SetColour(this, GetColour(GetClientTeam(GetWorld())));
+}

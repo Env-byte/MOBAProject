@@ -28,6 +28,25 @@ void ACHPlayable::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
 	DOREPLIFETIME(ACHPlayable, PrimaryAttackTarget)
 }
 
+void ACHPlayable::SetTeam(ETeam ThisTeam)
+{
+	Team = ThisTeam;
+	GEngine->AddOnScreenDebugMessage(-1,
+	                                 10.f,
+	                                 FColor::Blue,
+	                                 FString::Printf(TEXT("Team: %s"),
+	                                                 *StaticEnum<ETeam>()->GetValueAsString(Team))
+	);
+	if (Team == ETeam::BlueTeam)
+	{
+		CameraBoom->SetRelativeRotation(FRotator(-60.f, 225.f, 0.f));
+	}
+	else
+	{
+		CameraBoom->SetRelativeRotation(FRotator(-60.f, 45.f, 0.f));
+	}
+}
+
 ACHPlayable::ACHPlayable()
 {
 	// Set size for player capsule
@@ -45,6 +64,7 @@ ACHPlayable::ACHPlayable()
 	GetCharacterMovement()->bSnapToPlaneAtStart = true;
 
 	// Create a camera boom...
+	//needs to adjust depending on what team the player is on 
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
 	CameraBoom->SetUsingAbsoluteRotation(true); // Don't want arm to rotate when character does
@@ -78,6 +98,8 @@ ACHPlayable::ACHPlayable()
 	NextPrimaryAttackIndex = 0;
 	bIsAttacking = false;
 	bAbilitiesInitialized = false;
+
+	Team = ETeam::NeutralTeam;
 }
 
 void ACHPlayable::Tick(float DeltaSeconds)
@@ -97,25 +119,21 @@ void ACHPlayable::Tick(float DeltaSeconds)
 void ACHPlayable::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
+
 	APCAllMid* PC = GetController<APCAllMid>();
-	if (!PC) { return; }
+	if (!PC)
+	{
+		UE_LOG(LogCHPlayable, Warning, TEXT("PC Is not valid"))
+		return;
+	}
 
 	APSAllMid* PS = PC->GetPlayerState<APSAllMid>();
-	Team = PS->Team;
+	if (PS && PS->Team != Team)
+	{
+		SetTeam(PS->Team);
+	}
 
-	AHUDAllMid* HUD = PC->GetHUD<AHUDAllMid>();
-	if (!HUD) { return; }
-
-	UWPlayerHud* PlayerHudWidget = HUD->GetPlayerHudWidget();
-	if (!PlayerHudWidget) { return; }
-	PlayerHudWidget->BP_PlayerSpawned(this);
-
-	GEngine->AddOnScreenDebugMessage(-1,
-	                                 10.f,
-	                                 FColor::Blue,
-	                                 FString::Printf(TEXT("Team: %s"),
-	                                                 *StaticEnum<ETeam>()->GetValueAsString(PS->Team))
-	);
+	PlayerSpawned();
 }
 
 void ACHPlayable::UpdateCursorDecal() const
@@ -134,12 +152,42 @@ void ACHPlayable::UpdateCursorDecal() const
 	}
 }
 
+void ACHPlayable::PlayerSpawned()
+{
+	APCAllMid* PC = GetController<APCAllMid>();
+	if (!PC)
+	{
+		return;
+	}
+	AHUDAllMid* HUD = PC->GetHUD<AHUDAllMid>();
+	if (!HUD)
+	{
+		UE_LOG(LogCHPlayable, Warning, TEXT("HUD Is not valid"))
+		return;
+	}
+
+	UWPlayerHud* PlayerHudWidget = HUD->GetPlayerHudWidget();
+	if (!PlayerHudWidget)
+	{
+		UE_LOG(LogCHPlayable, Warning, TEXT("PlayerHudWidget Is not valid"))
+		return;
+	}
+	PlayerHudWidget->BP_PlayerSpawned(this);
+}
+
 void ACHPlayable::BeginPlay()
 {
 	Super::BeginPlay();
 	if (IsLocallyControlled())
 	{
 		CursorToWorld->SetHiddenInGame(false);
+		//do this to change camera angle if spawned in with a team
+		if (Team != ETeam::NeutralTeam)
+		{
+			SetTeam(Team);
+		}
+
+		PlayerSpawned();
 	}
 }
 
@@ -153,6 +201,10 @@ void ACHPlayable::CastPrimaryAttack(ACHBase* Target)
 	if (!HasAuthority())
 	{
 		Server_CastPrimaryAttack(Target);
+		return;
+	}
+	if (Target->Team == Team)
+	{
 		return;
 	}
 	PrimaryAttackTarget = Target;
@@ -246,7 +298,10 @@ void ACHPlayable::PossessedBy(AController* NewController)
 	if (!PC) { return; }
 	APSAllMid* PS = PC->GetPlayerState<APSAllMid>();
 	if (!PS) { return; }
-	Team = PS->Team;
+	if (PS->Team != Team)
+	{
+		SetTeam(PS->Team);
+	}
 }
 
 void ACHPlayable::OnRep_Attribute(const FGameplayAttribute& Attribute, const FGameplayAttributeData& OldValue,

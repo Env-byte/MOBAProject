@@ -40,20 +40,6 @@ void APCAllMid::BeginPlay()
 	}
 }
 
-void APCAllMid::PlayerStateReady(APSAllMid* PS)
-{
-	PS->InventoryComponent->OnInventoryUpdated.AddDynamic(this, &APCAllMid::OnPlayerInventoryUpdated);
-}
-
-void APCAllMid::OnPlayerInventoryUpdated(const TArray<UBaseItem*>& Items)
-{
-	AHUDAllMid* HUD = GetHUD<AHUDAllMid>();
-	if (HUD)
-	{
-		HUD->GetPlayerHudWidget()->SetInventory(Items);
-	}
-}
-
 void APCAllMid::PlayerTick(float DeltaTime)
 {
 	Super::PlayerTick(DeltaTime);

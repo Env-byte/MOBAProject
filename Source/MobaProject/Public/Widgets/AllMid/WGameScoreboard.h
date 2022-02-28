@@ -6,14 +6,15 @@
 #include "Blueprint/UserWidget.h"
 #include "WGameScoreboard.generated.h"
 
-/**
- * 
- */
+
 UCLASS(Abstract)
 class MOBAPROJECT_API UWGameScoreboard : public UUserWidget
 {
 	GENERATED_BODY()
 public:
-	UFUNCTION(BlueprintImplementableEvent)
-	void BuildScoreboard();
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	class UWGameScoreboardItem* FriendlyScoreboardItem;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	UWGameScoreboardItem* EnemyScoreboardItem;
 };

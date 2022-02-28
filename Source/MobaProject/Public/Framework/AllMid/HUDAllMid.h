@@ -25,9 +25,10 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Widget Classes")
 	TSubclassOf<UWGameScoreboard> GameScoreboardClass;
 
+
+public:
 	UPROPERTY(BlueprintReadOnly, Category="Scoreboard Widgets")
 	UWGameScoreboard* GameScoreboard;
-public:
 	void ShowScoreboard();
 	void HideScoreboard();
 	////////// Scoreboard ///////////

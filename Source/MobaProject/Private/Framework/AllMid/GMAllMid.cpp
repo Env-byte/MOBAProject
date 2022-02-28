@@ -3,6 +3,7 @@
 
 #include "Framework/AllMid/GMAllMid.h"
 
+#include "Framework/AllMid/GSAllMid.h"
 #include "Framework/AllMid/PCAllMid.h"
 #include "Framework/AllMid/PSAllMid.h"
 DEFINE_LOG_CATEGORY(LogArenaGM);
@@ -24,6 +25,10 @@ void AGMAllMid::CountdownFinished()
 			PlayerControllers[i]->Client_OnGameStarted();
 		}
 	}
+	AGSAllMid* GS = GetGameState<AGSAllMid>();
+	GS->IncrementDestroyedTower(ETeam::BlueTeam);
+	GS->IncrementDestroyedTower(ETeam::RedTeam);
+	GS->IncrementDestroyedTower(ETeam::RedTeam);
 }
 
 void AGMAllMid::StartCountdown()
@@ -54,9 +59,10 @@ void AGMAllMid::HandlePlayerJoin(APCAllMid* PlayerController)
 	{
 		PS->Team = ETeam::RedTeam;
 	}
-
 	BP_SpawnPlayer(PlayerController);
-	
+	PS->UseTeamColours(PS->Team);
+
+
 	//start match if it has not already started
 	if (!HasMatchStarted())
 	{
