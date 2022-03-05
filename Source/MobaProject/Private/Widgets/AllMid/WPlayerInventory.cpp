@@ -61,7 +61,7 @@ void UWPlayerInventory::OnInventoryUpdate(TArray<UBaseItem*> Items)
 		SlotsOccupied.Add(ItemSlot);
 	}
 
-	// find all slots that are not occupied and set their item to nullptr
+	// find all slots that are empty and set their item to nullptr
 	for (UWItem* ItemSlot : ItemSlots)
 	{
 		if (!SlotsOccupied.Contains(ItemSlot))

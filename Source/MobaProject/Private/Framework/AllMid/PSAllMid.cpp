@@ -62,7 +62,7 @@ void APSAllMid::OnPlayerInventoryUpdated(const TArray<UBaseItem*>& Items)
 		if (HUD)
 		{
 			HUD->GetPlayerHudWidget()->SetInventory(Items);
-			HUD->GameScoreboard->FriendlyScoreboardItem->UpdateWidget(this);
+			//HUD->GameScoreboard->FriendlyScoreboardItem->UpdateWidget(this);
 		}
 		else
 		{
@@ -80,7 +80,7 @@ void APSAllMid::OnPlayerInventoryUpdated(const TArray<UBaseItem*>& Items)
 			AHUDAllMid* HUD = PC->GetHUD<AHUDAllMid>();
 			if (HUD)
 			{
-				HUD->GameScoreboard->EnemyScoreboardItem->UpdateWidget(this);
+				//HUD->GameScoreboard->EnemyScoreboardItem->UpdateWidget(this);
 			}
 			else
 			{
