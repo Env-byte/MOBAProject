@@ -32,7 +32,7 @@ APSAllMid::APSAllMid()
 void APSAllMid::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	InventoryComponent->OnInventoryUpdated.AddDynamic(this, &APSAllMid::OnPlayerInventoryUpdated);
 
 	PlayerControllerRef = GetOwner<APCAllMid>();
@@ -43,6 +43,10 @@ void APSAllMid::BeginPlay()
 			InitializeAttributes();
 		}
 	}
+	if (!HasAuthority())
+	{
+		CreateScoreboardItem();
+	}
 }
 
 void APSAllMid::OnPlayerInventoryUpdated(const TArray<UBaseItem*>& Items)
@@ -52,8 +56,11 @@ void APSAllMid::OnPlayerInventoryUpdated(const TArray<UBaseItem*>& Items)
 		UE_LOG(LogPSAllMid, Display, TEXT("OnPlayerInventoryUpdated Has Auth"))
 		return;
 	}
-	UE_LOG(LogPSAllMid, Display, TEXT("PlayerControllerRef %s"),
-	       IsValid(PlayerControllerRef)?TEXT("TRUE"):TEXT("FALSE"));
+
+	if (ScoreboardItem)
+	{
+		ScoreboardItem->UpdateWidget();
+	}
 
 	if (IsValid(PlayerControllerRef) && PlayerControllerRef->IsLocalController())
 	{
@@ -62,30 +69,6 @@ void APSAllMid::OnPlayerInventoryUpdated(const TArray<UBaseItem*>& Items)
 		if (HUD)
 		{
 			HUD->GetPlayerHudWidget()->SetInventory(Items);
-			HUD->GameScoreboard->FriendlyScoreboardItem->UpdateWidget(this);
-		}
-		else
-		{
-			UE_LOG(LogPSAllMid, Display, TEXT("HUD Not Valid"));
-		}
-	}
-	else
-	{
-		// is not local player, this means its the enemy
-		const APlayerController* PC = GEngine->GetFirstLocalPlayerController(GetWorld());
-		UE_LOG(LogPSAllMid, Display, TEXT("PC %s"),
-		       IsValid(PC)?TEXT("TRUE"):TEXT("FALSE"));
-		if (IsValid(PC) && PC->IsLocalController())
-		{
-			AHUDAllMid* HUD = PC->GetHUD<AHUDAllMid>();
-			if (HUD)
-			{
-				HUD->GameScoreboard->EnemyScoreboardItem->UpdateWidget(this);
-			}
-			else
-			{
-				UE_LOG(LogPSAllMid, Display, TEXT("HUD Not Valid"));
-			}
 		}
 	}
 }
@@ -115,6 +98,49 @@ void APSAllMid::InitializeAttributes()
 void APSAllMid::Client_UseTeamColours_Implementation(ETeam ThisTeam)
 {
 	UseTeamColours(ThisTeam);
+}
+
+void APSAllMid::CreateScoreboardItem()
+{
+	APlayerController* PC;
+	ETeam LocalFriendlyTeam;
+	if (IsValid(PlayerControllerRef) && PlayerControllerRef->IsLocalController())
+	{
+		//this is the local player state
+		LocalFriendlyTeam = Team;
+		PC = Cast<APlayerController>(PlayerControllerRef);
+	}
+	else
+	{
+		//this is not the local player state
+		PC = GEngine->GetFirstLocalPlayerController(GetWorld());
+		LocalFriendlyTeam = PC->GetPlayerState<APSAllMid>()->Team;
+	}
+	if (!IsValid(PC))
+	{
+		UE_LOG(LogPSAllMid, Display, TEXT("PC Is not valid"))
+		return;
+	}
+	ScoreboardItem = CreateWidget<UWGameScoreboardItem>
+	(
+		PC,
+		ScoreboardItemClass,
+		FName(FString::Printf(TEXT("%sScoreboardItem"), *GetName()))
+	);
+
+	ScoreboardItem->SetPlayerState(this);
+
+	const AHUDAllMid* HUD = PC->GetHUD<AHUDAllMid>();
+	if (LocalFriendlyTeam == Team)
+	{
+		//add to friendly team
+		HUD->GameScoreboard->AddFriendlyItem(this, ScoreboardItem);
+	}
+	else
+	{
+		//add to enemy team
+		HUD->GameScoreboard->AddEnemyItem(this, ScoreboardItem);
+	}
 }
 
 void APSAllMid::UseTeamColours(ETeam ThisTeam)

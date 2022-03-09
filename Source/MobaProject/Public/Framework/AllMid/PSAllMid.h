@@ -8,6 +8,7 @@
 #include "PCAllMid.h"
 #include "GameFramework/PlayerState.h"
 #include "MobaProject/MobaProject.h"
+#include "Widgets/AllMid/WGameScoreboardItem.h"
 #include "PSAllMid.generated.h"
 DECLARE_LOG_CATEGORY_EXTERN(LogPSAllMid, Log, All);
 
@@ -56,14 +57,28 @@ protected:
 	void InitializeAttributes();
 
 	UFUNCTION(Client, Reliable)
-		void Client_UseTeamColours(ETeam ThisTeam);
-
+	void Client_UseTeamColours(ETeam ThisTeam);
 
 	UFUNCTION()
 	void OnPlayerInventoryUpdated(const TArray<UBaseItem*>& Items);
-public:
-	void UseTeamColours(ETeam ThisTeam);
 
+	/**
+	 * Reference to the scoreboard item on the local client
+	 *
+	 */
+	UPROPERTY(BlueprintReadOnly)
+	UWGameScoreboardItem* ScoreboardItem;
+
+	/**
+	 * The class to use to create the scoreboard item on the local client
+	 *
+	 */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<UWGameScoreboardItem> ScoreboardItemClass;
+public:
+	void CreateScoreboardItem();
+
+	void UseTeamColours(ETeam ThisTeam);
 
 	UPROPERTY()
 	APCAllMid* PlayerControllerRef;

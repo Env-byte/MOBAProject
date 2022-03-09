@@ -6,15 +6,30 @@
 #include "Blueprint/UserWidget.h"
 #include "WGameScoreboard.generated.h"
 
+class APSAllMid;
+class UWGameScoreboardItem;
 
 UCLASS(Abstract)
 class MOBAPROJECT_API UWGameScoreboard : public UUserWidget
 {
 	GENERATED_BODY()
-public:
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-	class UWGameScoreboardItem* FriendlyScoreboardItem;
+protected:
+	UPROPERTY(BlueprintReadWrite)
+	TMap<APSAllMid*, UWGameScoreboardItem*> FriendlyScoreboardItems;
 
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-	UWGameScoreboardItem* EnemyScoreboardItem;
+	UPROPERTY(BlueprintReadWrite)
+	TMap<APSAllMid*, UWGameScoreboardItem*> EnemyScoreboardItems;
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_OnAddFriendly(UWGameScoreboardItem* ScoreboardItem);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_OnAddEnemy(UWGameScoreboardItem* ScoreboardItem);
+
+
+public:
+	void AddFriendlyItem(APSAllMid* PlayerState, UWGameScoreboardItem* ScoreboardItem);
+	void AddEnemyItem(APSAllMid* PlayerState, UWGameScoreboardItem* ScoreboardItem);
+
+	UWGameScoreboardItem* GetScoreboardItem(const APSAllMid* PlayerState);
 };

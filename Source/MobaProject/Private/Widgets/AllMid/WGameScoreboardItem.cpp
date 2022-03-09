@@ -3,3 +3,8 @@
 
 #include "Widgets/AllMid/WGameScoreboardItem.h"
 
+void UWGameScoreboardItem::SetPlayerState(APSAllMid* ThisPlayerState)
+{
+	PlayerState = ThisPlayerState;
+	UpdateWidget();
+}

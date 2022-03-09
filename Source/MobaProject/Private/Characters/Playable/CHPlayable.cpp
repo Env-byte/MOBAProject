@@ -31,12 +31,7 @@ void ACHPlayable::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
 void ACHPlayable::SetTeam(ETeam ThisTeam)
 {
 	Team = ThisTeam;
-	GEngine->AddOnScreenDebugMessage(-1,
-	                                 10.f,
-	                                 FColor::Blue,
-	                                 FString::Printf(TEXT("Team: %s"),
-	                                                 *StaticEnum<ETeam>()->GetValueAsString(Team))
-	);
+	
 	if (Team == ETeam::BlueTeam)
 	{
 		CameraBoom->SetRelativeRotation(FRotator(-60.f, 225.f, 0.f));

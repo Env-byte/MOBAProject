@@ -4,9 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "Framework/AllMid/PSAllMid.h"
 #include "WGameScoreboardItem.generated.h"
 
+class APSAllMid;
 /**
  * 
  */
@@ -14,7 +14,13 @@ UCLASS(Abstract)
 class MOBAPROJECT_API UWGameScoreboardItem : public UUserWidget
 {
 	GENERATED_BODY()
+protected:
+	UPROPERTY(BlueprintReadOnly)
+	APSAllMid* PlayerState;
+
 public:
+	void SetPlayerState(APSAllMid* ThisPlayerState);
+
 	UFUNCTION(BlueprintImplementableEvent)
-	void UpdateWidget(APSAllMid* PlayerState);
+	void UpdateWidget();
 };
