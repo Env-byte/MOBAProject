@@ -11,6 +11,7 @@
 #include "Framework/AllMid/PSAttributeSet.h"
 #include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
+#include "Widgets/AllMid/WGameOverview.h"
 #include "Widgets/AllMid/WGameScoreboard.h"
 #include "Widgets/AllMid/WGameScoreboardItem.h"
 #include "Widgets/AllMid/WPlayerHud.h"
@@ -72,7 +73,6 @@ void APSAllMid::OnPlayerInventoryUpdated(const TArray<UBaseItem*>& Items)
 		}
 	}
 }
-
 
 void APSAllMid::InitializeAttributes()
 {
@@ -181,16 +181,54 @@ void APSAllMid::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetim
 void APSAllMid::OnRep_Attribute(const FGameplayAttribute& Attribute, const FGameplayAttributeData& OldValue,
                                 const FGameplayAttributeData& NewValue)
 {
-	if (!PlayerControllerRef) { return; }
-	if (!PlayerControllerRef->IsLocalController()) { return; }
-	AHUDAllMid* HUD = PlayerControllerRef->GetHUD<AHUDAllMid>();
-	if (!HUD) { return; }
-	UWPlayerHud* PlayerHudWidget = HUD->GetPlayerHudWidget();
-	if (!PlayerHudWidget) { return; }
+	UE_LOG(LogPSAllMid, Display, TEXT("APSAllMid::OnRep_Attribute %s %f"), *Attribute.AttributeName, NewValue.GetCurrentValue())
+	UWPlayerHud* PlayerHudWidget = nullptr;
+	if (IsValid(PlayerControllerRef) && PlayerControllerRef->IsLocalController())
+	{
+		AHUDAllMid* HUD = PlayerControllerRef->GetHUD<AHUDAllMid>();
+		if (!HUD) { return; }
+		PlayerHudWidget = HUD->GetPlayerHudWidget();
+	}
 
 	if (Attribute == Attributes->GetGoldAttribute())
 	{
-		PlayerHudWidget->BP_SetGold(NewValue.GetCurrentValue());
+		if (PlayerHudWidget)
+		{
+			PlayerHudWidget->BP_SetGold(NewValue.GetCurrentValue());
+		}
+	}
+	else if (Attribute == Attributes->GetPlayersKilledAttribute())
+	{
+		if (PlayerHudWidget)
+		{
+			PlayerHudWidget->GetGameOverview()->UpdatePlayersKilled(NewValue.GetCurrentValue());
+		}
+		if (ScoreboardItem)
+		{
+			ScoreboardItem->UpdatePlayersKilled(NewValue.GetCurrentValue());
+		}
+	}
+	else if (Attribute == Attributes->GetDeathsAttribute())
+	{
+		if (PlayerHudWidget)
+		{
+			PlayerHudWidget->GetGameOverview()->UpdatePlayerDeaths(NewValue.GetCurrentValue());
+		}
+		if (ScoreboardItem)
+		{
+			ScoreboardItem->UpdatePlayerDeaths(NewValue.GetCurrentValue());
+		}
+	}
+	else if (Attribute == Attributes->GetMinionsKilledAttribute())
+	{
+		if (PlayerHudWidget)
+		{
+			PlayerHudWidget->GetGameOverview()->UpdateMinionsKilled(NewValue.GetCurrentValue());
+		}
+		if (ScoreboardItem)
+		{
+			ScoreboardItem->UpdateMinionsKilled(NewValue.GetCurrentValue());
+		}
 	}
 }
 

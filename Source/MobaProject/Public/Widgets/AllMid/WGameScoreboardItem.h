@@ -23,4 +23,13 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void UpdateWidget();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void UpdatePlayersKilled(int32 Kills);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void UpdatePlayerDeaths(int32 Deaths);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void UpdateMinionsKilled(int32 MinionsKilled);
 };

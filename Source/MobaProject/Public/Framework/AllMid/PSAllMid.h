@@ -35,12 +35,14 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Ability", meta=(AllowPrivateAccess=true))
 	UPSAbilitySystemComponent* AbilitySystemComponent;
 
+public:
 	/**
 	 * The Attribute set for this Character
 	 */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Ability", meta=(AllowPrivateAccess=true))
 	UPSAttributeSet* Attributes;
 
+protected:
 	/**
 	 * This players passive gold income effect
 	 */

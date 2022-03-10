@@ -16,4 +16,13 @@ class MOBAPROJECT_API UWGameOverview : public UUserWidget
 public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void UpdateTowersDestroyed(int32 RedTowers, int32 BlueTowers);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void UpdatePlayersKilled(int32 Kills);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void UpdatePlayerDeaths(int32 Deaths);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void UpdateMinionsKilled(int32 MinionsKilled);
 };

@@ -6,6 +6,7 @@
 #include "Framework/AllMid/GSAllMid.h"
 #include "Framework/AllMid/PCAllMid.h"
 #include "Framework/AllMid/PSAllMid.h"
+#include "Framework/AllMid/PSAttributeSet.h"
 DEFINE_LOG_CATEGORY(LogArenaGM);
 
 AGMAllMid::AGMAllMid()
@@ -17,12 +18,28 @@ AGMAllMid::AGMAllMid()
 
 void AGMAllMid::CountdownFinished()
 {
-	UE_LOG(LogArenaGM, Display, TEXT("CountdownFinished"));
+	UE_LOG(LogArenaGM, Display, TEXT("CountdownFinished. Players: %d "),PlayerControllers.Num());
 	for (int32 i = 0; i < PlayerControllers.Num(); i++)
 	{
-		if (PlayerControllers[i] != nullptr)
+		if (!IsValid(PlayerControllers[i]))
 		{
-			PlayerControllers[i]->Client_OnGameStarted();
+			UE_LOG(LogArenaGM, Display, TEXT("IsValid not PlayerControllers[%d]"), i);
+			continue;
+		}
+
+		PlayerControllers[i]->Client_OnGameStarted();
+		const APSAllMid* PlayerState = PlayerControllers[i]->GetPlayerState<APSAllMid>();
+		if (i == 0)
+		{
+			PlayerState->Attributes->SetDeaths(2.f);
+			PlayerState->Attributes->SetMinionsKilled(3.f);
+			PlayerState->Attributes->SetPlayersKilled(1.f);
+		}
+		else
+		{
+			PlayerState->Attributes->SetDeaths(1.f);
+			PlayerState->Attributes->SetMinionsKilled(13.f);
+			PlayerState->Attributes->SetPlayersKilled(2.f);
 		}
 	}
 	AGSAllMid* GS = GetGameState<AGSAllMid>();
