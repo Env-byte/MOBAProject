@@ -18,7 +18,7 @@ void AHUDAllMid::BeginPlay()
 	if (GameScoreboardClass)
 	{
 		GameScoreboard = CreateWidget<UWGameScoreboard>(GetOwningPlayerController(), GameScoreboardClass, FName(TEXT("GameScoreboard")));
-		GameScoreboard->AddToViewport(0);
+		GameScoreboard->AddToViewport(2);
 		GameScoreboard->SetVisibility(ESlateVisibility::Hidden);
 	}
 	if (PlayerHudClass)

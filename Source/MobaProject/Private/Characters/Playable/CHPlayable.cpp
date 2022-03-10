@@ -31,15 +31,26 @@ void ACHPlayable::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
 void ACHPlayable::SetTeam(ETeam ThisTeam)
 {
 	Team = ThisTeam;
-	
+
 	if (Team == ETeam::BlueTeam)
 	{
-		CameraBoom->SetRelativeRotation(FRotator(-60.f, 225.f, 0.f));
+		CameraBoom->SetRelativeRotation(FRotator(CameraPitch, 225.f, 0.f));
 	}
 	else
 	{
-		CameraBoom->SetRelativeRotation(FRotator(-60.f, 45.f, 0.f));
+		CameraBoom->SetRelativeRotation(FRotator(CameraPitch, 45.f, 0.f));
 	}
+}
+
+FName ACHPlayable::GetEntityName()
+{
+	APSAllMid* PS = GetPlayerState<APSAllMid>();
+	if (PS)
+	{
+		return FName(PS->GetPlayerName());
+	}
+
+	return Super::GetEntityName();
 }
 
 ACHPlayable::ACHPlayable()
@@ -115,14 +126,7 @@ void ACHPlayable::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
 
-	APCAllMid* PC = GetController<APCAllMid>();
-	if (!PC)
-	{
-		UE_LOG(LogCHPlayable, Warning, TEXT("PC Is not valid"))
-		return;
-	}
-
-	APSAllMid* PS = PC->GetPlayerState<APSAllMid>();
+	APSAllMid* PS = GetPlayerState<APSAllMid>();
 	if (PS && PS->Team != Team)
 	{
 		SetTeam(PS->Team);
@@ -289,9 +293,8 @@ void ACHPlayable::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 	GiveAbilities();
-	APCAllMid* PC = GetController<APCAllMid>();
-	if (!PC) { return; }
-	APSAllMid* PS = PC->GetPlayerState<APSAllMid>();
+
+	APSAllMid* PS = GetPlayerState<APSAllMid>();
 	if (!PS) { return; }
 	if (PS->Team != Team)
 	{

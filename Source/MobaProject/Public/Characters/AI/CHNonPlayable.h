@@ -20,6 +20,13 @@ protected:
 	 */
 	virtual void SetupNamePlateWidget() override;
 
+	/**
+	 * The name of this object, this will be shown on the ui widget or when selecting the character
+	 */
+	UPROPERTY(EditDefaultsOnly, Category="Ai")
+	FName ActorName;
+
+	virtual FName GetEntityName() override;
 public:
 	/**
 	 * Get the team for this object

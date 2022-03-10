@@ -17,12 +17,17 @@ class MOBAPROJECT_API ACHPlayable : public ACHBase
 	GENERATED_BODY()
 
 protected:
+	UPROPERTY(EditDefaultsOnly, Category=Camera)
+	float CameraPitch = -60.f;
+
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 
 	/**
 	 * Use Internally to handle team changing, such as changing camera angle etc
 	 */
 	void SetTeam(ETeam ThisTeam);
+
+	virtual FName GetEntityName() override;
 
 public:
 	ACHPlayable();
