@@ -18,7 +18,7 @@ AGMAllMid::AGMAllMid()
 
 void AGMAllMid::CountdownFinished()
 {
-	UE_LOG(LogArenaGM, Display, TEXT("CountdownFinished. Players: %d "),PlayerControllers.Num());
+	UE_LOG(LogArenaGM, Display, TEXT("CountdownFinished. Players: %d "), PlayerControllers.Num());
 	for (int32 i = 0; i < PlayerControllers.Num(); i++)
 	{
 		if (!IsValid(PlayerControllers[i]))
@@ -27,6 +27,7 @@ void AGMAllMid::CountdownFinished()
 			continue;
 		}
 
+		PlayerControllers[i]->EnableInput(PlayerControllers[i]);
 		PlayerControllers[i]->Client_OnGameStarted();
 		const APSAllMid* PlayerState = PlayerControllers[i]->GetPlayerState<APSAllMid>();
 		if (i == 0)
@@ -120,5 +121,25 @@ void AGMAllMid::PlayerControllerReady(const APCAllMid* PlayerController)
 		UE_LOG(LogArenaGM, Display, TEXT("All PlayerControllers Ready. Starting countdown"));
 		//start match if it has not already started
 		StartCountdown();
+	}
+}
+
+void AGMAllMid::NexusDestroyed(ETeam WinningTeamIn)
+{
+	if (bHasEnded)
+	{
+		return;
+	}
+	WinningTeam = WinningTeamIn;
+	bHasEnded = true;
+	//do game ending logic here.
+
+	//tell all players who won/lost
+	for (int32 i = 0; i < PlayerControllers.Num(); i++)
+	{
+		if (PlayerControllers[i] != nullptr)
+		{
+			PlayerControllers[i]->Client_GameEnded(WinningTeam);
+		}
 	}
 }

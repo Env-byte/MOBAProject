@@ -71,11 +71,14 @@ void UCHAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
 		DeltaValue = Data.EvaluatedData.Magnitude;
 	}
 
-	ACHBase* TargetCharacter{nullptr};
+	ICanTakeDamage* Target{nullptr};
 	if (Data.Target.AbilityActorInfo.IsValid() && Data.Target.AbilityActorInfo->AvatarActor.IsValid())
 	{
 		AActor* TargetActor = Data.Target.AbilityActorInfo->AvatarActor.Get();
-		TargetCharacter = Cast<ACHBase>(TargetActor);
+		if(TargetActor->Implements<ICanTakeDamage>())
+		{
+			Target = Cast<ICanTakeDamage>(TargetActor);
+		}
 	}
 
 	//notify character that health has changed. Also prevent health going below 0 or exceeding max
@@ -83,9 +86,9 @@ void UCHAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
 	if (Data.EvaluatedData.Attribute == GetHealthAttribute())
 	{
 		SetHealth(FMath::Clamp(GetHealth(), 0.f, GetMaxHealth()));
-		if (TargetCharacter)
+		if (Target)
 		{
-			TargetCharacter->HandleHealthChanged(DeltaValue, SourceTags);
+			Target->HandleHealthChanged(DeltaValue, SourceTags);
 		}
 	}
 	else if (Data.EvaluatedData.Attribute == GetManaAttribute())

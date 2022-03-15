@@ -68,4 +68,7 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_StartGameCountdown(float StartFrom);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_ShowGameOverText(FText Message);
 };

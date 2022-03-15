@@ -30,7 +30,7 @@ public:
 	UPROPERTY()
 	AGMAllMid* GameMode;
 
-	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<ACHPlayable> PlayerCharacterClass;
 
 protected:
@@ -135,4 +135,12 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_OnGameStarted();
 	////////// Players Joining //////////
+
+public:
+	UFUNCTION(Client, Reliable)
+	void Client_GameEnded(ETeam WinningTeam);
+
+protected:
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_OnGameEnd(bool bWon);
 };

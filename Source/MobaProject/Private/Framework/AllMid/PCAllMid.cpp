@@ -34,10 +34,31 @@ void APCAllMid::BeginPlay()
 {
 	Super::BeginPlay();
 	GameMode = GetWorld()->GetAuthGameMode<AGMAllMid>();
-	if(!HasAuthority())
+	if (!HasAuthority())
 	{
 		Server_ReadyToStart();
 	}
+	DisableInput(this);
+}
+
+void APCAllMid::Client_GameEnded_Implementation(const ETeam Team)
+{
+	const APSAllMid* PS = GetPlayerState<APSAllMid>();
+	const bool bWon = PS->Team == Team;
+	const AHUDAllMid* Hud = GetHUD<AHUDAllMid>();
+	FString Message;
+
+	if (bWon)
+	{
+		Message = "Victory";
+	}
+	else
+	{
+		Message = "Defeat";
+	}
+	Hud->GetPlayerHudWidget()->BP_ShowGameOverText(FText::FromString(Message));
+	DisableInput(this);
+	BP_OnGameEnd(bWon);
 }
 
 void APCAllMid::PlayerTick(float DeltaTime)
@@ -339,7 +360,7 @@ void APCAllMid::Server_ReadyToStart_Implementation()
 void APCAllMid::Client_StartGameCountdown_Implementation(float StartFrom)
 {
 	AHUDAllMid* HUD = GetHUD<AHUDAllMid>();
-	if(IsValid(HUD))
+	if (IsValid(HUD))
 	{
 		HUD->GetPlayerHudWidget()->BP_StartGameCountdown(StartFrom);
 	}
@@ -348,6 +369,7 @@ void APCAllMid::Client_StartGameCountdown_Implementation(float StartFrom)
 void APCAllMid::Client_OnGameStarted_Implementation()
 {
 	UE_LOG(LogCHPlayable, Display, TEXT("Client_OnGameStarted"))
+	EnableInput(this);
 	BP_OnGameStarted();
 }
 

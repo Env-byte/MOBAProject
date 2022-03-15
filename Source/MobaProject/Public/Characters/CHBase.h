@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "AbilitySystemInterface.h"
 #include "CHAbilitySystemComponent.h"
+#include "Interfaces/CanTakeDamage.h"
 #include "MobaProject/MobaProject.h"
 #include "CHBase.generated.h"
 class UCharacterNamePlate;
@@ -16,7 +17,7 @@ class UCHAttributeSet;
 class UGameplayEffect;
 
 UCLASS(Abstract, NotBlueprintable)
-class MOBAPROJECT_API ACHBase : public ACharacter, public IAbilitySystemInterface
+class MOBAPROJECT_API ACHBase : public ACharacter, public IAbilitySystemInterface, public ICanTakeDamage
 
 {
 	GENERATED_BODY()
@@ -102,7 +103,7 @@ public:
 	void BP_OnHealthChanged(float DeltaValue, const struct FGameplayTagContainer& EventTags);
 	virtual void HandleDamage(float Damage, const FHitResult HitInfo, const FGameplayTagContainer& DamageTags,
 	                          ACHBase* InstigatorCharacter, AActor* DamageCauser);
-	virtual void HandleHealthChanged(float DeltaValue, const struct FGameplayTagContainer& EventTags);
+	virtual void HandleHealthChanged(float DeltaValue, const struct FGameplayTagContainer& EventTags) override;
 	////////// Server only //////////
 
 	/**

@@ -78,10 +78,6 @@ void ACHTurret::InitializeOwningActor()
 	AbilitySystemComponent->InitAbilityActorInfo(this, this);
 }
 
-void ACHTurret::InitializeAbilityBinds()
-{
-}
-
 void ACHTurret::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
@@ -98,7 +94,6 @@ void ACHTurret::OnRep_PlayerState()
 	if (AbilitySystemComponent && InputComponent)
 	{
 		InitializeOwningActor();
-		InitializeAbilityBinds();
 	}
 }
 
