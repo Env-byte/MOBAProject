@@ -46,17 +46,17 @@ void APCAllMid::Client_GameEnded_Implementation(const ETeam Team)
 	const APSAllMid* PS = GetPlayerState<APSAllMid>();
 	const bool bWon = PS->Team == Team;
 	const AHUDAllMid* Hud = GetHUD<AHUDAllMid>();
-	FString Message;
+	FText Message;
 
 	if (bWon)
 	{
-		Message = "Victory";
+		Message = FText::FromString("Victory");
 	}
 	else
 	{
-		Message = "Defeat";
+		Message =FText::FromString( "Defeat");
 	}
-	Hud->GetPlayerHudWidget()->BP_ShowGameOverText(FText::FromString(Message));
+	Hud->GetPlayerHudWidget()->BP_ShowGameOverText(Message);
 	DisableInput(this);
 	BP_OnGameEnd(bWon);
 }

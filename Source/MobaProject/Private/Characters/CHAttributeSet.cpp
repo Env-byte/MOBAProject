@@ -75,7 +75,7 @@ void UCHAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
 	if (Data.Target.AbilityActorInfo.IsValid() && Data.Target.AbilityActorInfo->AvatarActor.IsValid())
 	{
 		AActor* TargetActor = Data.Target.AbilityActorInfo->AvatarActor.Get();
-		if(TargetActor->Implements<ICanTakeDamage>())
+		if(TargetActor->Implements<UCanTakeDamage>())
 		{
 			Target = Cast<ICanTakeDamage>(TargetActor);
 		}

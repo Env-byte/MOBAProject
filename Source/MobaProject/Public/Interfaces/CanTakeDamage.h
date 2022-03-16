@@ -6,7 +6,6 @@
 #include "GameplayTagContainer.h"
 #include "UObject/Interface.h"
 #include "CanTakeDamage.generated.h"
-DECLARE_LOG_CATEGORY_EXTERN(LogTeamColours, Log, All);
 
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI, BlueprintType)
