@@ -31,6 +31,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE ETeam GetTeam() const { return Team; }
 
+	virtual FActorHelper GetActorInfo() override;
+
 	/**
 	* Team this unit belongs too
 	*/
@@ -86,7 +88,6 @@ private:
 	virtual void InitializeAttributes();
 	virtual void InitializeOwningActor();
 public:
-	
 	////////// Server only  //////////
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_OnDamaged(float Damage, const FHitResult HitInfo, const FGameplayTagContainer& DamageTags,
@@ -118,7 +119,6 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
-	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Turret")
 	UStaticMeshComponent* NexusMesh;
 };

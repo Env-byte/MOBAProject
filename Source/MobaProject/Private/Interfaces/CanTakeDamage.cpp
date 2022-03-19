@@ -7,3 +7,8 @@
 void ICanTakeDamage::HandleHealthChanged(float DeltaValue, const FGameplayTagContainer& EventTags)
 {
 }
+
+FActorHelper ICanTakeDamage::GetActorInfo()
+{
+	return FActorHelper{};
+}

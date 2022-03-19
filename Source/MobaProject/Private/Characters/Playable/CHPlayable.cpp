@@ -190,19 +190,19 @@ void ACHPlayable::BeginPlay()
 	}
 }
 
-void ACHPlayable::Server_CastPrimaryAttack_Implementation(ACHBase* Target)
+void ACHPlayable::Server_CastPrimaryAttack_Implementation(const FActorHelper Target)
 {
 	CastPrimaryAttack(Target);
 }
 
-void ACHPlayable::CastPrimaryAttack(ACHBase* Target)
+void ACHPlayable::CastPrimaryAttack(const FActorHelper Target)
 {
 	if (!HasAuthority())
 	{
 		Server_CastPrimaryAttack(Target);
 		return;
 	}
-	if (Target->Team == Team)
+	if (Target.Team == Team)
 	{
 		return;
 	}
@@ -212,14 +212,8 @@ void ACHPlayable::CastPrimaryAttack(ACHBase* Target)
 
 float ACHPlayable::GetPrimaryAttackDamage()
 {
-	UE_LOG(LogTemp, Display, TEXT("PrimaryAttackTarget is not valid %p. IsSever: %s"), PrimaryAttackTarget,
-	       HasAuthority()?TEXT("True"):TEXT("False"))
-	if (!IsValid(PrimaryAttackTarget))
-	{
-		return 0.f;
-	}
 	const float Attack = Attributes->GetAttackDamage();
-	const float Armour = PrimaryAttackTarget->GetAttributeSet()->GetArmour();
+	const float Armour = PrimaryAttackTarget.AttributeSet->GetArmour();
 	return FMath::Clamp(
 		Attack - Armour,
 		0.f,

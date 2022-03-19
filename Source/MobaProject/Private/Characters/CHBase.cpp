@@ -30,6 +30,11 @@ ACHBase::ACHBase()
 	Attributes = CreateDefaultSubobject<UCHAttributeSet>("Attributes");
 }
 
+FActorHelper ACHBase::GetActorInfo()
+{
+	return FActorHelper{Team, this, Attributes};
+}
+
 void ACHBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);

@@ -4,8 +4,24 @@
 
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
+#include "MobaProject/MobaProject.h"
 #include "UObject/Interface.h"
 #include "CanTakeDamage.generated.h"
+
+class UCHAttributeSet;
+
+USTRUCT(BlueprintType)
+struct FActorHelper
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	ETeam Team;
+	UPROPERTY()
+	AActor* Actor;
+	UPROPERTY()
+	UCHAttributeSet* AttributeSet;
+};
 
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI, BlueprintType)
@@ -24,4 +40,6 @@ class MOBAPROJECT_API ICanTakeDamage
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 	virtual void HandleHealthChanged(float DeltaValue, const FGameplayTagContainer& EventTags);
+
+	virtual FActorHelper GetActorInfo();
 };

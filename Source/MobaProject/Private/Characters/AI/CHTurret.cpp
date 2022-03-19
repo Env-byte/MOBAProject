@@ -27,6 +27,11 @@ ACHTurret::ACHTurret()
 	Attributes = CreateDefaultSubobject<UCHAttributeSet>("Attributes");
 }
 
+FActorHelper ACHTurret::GetActorInfo()
+{
+	return FActorHelper{Team, this, Attributes};
+}
+
 ETeam ACHTurret::GetTeam()
 {
 	return Team;

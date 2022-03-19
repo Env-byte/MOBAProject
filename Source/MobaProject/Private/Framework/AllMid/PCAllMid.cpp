@@ -113,12 +113,22 @@ void APCAllMid::MoveToMouseCursor()
 		if (Hit.Actor.IsValid())
 		{
 			AActor* HitActor = Hit.Actor.Get();
-			ACHBase* BaseCharacter = Cast<ACHBase>(HitActor);
+
+			ICanTakeDamage* Target{nullptr};
+		
+				
+				if(HitActor->Implements<UCanTakeDamage>())
+				{
+					Target = Cast<ICanTakeDamage>(HitActor);
+				}
+			
+			
+			
 			ACHPlayable* MyPawn = GetPawn<ACHPlayable>();
 			UE_LOG(LogPCAllMid, Display, TEXT("OnClick hit actor HitActor: %s"), *HitActor->GetClass()->GetName())
-			if (IsValid(BaseCharacter) && IsValid(MyPawn))
+			if (Target && IsValid(MyPawn))
 			{
-				MyPawn->CastPrimaryAttack(BaseCharacter);
+				MyPawn->CastPrimaryAttack(Target->GetActorInfo());
 				return;
 			}
 		}

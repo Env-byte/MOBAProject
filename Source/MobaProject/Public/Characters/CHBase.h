@@ -26,6 +26,8 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE ETeam GetTeam() const { return Team; }
+
+	virtual FActorHelper GetActorInfo() override;
 	
 	/**
 	* Team this unit belongs too

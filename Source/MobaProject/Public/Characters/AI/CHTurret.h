@@ -16,7 +16,8 @@ DECLARE_LOG_CATEGORY_EXTERN(LogCHTurret, Log, All);
 class UCharacterNamePlate;
 
 UCLASS()
-class MOBAPROJECT_API ACHTurret : public APawn, public IAbilitySystemInterface, public ITeamColours, public ICanTakeDamage
+class MOBAPROJECT_API ACHTurret : public APawn, public IAbilitySystemInterface, public ITeamColours,
+                                  public ICanTakeDamage
 {
 	GENERATED_BODY()
 public:
@@ -24,6 +25,8 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE ETeam GetTeam() const { return Team; }
+
+	virtual FActorHelper GetActorInfo() override;
 
 	/**
 	* Team this unit belongs too

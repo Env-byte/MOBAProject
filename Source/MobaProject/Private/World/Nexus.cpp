@@ -30,6 +30,11 @@ ANexus::ANexus()
 	Attributes = CreateDefaultSubobject<UCHAttributeSet>("Attributes");
 }
 
+FActorHelper ANexus::GetActorInfo()
+{
+	return FActorHelper{Team, this, Attributes};
+}
+
 ETeam ANexus::GetTeam()
 {
 	return Team;
