@@ -8,23 +8,23 @@
 #include "UObject/Interface.h"
 #include "CanTakeDamage.generated.h"
 
+
 class UCHAttributeSet;
+class UCHAbilitySystemComponent;
 
 USTRUCT(BlueprintType)
 struct FActorHelper
 {
-	GENERATED_BODY()
+	GENERATED_USTRUCT_BODY()
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	ETeam Team;
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	AActor* Actor;
-	UPROPERTY()
-	UCHAttributeSet* AttributeSet;
 };
 
 // This class does not need to be modified.
-UINTERFACE(MinimalAPI, BlueprintType)
+UINTERFACE(MinimalAPI, BlueprintType, Blueprintable)
 class UCanTakeDamage : public UInterface
 {
 	GENERATED_BODY()
@@ -42,4 +42,11 @@ public:
 	virtual void HandleHealthChanged(float DeltaValue, const FGameplayTagContainer& EventTags);
 
 	virtual FActorHelper GetActorInfo();
+
+	virtual UCHAttributeSet* GetAttributeSet();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	UCHAbilitySystemComponent* GetAbilitySystem();
+
+	virtual UCHAbilitySystemComponent* GetAbilitySystem_Implementation();
 };

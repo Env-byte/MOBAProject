@@ -127,7 +127,7 @@ protected:
 	 * Tell server to CastPrimaryAttack
 	*/
 	UFUNCTION(Server, Reliable)
-	void Server_CastPrimaryAttack(FActorHelper Target);
+	void Server_CastPrimaryAttack(AActor* Target);
 public:
 	UFUNCTION(BlueprintPure, Category="Attack")
 	FORCEINLINE int32 GetNextAttackIndex() const { return NextPrimaryAttackIndex; };
@@ -139,13 +139,13 @@ public:
 	}
 
 
-	void CastPrimaryAttack(FActorHelper Target);
+	void CastPrimaryAttack(AActor* Target);
 
 	/**
 		 * The target of the primary attack
 		 */
 	UPROPERTY(BlueprintReadWrite, Replicated=OnRep_PrimaryAttackTarget)
-	FActorHelper PrimaryAttackTarget;
+	AActor* PrimaryAttackTarget;
 
 	UFUNCTION()
 	void OnRep_PrimaryAttackTarget();
@@ -166,7 +166,7 @@ public:
 	 *
 	 */
 	UFUNCTION(BlueprintPure)
-	FORCEINLINE FActorHelper GetPrimaryAttackTarget() const { return PrimaryAttackTarget; };
+	FORCEINLINE AActor* GetPrimaryAttackTarget() const { return PrimaryAttackTarget; };
 
 	virtual void OnRep_Attribute(const FGameplayAttribute& Attribute, const FGameplayAttributeData& OldValue,
 	                             const FGameplayAttributeData& NewValue) override;

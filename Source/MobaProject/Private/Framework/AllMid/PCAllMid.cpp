@@ -54,7 +54,7 @@ void APCAllMid::Client_GameEnded_Implementation(const ETeam Team)
 	}
 	else
 	{
-		Message =FText::FromString( "Defeat");
+		Message = FText::FromString("Defeat");
 	}
 	Hud->GetPlayerHudWidget()->BP_ShowGameOverText(Message);
 	DisableInput(this);
@@ -113,23 +113,16 @@ void APCAllMid::MoveToMouseCursor()
 		if (Hit.Actor.IsValid())
 		{
 			AActor* HitActor = Hit.Actor.Get();
-
-			ICanTakeDamage* Target{nullptr};
-		
-				
-				if(HitActor->Implements<UCanTakeDamage>())
-				{
-					Target = Cast<ICanTakeDamage>(HitActor);
-				}
-			
-			
 			
 			ACHPlayable* MyPawn = GetPawn<ACHPlayable>();
 			UE_LOG(LogPCAllMid, Display, TEXT("OnClick hit actor HitActor: %s"), *HitActor->GetClass()->GetName())
-			if (Target && IsValid(MyPawn))
+			if (HitActor && IsValid(MyPawn))
 			{
-				MyPawn->CastPrimaryAttack(Target->GetActorInfo());
-				return;
+				if (HitActor->Implements<UCanTakeDamage>())
+				{
+					MyPawn->CastPrimaryAttack(HitActor);
+					return;
+				}
 			}
 		}
 		// We hit something, move there

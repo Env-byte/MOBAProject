@@ -29,7 +29,7 @@ ACHTurret::ACHTurret()
 
 FActorHelper ACHTurret::GetActorInfo()
 {
-	return FActorHelper{Team, this, Attributes};
+	return FActorHelper{Team, this};
 }
 
 ETeam ACHTurret::GetTeam()

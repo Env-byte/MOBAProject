@@ -190,35 +190,40 @@ void ACHPlayable::BeginPlay()
 	}
 }
 
-void ACHPlayable::Server_CastPrimaryAttack_Implementation(const FActorHelper Target)
+void ACHPlayable::Server_CastPrimaryAttack_Implementation(AActor* Target)
 {
 	CastPrimaryAttack(Target);
 }
 
-void ACHPlayable::CastPrimaryAttack(const FActorHelper Target)
+void ACHPlayable::CastPrimaryAttack(AActor* Target)
 {
+	PrimaryAttackTarget = Target;
 	if (!HasAuthority())
 	{
 		Server_CastPrimaryAttack(Target);
 		return;
 	}
-	if (Target.Team == Team)
+	ICanTakeDamage* Interface = Cast<ICanTakeDamage>(Target);
+	if (Interface->GetActorInfo().Team == Team)
 	{
 		return;
 	}
-	PrimaryAttackTarget = Target;
 	AbilitySystemComponent->TryActivateAbilityByClass(PrimaryAttack, true);
 }
 
 float ACHPlayable::GetPrimaryAttackDamage()
 {
 	const float Attack = Attributes->GetAttackDamage();
-	const float Armour = PrimaryAttackTarget.AttributeSet->GetArmour();
-	return FMath::Clamp(
+	ICanTakeDamage* Interface = Cast<ICanTakeDamage>(PrimaryAttackTarget);
+	const float Armour = Interface->GetAttributeSet()->Armour.GetCurrentValue();
+	const float Damage = FMath::Clamp(
 		Attack - Armour,
 		0.f,
 		Attributes->GetAttackDamage()
 	);
+
+	UE_LOG(LogCHPlayable, Display, TEXT("Damage: %f"), Damage)
+	return Damage;
 }
 
 float ACHPlayable::GetPrimaryAttackSpeedCooldown()

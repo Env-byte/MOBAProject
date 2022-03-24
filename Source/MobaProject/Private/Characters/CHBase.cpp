@@ -32,7 +32,7 @@ ACHBase::ACHBase()
 
 FActorHelper ACHBase::GetActorInfo()
 {
-	return FActorHelper{Team, this, Attributes};
+	return FActorHelper{Team, this};
 }
 
 void ACHBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

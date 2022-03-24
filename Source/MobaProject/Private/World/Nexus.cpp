@@ -32,7 +32,7 @@ ANexus::ANexus()
 
 FActorHelper ANexus::GetActorInfo()
 {
-	return FActorHelper{Team, this, Attributes};
+	return FActorHelper{Team, this};
 }
 
 ETeam ANexus::GetTeam()

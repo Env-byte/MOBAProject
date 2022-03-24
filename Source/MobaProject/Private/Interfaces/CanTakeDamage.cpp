@@ -12,3 +12,14 @@ FActorHelper ICanTakeDamage::GetActorInfo()
 {
 	return FActorHelper{};
 }
+
+UCHAttributeSet* ICanTakeDamage::GetAttributeSet()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Default Implementation Run: %s"), *GetActorInfo().Actor->GetClass()->GetName())
+	return nullptr;
+}
+
+UCHAbilitySystemComponent* ICanTakeDamage::GetAbilitySystem_Implementation()
+{
+	return nullptr;
+}

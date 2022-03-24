@@ -75,11 +75,13 @@ void UCHAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
 	if (Data.Target.AbilityActorInfo.IsValid() && Data.Target.AbilityActorInfo->AvatarActor.IsValid())
 	{
 		AActor* TargetActor = Data.Target.AbilityActorInfo->AvatarActor.Get();
-		if(TargetActor->Implements<UCanTakeDamage>())
+		if (TargetActor->Implements<UCanTakeDamage>())
 		{
 			Target = Cast<ICanTakeDamage>(TargetActor);
 		}
 	}
+
+	UE_LOG(LogCHAttributeSet, Display, TEXT("ICanTakeDamage* Target : %p"), Target)
 
 	//notify character that health has changed. Also prevent health going below 0 or exceeding max
 	//make sure to set MaxHealth Before Health when init attributes

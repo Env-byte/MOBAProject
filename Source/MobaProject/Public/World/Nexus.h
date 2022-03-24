@@ -32,7 +32,9 @@ public:
 	FORCEINLINE ETeam GetTeam() const { return Team; }
 
 	virtual FActorHelper GetActorInfo() override;
+	FORCEINLINE virtual UCHAttributeSet* GetAttributeSet() override { return Attributes; }
 
+	FORCEINLINE virtual UCHAbilitySystemComponent* GetAbilitySystem_Implementation() override {return AbilitySystemComponent;}
 	/**
 	* Team this unit belongs too
 	*/

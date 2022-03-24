@@ -9,6 +9,7 @@
 #include "Interfaces/CanTakeDamage.h"
 #include "MobaProject/MobaProject.h"
 #include "CHBase.generated.h"
+
 class UCharacterNamePlate;
 struct FGameplayTagContainer;
 DECLARE_LOG_CATEGORY_EXTERN(LogCHBase, Log, All);
@@ -28,18 +29,20 @@ public:
 	FORCEINLINE ETeam GetTeam() const { return Team; }
 
 	virtual FActorHelper GetActorInfo() override;
-	
+
+	FORCEINLINE virtual UCHAttributeSet* GetAttributeSet() override { return Attributes; }
+
+	FORCEINLINE virtual UCHAbilitySystemComponent* GetAbilitySystem_Implementation() override {return AbilitySystemComponent;}
+
 	/**
 	* Team this unit belongs too
 	*/
 	UPROPERTY(BlueprintReadWrite, Replicated, meta = (ExposeOnSpawn="true"))
 	ETeam Team;
-	
+
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 protected:
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
-
-	
 
 
 	////////// Ability System //////////
