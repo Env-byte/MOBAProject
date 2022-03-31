@@ -74,7 +74,7 @@ public:
 	/**
 	 * Used to set the NamePlateComponent Name. Ex PlayerName, or for Ai 'Minion' or 'Turret'
 	 */
-	virtual FName GetEntityName();
+	virtual FName GetEntityName() override;
 
 	/**
 	 * Get this Characters level to know what attribute values to spawn it with

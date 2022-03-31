@@ -110,6 +110,7 @@ void ACHBase::PossessedBy(AController* NewController)
 		UE_LOG(LogCHBase, Display, TEXT("PossessedBy: %s %f:%f"), *GetFullName(), Attributes->GetHealth(),
 		       Attributes->GetMaxHealth())
 	}
+	SetupNamePlateWidget();
 }
 
 void ACHBase::OnRep_PlayerState()
@@ -120,6 +121,7 @@ void ACHBase::OnRep_PlayerState()
 		InitializeOwningActor();
 		InitializeAbilityBinds();
 	}
+	SetupNamePlateWidget();
 }
 
 void ACHBase::HandleDamage(float Damage, const FHitResult HitInfo, const FGameplayTagContainer& DamageTags,

@@ -19,6 +19,11 @@ UCHAttributeSet* ICanTakeDamage::GetAttributeSet()
 	return nullptr;
 }
 
+FName ICanTakeDamage::GetEntityName()
+{
+	return FName("Not Implemented");
+}
+
 UCHAbilitySystemComponent* ICanTakeDamage::GetAbilitySystem_Implementation()
 {
 	return nullptr;

@@ -2,6 +2,7 @@
 
 #include "Framework/AllMid/PCAllMid.h"
 #include "Blueprint/AIBlueprintHelperLibrary.h"
+#include "Characters/CHAttributeSet.h"
 #include "Characters/Playable/CHPlayable.h"
 #include "Components/InventoryComponent.h"
 #include "Framework/AllMid/GMAllMid.h"
@@ -12,6 +13,7 @@
 #include "Items/ConsumableItem.h"
 #include "Widgets/AllMid/WPlayerHud.h"
 #include "Widgets/AllMid/WPlayerInventory.h"
+#include "Widgets/AllMid/WSelectedTarget.h"
 #include "Widgets/Components/WItem.h"
 #include "World/Shop.h"
 DEFINE_LOG_CATEGORY(LogPCAllMid);
@@ -113,7 +115,7 @@ void APCAllMid::MoveToMouseCursor()
 		if (Hit.Actor.IsValid())
 		{
 			AActor* HitActor = Hit.Actor.Get();
-			
+
 			ACHPlayable* MyPawn = GetPawn<ACHPlayable>();
 			UE_LOG(LogPCAllMid, Display, TEXT("OnClick hit actor HitActor: %s"), *HitActor->GetClass()->GetName())
 			if (HitActor && IsValid(MyPawn))
@@ -165,15 +167,52 @@ void APCAllMid::OnSetDestinationReleased()
 void APCAllMid::OnSelect()
 {
 	FHitResult HitResult;
-	if (GetHitResultUnderCursorByChannel(TraceTypeQuery1, true, HitResult))
+
+	const ECollisionChannel SelectedChannel = UEngineTypes::ConvertToCollisionChannel( TraceTypeQuery15 );
+	const FString ResourceString = StaticEnum<ECollisionChannel>()->GetValueAsString(SelectedChannel);
+	UE_LOG(LogPCAllMid, Display, TEXT("SelectedChannel: %s"), *ResourceString)
+
+	//TraceTypeQuery15 is my custom channel SelectTrace which is block all
+	if (!GetHitResultUnderCursorByChannel(TraceTypeQuery15, true, HitResult))
 	{
-		if (HitResult.Actor.IsValid())
+		return;
+	}
+	if (!HitResult.Actor.IsValid())
+	{
+		return;
+	}
+
+	GetHUD<AHUDAllMid>()->GetPlayerHudWidget()->GetSelectedTarget()->Hide();
+
+	AActor* HitActor = HitResult.Actor.Get();
+	const AShop* ShopActor = Cast<AShop>(HitActor);
+	UE_LOG(LogPCAllMid, Display, TEXT("OnSelect HitActor: %s"), *HitActor->GetClass()->GetName())
+
+	if (IsValid(ShopActor))
+	{
+		GetHUD<AHUDAllMid>()->GetPlayerHudWidget()->ShowShop();
+		return;
+	}
+
+	if (HitActor->Implements<UCanTakeDamage>())
+	{
+		UE_LOG(LogPCAllMid, Display, TEXT("HitActor->Implements<UCanTakeDamage>()"))
+		ICanTakeDamage* Target = Cast<ICanTakeDamage>(HitActor);
+		if (Target)
 		{
-			AActor* HitActor = HitResult.Actor.Get();
-			AShop* ShopActor = Cast<AShop>(HitActor);
-			if (IsValid(ShopActor))
+			UE_LOG(LogPCAllMid, Display, TEXT("Target is valid"))
+			UCHAttributeSet* Attributes = Target->GetAttributeSet();
+			if (Attributes)
 			{
-				GetHUD<AHUDAllMid>()->GetPlayerHudWidget()->ShowShop();
+				UE_LOG(LogPCAllMid, Display, TEXT("Attributes is valid"))
+				const ACHBase* CharacterRef = Cast<ACHBase>(Target);
+				GetHUD<AHUDAllMid>()->GetPlayerHudWidget()->GetSelectedTarget()->SetTarget(
+					Attributes,
+					Target->GetEntityName(),
+					IsValid(CharacterRef) ? CharacterRef->GetCharacterLevel() : 1
+				);
+
+				GetHUD<AHUDAllMid>()->GetPlayerHudWidget()->GetSelectedTarget()->Show();
 			}
 		}
 	}

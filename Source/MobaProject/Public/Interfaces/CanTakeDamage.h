@@ -48,5 +48,7 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	UCHAbilitySystemComponent* GetAbilitySystem();
 
+	virtual FName GetEntityName();
+
 	virtual UCHAbilitySystemComponent* GetAbilitySystem_Implementation();
 };
