@@ -168,7 +168,7 @@ void APCAllMid::OnSelect()
 {
 	FHitResult HitResult;
 
-	const ECollisionChannel SelectedChannel = UEngineTypes::ConvertToCollisionChannel( TraceTypeQuery15 );
+	const ECollisionChannel SelectedChannel = UEngineTypes::ConvertToCollisionChannel(TraceTypeQuery15);
 	const FString ResourceString = StaticEnum<ECollisionChannel>()->GetValueAsString(SelectedChannel);
 	UE_LOG(LogPCAllMid, Display, TEXT("SelectedChannel: %s"), *ResourceString)
 
@@ -205,16 +205,52 @@ void APCAllMid::OnSelect()
 			if (Attributes)
 			{
 				UE_LOG(LogPCAllMid, Display, TEXT("Attributes is valid"))
-				const ACHBase* CharacterRef = Cast<ACHBase>(Target);
 				GetHUD<AHUDAllMid>()->GetPlayerHudWidget()->GetSelectedTarget()->SetTarget(
 					Attributes,
-					Target->GetEntityName(),
-					IsValid(CharacterRef) ? CharacterRef->GetCharacterLevel() : 1
+					Target->GetEntityName()
 				);
 
 				GetHUD<AHUDAllMid>()->GetPlayerHudWidget()->GetSelectedTarget()->Show();
 			}
 		}
+	}
+}
+
+void APCAllMid::UpdateTargetingWidget(const UCHAttributeSet* Attributes) const
+{
+	if (HasAuthority()) { return; }
+	UE_LOG(LogPCAllMid, Display, TEXT("UpdateTargetingWidget"))
+
+	if (!IsValid(GetHUD<AHUDAllMid>()))
+	{
+		UE_LOG(LogPCAllMid, Display, TEXT("GetHUD"))
+		return;
+	}
+	if (!IsValid(GetHUD<AHUDAllMid>()->GetPlayerHudWidget()))
+	{
+		UE_LOG(LogPCAllMid, Display, TEXT("GetPlayerHudWidget"))
+		return;
+	}
+
+	UWSelectedTarget* SelectedTarget = GetHUD<AHUDAllMid>()
+	                                   ->GetPlayerHudWidget()
+	                                   ->GetSelectedTarget();
+	UE_LOG(LogPCAllMid, Display,
+	       TEXT("SelectedTarget->Attributes == Attributes %s"),
+	       SelectedTarget->Attributes == Attributes ? TEXT("TRUE") :
+	       TEXT("FALSE"));
+
+	UE_LOG(LogPCAllMid, Display, TEXT("SelectedTarget->Attributes %p"), SelectedTarget->Attributes);
+	UE_LOG(LogPCAllMid, Display, TEXT("Attributes %p"), Attributes);
+
+	if (IsValid(SelectedTarget) && SelectedTarget->Attributes == Attributes)
+	{
+		UE_LOG(LogPCAllMid, Display, TEXT("BP_OnAttributeChange"))
+		SelectedTarget->BP_OnAttributeChange();
+	}
+	else
+	{
+		UE_LOG(LogPCAllMid, Display, TEXT("SelectedTarget"))
 	}
 }
 
@@ -386,6 +422,15 @@ void APCAllMid::ConsumeItem(UConsumableItem* ConsumableItem)
 	UE_LOG(LogPCAllMid, Display, TEXT("ConsumableItem: %s"), Status ? TEXT("True") : TEXT("False"));
 }
 
+void APCAllMid::Client_ShowRespawnTimer_Implementation(const float Time)
+{
+	const AHUDAllMid* HUD = GetHUD<AHUDAllMid>();
+	if (IsValid(HUD))
+	{
+		HUD->GetPlayerHudWidget()->BP_StartRespawnCountdown(Time);
+	}
+}
+
 void APCAllMid::Client_ShowNotification_Implementation(const FText& Message)
 {
 	BP_ShowNotification(Message);
@@ -401,7 +446,7 @@ void APCAllMid::Server_ReadyToStart_Implementation()
 
 void APCAllMid::Client_StartGameCountdown_Implementation(float StartFrom)
 {
-	AHUDAllMid* HUD = GetHUD<AHUDAllMid>();
+	const AHUDAllMid* HUD = GetHUD<AHUDAllMid>();
 	if (IsValid(HUD))
 	{
 		HUD->GetPlayerHudWidget()->BP_StartGameCountdown(StartFrom);

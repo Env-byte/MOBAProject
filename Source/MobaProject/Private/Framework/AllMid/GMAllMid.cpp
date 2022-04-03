@@ -29,19 +29,7 @@ void AGMAllMid::CountdownFinished()
 
 		PlayerControllers[i]->EnableInput(PlayerControllers[i]);
 		PlayerControllers[i]->Client_OnGameStarted();
-		const APSAllMid* PlayerState = PlayerControllers[i]->GetPlayerState<APSAllMid>();
-		if (i == 0)
-		{
-			PlayerState->Attributes->SetDeaths(2.f);
-			PlayerState->Attributes->SetMinionsKilled(3.f);
-			PlayerState->Attributes->SetPlayersKilled(1.f);
-		}
-		else
-		{
-			PlayerState->Attributes->SetDeaths(1.f);
-			PlayerState->Attributes->SetMinionsKilled(13.f);
-			PlayerState->Attributes->SetPlayersKilled(2.f);
-		}
+		
 	}
 	AGSAllMid* GS = GetGameState<AGSAllMid>();
 	GS->IncrementDestroyedTower(ETeam::BlueTeam);
@@ -77,7 +65,7 @@ void AGMAllMid::HandlePlayerJoin(APCAllMid* PlayerController)
 	{
 		PS->Team = ETeam::RedTeam;
 	}
-	BP_SpawnPlayer(PlayerController);
+	BP_Respawn(PlayerController);
 	PS->UseTeamColours(PS->Team);
 
 
@@ -142,4 +130,15 @@ void AGMAllMid::NexusDestroyed(ETeam WinningTeamIn)
 			PlayerControllers[i]->Client_GameEnded(WinningTeam);
 		}
 	}
+}
+
+void AGMAllMid::StartPlayerRespawn(APCAllMid* PC)
+{
+	constexpr float RespawnTime = 10.f;
+	FTimerHandle UnusedHandle;
+	PC->Client_ShowRespawnTimer(RespawnTime);
+	GetWorldTimerManager().SetTimer(UnusedHandle, [this, PC]()
+	{
+		BP_Respawn(PC);
+	}, RespawnTime, false);
 }

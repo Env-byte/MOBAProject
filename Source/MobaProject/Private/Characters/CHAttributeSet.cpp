@@ -4,7 +4,13 @@
 #include "Characters/CHAttributeSet.h"
 #include "GameplayEffectExtension.h"
 #include "Characters/CHBase.h"
+#include "Characters/Playable/CHPlayable.h"
+#include "Framework/AllMid/HUDAllMid.h"
+#include "Framework/AllMid/PCAllMid.h"
 #include "Net/UnrealNetwork.h"
+#include "Widgets/AllMid/WPlayerHud.h"
+#include "Widgets/AllMid/WSelectedTarget.h"
+class AHUDAllMid;
 DEFINE_LOG_CATEGORY(LogCHAttributeSet);
 
 UCHAttributeSet::UCHAttributeSet()
@@ -72,6 +78,7 @@ void UCHAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
 	}
 
 	ICanTakeDamage* Target{nullptr};
+	ACHPlayable* SourcePlayer{nullptr};
 	if (Data.Target.AbilityActorInfo.IsValid() && Data.Target.AbilityActorInfo->AvatarActor.IsValid())
 	{
 		AActor* TargetActor = Data.Target.AbilityActorInfo->AvatarActor.Get();
@@ -79,6 +86,11 @@ void UCHAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
 		{
 			Target = Cast<ICanTakeDamage>(TargetActor);
 		}
+	}
+
+	if (IsValid(Source->GetAvatarActor()))
+	{
+		SourcePlayer = Cast<ACHPlayable>(Source->GetAvatarActor());
 	}
 
 	UE_LOG(LogCHAttributeSet, Display, TEXT("ICanTakeDamage* Target : %p"), Target)
@@ -90,7 +102,7 @@ void UCHAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
 		SetHealth(FMath::Clamp(GetHealth(), 0.f, GetMaxHealth()));
 		if (Target)
 		{
-			Target->HandleHealthChanged(DeltaValue, SourceTags);
+			Target->HandleHealthChanged(DeltaValue, SourceTags, SourcePlayer);
 		}
 	}
 	else if (Data.EvaluatedData.Attribute == GetManaAttribute())
@@ -144,6 +156,7 @@ void UCHAttributeSet::OnRep_Health(const FGameplayAttributeData& OldHealth)
 	{
 		BaseCharacter->OnRep_Attribute(GetHealthAttribute(), OldHealth, Health);
 	}
+	NotifyPlayerController();
 }
 
 void UCHAttributeSet::OnRep_MaxHealth(const FGameplayAttributeData& OldHealth)
@@ -154,6 +167,7 @@ void UCHAttributeSet::OnRep_MaxHealth(const FGameplayAttributeData& OldHealth)
 	{
 		BaseCharacter->OnRep_Attribute(GetMaxHealthAttribute(), OldHealth, MaxHealth);
 	}
+	NotifyPlayerController();
 }
 
 void UCHAttributeSet::OnRep_Mana(const FGameplayAttributeData& OldMana)
@@ -164,6 +178,7 @@ void UCHAttributeSet::OnRep_Mana(const FGameplayAttributeData& OldMana)
 	{
 		BaseCharacter->OnRep_Attribute(GetManaAttribute(), OldMana, Mana);
 	}
+	NotifyPlayerController();
 }
 
 void UCHAttributeSet::OnRep_MaxMana(const FGameplayAttributeData& OldMaxMana)
@@ -174,6 +189,7 @@ void UCHAttributeSet::OnRep_MaxMana(const FGameplayAttributeData& OldMaxMana)
 	{
 		BaseCharacter->OnRep_Attribute(GetMaxManaAttribute(), OldMaxMana, MaxMana);
 	}
+	NotifyPlayerController();
 }
 
 void UCHAttributeSet::OnRep_AttackDamage(const FGameplayAttributeData& OldAttackDamage)
@@ -184,6 +200,7 @@ void UCHAttributeSet::OnRep_AttackDamage(const FGameplayAttributeData& OldAttack
 	{
 		BaseCharacter->OnRep_Attribute(GetAttackDamageAttribute(), OldAttackDamage, AttackDamage);
 	}
+	NotifyPlayerController();
 }
 
 void UCHAttributeSet::OnRep_MoveSpeed(const FGameplayAttributeData& OldMoveSpeed)
@@ -194,6 +211,7 @@ void UCHAttributeSet::OnRep_MoveSpeed(const FGameplayAttributeData& OldMoveSpeed
 	{
 		BaseCharacter->OnRep_Attribute(GetMoveSpeedAttribute(), OldMoveSpeed, MoveSpeed);
 	}
+	NotifyPlayerController();
 }
 
 void UCHAttributeSet::OnRep_AttackSpeed(const FGameplayAttributeData& OldAttackSpeed)
@@ -204,6 +222,7 @@ void UCHAttributeSet::OnRep_AttackSpeed(const FGameplayAttributeData& OldAttackS
 	{
 		BaseCharacter->OnRep_Attribute(GetAttackSpeedAttribute(), OldAttackSpeed, AttackSpeed);
 	}
+	NotifyPlayerController();
 }
 
 void UCHAttributeSet::OnRep_Armour(const FGameplayAttributeData& OldArmour)
@@ -214,6 +233,7 @@ void UCHAttributeSet::OnRep_Armour(const FGameplayAttributeData& OldArmour)
 	{
 		BaseCharacter->OnRep_Attribute(GetAttackSpeedAttribute(), OldArmour, Armour);
 	}
+	NotifyPlayerController();
 }
 
 void UCHAttributeSet::OnRep_AttackRange(const FGameplayAttributeData& OldAttackRange)
@@ -224,6 +244,7 @@ void UCHAttributeSet::OnRep_AttackRange(const FGameplayAttributeData& OldAttackR
 	{
 		BaseCharacter->OnRep_Attribute(GetAttackSpeedAttribute(), OldAttackRange, AttackRange);
 	}
+	NotifyPlayerController();
 }
 
 void UCHAttributeSet::OnRep_HealthRegenRate(const FGameplayAttributeData& OldHealthRegenRate)
@@ -234,6 +255,7 @@ void UCHAttributeSet::OnRep_HealthRegenRate(const FGameplayAttributeData& OldHea
 	{
 		BaseCharacter->OnRep_Attribute(GetHealthRegenRateAttribute(), OldHealthRegenRate, HealthRegenRate);
 	}
+	NotifyPlayerController();
 }
 
 void UCHAttributeSet::OnRep_ManaRegenRate(const FGameplayAttributeData& OldManaRegenRate)
@@ -243,5 +265,20 @@ void UCHAttributeSet::OnRep_ManaRegenRate(const FGameplayAttributeData& OldManaR
 	if (BaseCharacter)
 	{
 		BaseCharacter->OnRep_Attribute(GetManaRegenRateAttribute(), OldManaRegenRate, ManaRegenRate);
+	}
+	NotifyPlayerController();
+}
+
+void UCHAttributeSet::NotifyPlayerController() const
+{
+	const UWorld* World = GetWorld();
+	if (IsValid(World))
+	{
+		APlayerController* PC = GEngine->GetFirstLocalPlayerController(World);
+		if (IsValid(PC))
+		{
+			const APCAllMid* APC = Cast<APCAllMid>(PC);
+			APC->UpdateTargetingWidget(this);
+		}
 	}
 }

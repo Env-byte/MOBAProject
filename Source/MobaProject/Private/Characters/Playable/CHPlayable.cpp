@@ -293,7 +293,7 @@ void ACHPlayable::PossessedBy(AController* NewController)
 	Super::PossessedBy(NewController);
 	GiveAbilities();
 
-	APSAllMid* PS = GetPlayerState<APSAllMid>();
+	const APSAllMid* PS = GetPlayerState<APSAllMid>();
 	if (!PS) { return; }
 	if (PS->Team != Team)
 	{
@@ -307,10 +307,10 @@ void ACHPlayable::OnRep_Attribute(const FGameplayAttribute& Attribute, const FGa
 	Super::OnRep_Attribute(Attribute, OldValue, NewValue);
 	if (!IsLocallyControlled()) { return; }
 
-	APCAllMid* PC = GetController<APCAllMid>();
+	const APCAllMid* PC = GetController<APCAllMid>();
 	if (!PC) { return; }
 	if (!PC->IsLocalController()) { return; }
-	AHUDAllMid* HUD = PC->GetHUD<AHUDAllMid>();
+	const AHUDAllMid* HUD = PC->GetHUD<AHUDAllMid>();
 	if (!HUD) { return; }
 
 	UWPlayerHud* PlayerHudWidget = HUD->GetPlayerHudWidget();
@@ -333,14 +333,27 @@ void ACHPlayable::OnRep_Attribute(const FGameplayAttribute& Attribute, const FGa
 	}
 }
 
-void ACHPlayable::HandleHealthChanged(float DeltaValue, const FGameplayTagContainer& GameplayTags)
+void ACHPlayable::HandleHealthChanged(float DeltaValue, const FGameplayTagContainer& GameplayTags,
+                                      ACHPlayable* SourcePlayer)
 {
-	Super::HandleHealthChanged(DeltaValue, GameplayTags);
+	AGMAllMid* GameMode = GetWorld()->GetAuthGameMode<AGMAllMid>();
+	APCAllMid* PlayerController = GetController<APCAllMid>();
+	Super::HandleHealthChanged(DeltaValue, GameplayTags, SourcePlayer);
+	if (!HasAuthority()) return;
+
+	if (Attributes->GetHealth() == 0.f)
+	{
+		GameMode->StartPlayerRespawn(PlayerController);
+		const APSAllMid* ThisPlayerState = PlayerController->GetPlayerState<APSAllMid>();
+		const APSAllMid* SourcePlayerState = SourcePlayer->GetPlayerState<APSAllMid>();
+		ThisPlayerState->Attributes->SetDeaths(ThisPlayerState->Attributes->GetDeaths() + 1.f);
+		SourcePlayerState->Attributes->SetPlayersKilled(SourcePlayerState->Attributes->GetPlayersKilled() + 1.f);
+	}
 }
 
 int32 ACHPlayable::GetCharacterLevel() const
 {
-	APSAllMid* ThisPlayerState = GetPlayerState<APSAllMid>();
+	const APSAllMid* ThisPlayerState = GetPlayerState<APSAllMid>();
 	if (!ThisPlayerState) { return 0; }
 	return static_cast<int32>(ThisPlayerState->GetAttributeSet()->GetCharacterLevel());
 }

@@ -130,7 +130,7 @@ void ACHBase::HandleDamage(float Damage, const FHitResult HitInfo, const FGamepl
 	BP_OnDamaged(Damage, HitInfo, DamageTags, InstigatorCharacter, DamageCauser);
 }
 
-void ACHBase::HandleHealthChanged(float DeltaValue, const FGameplayTagContainer& EventTags)
+void ACHBase::HandleHealthChanged(float DeltaValue, const FGameplayTagContainer& EventTags, ACHPlayable* SourcePlayer)
 {
 	if (!HasAuthority()) return;
 

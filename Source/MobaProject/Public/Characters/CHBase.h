@@ -109,7 +109,7 @@ public:
 	void BP_OnHealthChanged(float DeltaValue, const struct FGameplayTagContainer& EventTags);
 	virtual void HandleDamage(float Damage, const FHitResult HitInfo, const FGameplayTagContainer& DamageTags,
 	                          ACHBase* InstigatorCharacter, AActor* DamageCauser);
-	virtual void HandleHealthChanged(float DeltaValue, const struct FGameplayTagContainer& EventTags) override;
+	virtual void HandleHealthChanged(float DeltaValue, const struct FGameplayTagContainer& EventTags,ACHPlayable* SourcePlayer) override;
 	////////// Server only //////////
 
 	/**

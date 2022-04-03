@@ -92,7 +92,7 @@ void ANexus::HandleDamage(float Damage, const FHitResult HitInfo, const FGamepla
 {
 }
 
-void ANexus::HandleHealthChanged(float DeltaValue, const FGameplayTagContainer& EventTags)
+void ANexus::HandleHealthChanged(float DeltaValue, const FGameplayTagContainer& EventTags,ACHPlayable* SourcePlayer)
 {
 	if (!HasAuthority()) return;
 	BP_OnHealthChanged(DeltaValue, EventTags);

@@ -9,6 +9,7 @@
 #include "CanTakeDamage.generated.h"
 
 
+class ACHPlayable;
 class UCHAttributeSet;
 class UCHAbilitySystemComponent;
 
@@ -39,7 +40,7 @@ class MOBAPROJECT_API ICanTakeDamage
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
-	virtual void HandleHealthChanged(float DeltaValue, const FGameplayTagContainer& EventTags);
+	virtual void HandleHealthChanged(float DeltaValue, const FGameplayTagContainer& EventTags,ACHPlayable* SourcePlayer);
 
 	virtual FActorHelper GetActorInfo();
 

@@ -34,7 +34,11 @@ public:
 	virtual FActorHelper GetActorInfo() override;
 	FORCEINLINE virtual UCHAttributeSet* GetAttributeSet() override { return Attributes; }
 
-	FORCEINLINE virtual UCHAbilitySystemComponent* GetAbilitySystem_Implementation() override {return AbilitySystemComponent;}
+	FORCEINLINE virtual UCHAbilitySystemComponent* GetAbilitySystem_Implementation() override
+	{
+		return AbilitySystemComponent;
+	}
+
 	/**
 	* Team this unit belongs too
 	*/
@@ -98,7 +102,8 @@ public:
 	void BP_OnHealthChanged(float DeltaValue, const struct FGameplayTagContainer& EventTags);
 	virtual void HandleDamage(float Damage, const FHitResult HitInfo, const FGameplayTagContainer& DamageTags,
 	                          ACHBase* InstigatorCharacter, AActor* DamageCauser);
-	virtual void HandleHealthChanged(float DeltaValue, const struct FGameplayTagContainer& EventTags) override;
+	virtual void HandleHealthChanged(float DeltaValue, const struct FGameplayTagContainer& EventTags,
+	                                 ACHPlayable* SourcePlayer) override;
 	////////// Server only //////////
 
 	/**

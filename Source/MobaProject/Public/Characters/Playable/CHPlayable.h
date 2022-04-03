@@ -171,7 +171,7 @@ public:
 	virtual void OnRep_Attribute(const FGameplayAttribute& Attribute, const FGameplayAttributeData& OldValue,
 	                             const FGameplayAttributeData& NewValue) override;
 
-	virtual void HandleHealthChanged(float DeltaValue, const FGameplayTagContainer& EventTags) override;
+	virtual void HandleHealthChanged(float DeltaValue, const FGameplayTagContainer& EventTags,ACHPlayable* SourcePlayer) override;
 
 	virtual int32 GetCharacterLevel() const override;
 	////////// Ability System //////////

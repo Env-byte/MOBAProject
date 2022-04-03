@@ -70,5 +70,8 @@ public:
 	void BP_StartGameCountdown(float StartFrom);
 
 	UFUNCTION(BlueprintImplementableEvent)
+	void BP_StartRespawnCountdown(float StartFrom);
+
+	UFUNCTION(BlueprintImplementableEvent)
 	void BP_ShowGameOverText(const FText& Message);
 };

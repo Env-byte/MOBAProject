@@ -4,7 +4,7 @@
 #include "Interfaces/CanTakeDamage.h"
 
 
-void ICanTakeDamage::HandleHealthChanged(float DeltaValue, const FGameplayTagContainer& EventTags)
+void ICanTakeDamage::HandleHealthChanged(float DeltaValue, const FGameplayTagContainer& EventTags,ACHPlayable* SourcePlayer)
 {
 }
 

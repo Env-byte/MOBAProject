@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GMAllMid.h"
+#include "Characters/CHAttributeSet.h"
 #include "GameFramework/PlayerController.h"
 #include "Items/BaseItem.h"
 #include "PCAllMid.generated.h"
@@ -55,7 +56,9 @@ protected:
 	////////// Select //////////
 	void OnSelect();
 	////////// Select //////////
-
+public:
+	void UpdateTargetingWidget(const UCHAttributeSet* Attributes) const;
+protected:
 	////////// Scoreboard //////////
 	void OnScoreboardPressed();
 	void OnScoreboardReleased();
@@ -143,4 +146,9 @@ public:
 protected:
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_OnGameEnd(bool bWon);
+public:
+	////////// Player Respawn //////////
+	UFUNCTION(Client, Reliable)
+	void Client_ShowRespawnTimer(float Time);
+	////////// Player Respawn //////////
 };

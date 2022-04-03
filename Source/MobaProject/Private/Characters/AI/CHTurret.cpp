@@ -108,7 +108,7 @@ void ACHTurret::HandleDamage(float Damage, const FHitResult HitInfo, const FGame
 	BP_OnDamaged(Damage, HitInfo, DamageTags, InstigatorCharacter, DamageCauser);
 }
 
-void ACHTurret::HandleHealthChanged(float DeltaValue, const FGameplayTagContainer& EventTags)
+void ACHTurret::HandleHealthChanged(float DeltaValue, const FGameplayTagContainer& EventTags, ACHPlayable* SourcePlayer)
 {
 	if (!HasAuthority()) return;
 	BP_OnHealthChanged(DeltaValue, EventTags);

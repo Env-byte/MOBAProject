@@ -14,11 +14,18 @@ UCLASS()
 class MOBAPROJECT_API UWSelectedTarget : public UUserWidget
 {
 	GENERATED_BODY()
-
 public:
-	UFUNCTION(BlueprintImplementableEvent)
-	void SetTarget(UCHAttributeSet* Attributes, FName Name, int32 Level);
+	UPROPERTY(BlueprintReadOnly)
+	UCHAttributeSet* Attributes;
 	
+	void SetTarget(UCHAttributeSet* ThisAttributes, FName Name);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_OnAttributeChange();
+protected:
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_SetTarget(FName Name);
+public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void Hide();
 	UFUNCTION(BlueprintImplementableEvent)

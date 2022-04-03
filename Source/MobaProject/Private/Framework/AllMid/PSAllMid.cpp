@@ -181,11 +181,10 @@ void APSAllMid::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetim
 void APSAllMid::OnRep_Attribute(const FGameplayAttribute& Attribute, const FGameplayAttributeData& OldValue,
                                 const FGameplayAttributeData& NewValue)
 {
-	UE_LOG(LogPSAllMid, Display, TEXT("APSAllMid::OnRep_Attribute %s %f"), *Attribute.AttributeName, NewValue.GetCurrentValue())
 	UWPlayerHud* PlayerHudWidget = nullptr;
 	if (IsValid(PlayerControllerRef) && PlayerControllerRef->IsLocalController())
 	{
-		AHUDAllMid* HUD = PlayerControllerRef->GetHUD<AHUDAllMid>();
+		const AHUDAllMid* HUD = PlayerControllerRef->GetHUD<AHUDAllMid>();
 		if (!HUD) { return; }
 		PlayerHudWidget = HUD->GetPlayerHudWidget();
 	}

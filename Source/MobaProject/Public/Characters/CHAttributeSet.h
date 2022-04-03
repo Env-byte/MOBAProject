@@ -82,11 +82,12 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category="Attributes", ReplicatedUsing=OnRep_ManaRegenRate)
 	FGameplayAttributeData ManaRegenRate;
 	ATTRIBUTE_ACCESSORS(UCHAttributeSet, ManaRegenRate)
-	
+
 	UFUNCTION(BlueprintCallable)
 	float GetHealthPercent() const;
 	UFUNCTION(BlueprintCallable)
 	float GetManaPercent() const;
+
 
 protected:
 	UFUNCTION()
@@ -121,4 +122,6 @@ protected:
 
 	UFUNCTION()
 	virtual void OnRep_ManaRegenRate(const FGameplayAttributeData& OldManaRegenRate);
+
+	void NotifyPlayerController() const;
 };

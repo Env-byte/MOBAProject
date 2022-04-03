@@ -64,10 +64,6 @@ public:
 	/** When clientside is finished setting up, this function is called from the playerController */
 	void PlayerControllerReady(const APCAllMid* PlayerController);
 
-	////////// Players Joining //////////
-	UFUNCTION(BlueprintImplementableEvent)
-	void BP_SpawnPlayer(APCAllMid* PlayerController);
-
 	////////// Game Win condition //////////
 protected:
 	ETeam WinningTeam = ETeam::NeutralTeam;
@@ -80,4 +76,11 @@ public:
 
 	FORCEINLINE ETeam GetWinningTeam() const { return WinningTeam; }
 	////////// Game Win condition //////////
+
+	////////// Player Respawn //////////
+	void StartPlayerRespawn(APCAllMid* PC);
+	////////// Player Respawn //////////
+protected:
+	UFUNCTION(BlueprintImplementableEvent)
+	AActor* BP_Respawn(APCAllMid* PC);
 };
