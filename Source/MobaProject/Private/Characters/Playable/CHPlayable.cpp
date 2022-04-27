@@ -28,6 +28,31 @@ void ACHPlayable::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
 	DOREPLIFETIME(ACHPlayable, PrimaryAttackTarget)
 }
 
+void ACHPlayable::SetTeam(ETeam ThisTeam)
+{
+	Team = ThisTeam;
+
+	if (Team == ETeam::BlueTeam)
+	{
+		CameraBoom->SetRelativeRotation(FRotator(CameraPitch, 225.f, 0.f));
+	}
+	else
+	{
+		CameraBoom->SetRelativeRotation(FRotator(CameraPitch, 45.f, 0.f));
+	}
+}
+
+FName ACHPlayable::GetEntityName()
+{
+	APSAllMid* PS = GetPlayerState<APSAllMid>();
+	if (PS)
+	{
+		return FName(PS->GetPlayerName());
+	}
+
+	return Super::GetEntityName();
+}
+
 ACHPlayable::ACHPlayable()
 {
 	// Set size for player capsule
@@ -45,6 +70,7 @@ ACHPlayable::ACHPlayable()
 	GetCharacterMovement()->bSnapToPlaneAtStart = true;
 
 	// Create a camera boom...
+	//needs to adjust depending on what team the player is on 
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
 	CameraBoom->SetUsingAbsoluteRotation(true); // Don't want arm to rotate when character does
@@ -78,6 +104,8 @@ ACHPlayable::ACHPlayable()
 	NextPrimaryAttackIndex = 0;
 	bIsAttacking = false;
 	bAbilitiesInitialized = false;
+
+	Team = ETeam::NeutralTeam;
 }
 
 void ACHPlayable::Tick(float DeltaSeconds)
@@ -97,15 +125,14 @@ void ACHPlayable::Tick(float DeltaSeconds)
 void ACHPlayable::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
-	APCAllMid* PC = GetController<APCAllMid>();
-	if (!PC) { return; }
 
-	AHUDAllMid* HUD = PC->GetHUD<AHUDAllMid>();
-	if (!HUD) { return; }
+	APSAllMid* PS = GetPlayerState<APSAllMid>();
+	if (PS && PS->Team != Team)
+	{
+		SetTeam(PS->Team);
+	}
 
-	UWPlayerHud* PlayerHudWidget = HUD->GetPlayerHudWidget();
-	if (!PlayerHudWidget) { return; }
-	PlayerHudWidget->BP_PlayerSpawned(this);
+	PlayerSpawned();
 }
 
 void ACHPlayable::UpdateCursorDecal() const
@@ -124,46 +151,79 @@ void ACHPlayable::UpdateCursorDecal() const
 	}
 }
 
+void ACHPlayable::PlayerSpawned()
+{
+	APCAllMid* PC = GetController<APCAllMid>();
+	if (!PC)
+	{
+		return;
+	}
+	AHUDAllMid* HUD = PC->GetHUD<AHUDAllMid>();
+	if (!HUD)
+	{
+		UE_LOG(LogCHPlayable, Warning, TEXT("HUD Is not valid"))
+		return;
+	}
+
+	UWPlayerHud* PlayerHudWidget = HUD->GetPlayerHudWidget();
+	if (!PlayerHudWidget)
+	{
+		UE_LOG(LogCHPlayable, Warning, TEXT("PlayerHudWidget Is not valid"))
+		return;
+	}
+	PlayerHudWidget->BP_PlayerSpawned(this);
+}
+
 void ACHPlayable::BeginPlay()
 {
 	Super::BeginPlay();
 	if (IsLocallyControlled())
 	{
 		CursorToWorld->SetHiddenInGame(false);
+		//do this to change camera angle if spawned in with a team
+		if (Team != ETeam::NeutralTeam)
+		{
+			SetTeam(Team);
+		}
+
+		PlayerSpawned();
 	}
 }
 
-void ACHPlayable::Server_CastPrimaryAttack_Implementation(ACHBase* Target)
+void ACHPlayable::Server_CastPrimaryAttack_Implementation(AActor* Target)
 {
 	CastPrimaryAttack(Target);
 }
 
-void ACHPlayable::CastPrimaryAttack(ACHBase* Target)
+void ACHPlayable::CastPrimaryAttack(AActor* Target)
 {
+	PrimaryAttackTarget = Target;
 	if (!HasAuthority())
 	{
 		Server_CastPrimaryAttack(Target);
 		return;
 	}
-	PrimaryAttackTarget = Target;
+	ICanTakeDamage* Interface = Cast<ICanTakeDamage>(Target);
+	if (Interface->GetActorInfo().Team == Team)
+	{
+		return;
+	}
 	AbilitySystemComponent->TryActivateAbilityByClass(PrimaryAttack, true);
 }
 
 float ACHPlayable::GetPrimaryAttackDamage()
 {
-	UE_LOG(LogTemp, Display, TEXT("PrimaryAttackTarget is not valid %p. IsSever: %s"), PrimaryAttackTarget,
-	       HasAuthority()?TEXT("True"):TEXT("False"))
-	if (!IsValid(PrimaryAttackTarget))
-	{
-		return 0.f;
-	}
 	const float Attack = Attributes->GetAttackDamage();
-	const float Armour = PrimaryAttackTarget->GetAttributeSet()->GetArmour();
-	return FMath::Clamp(
+	ICanTakeDamage* Interface = Cast<ICanTakeDamage>(PrimaryAttackTarget);
+	const float Armour = Interface->GetAttributeSet()->Armour.GetCurrentValue();
+	const float Damage = FMath::Clamp(
 		Attack - Armour,
 		0.f,
 		Attributes->GetAttackDamage()
 	);
+
+	UE_LOG(LogCHPlayable, Display, TEXT("Damage: %f"), Damage)
+	return Damage;
 }
 
 float ACHPlayable::GetPrimaryAttackSpeedCooldown()
@@ -232,6 +292,13 @@ void ACHPlayable::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 	GiveAbilities();
+
+	const APSAllMid* PS = GetPlayerState<APSAllMid>();
+	if (!PS) { return; }
+	if (PS->Team != Team)
+	{
+		SetTeam(PS->Team);
+	}
 }
 
 void ACHPlayable::OnRep_Attribute(const FGameplayAttribute& Attribute, const FGameplayAttributeData& OldValue,
@@ -240,10 +307,10 @@ void ACHPlayable::OnRep_Attribute(const FGameplayAttribute& Attribute, const FGa
 	Super::OnRep_Attribute(Attribute, OldValue, NewValue);
 	if (!IsLocallyControlled()) { return; }
 
-	APCAllMid* PC = GetController<APCAllMid>();
+	const APCAllMid* PC = GetController<APCAllMid>();
 	if (!PC) { return; }
 	if (!PC->IsLocalController()) { return; }
-	AHUDAllMid* HUD = PC->GetHUD<AHUDAllMid>();
+	const AHUDAllMid* HUD = PC->GetHUD<AHUDAllMid>();
 	if (!HUD) { return; }
 
 	UWPlayerHud* PlayerHudWidget = HUD->GetPlayerHudWidget();
@@ -266,14 +333,27 @@ void ACHPlayable::OnRep_Attribute(const FGameplayAttribute& Attribute, const FGa
 	}
 }
 
-void ACHPlayable::HandleHealthChanged(float DeltaValue, const FGameplayTagContainer& GameplayTags)
+void ACHPlayable::HandleHealthChanged(float DeltaValue, const FGameplayTagContainer& GameplayTags,
+                                      ACHPlayable* SourcePlayer)
 {
-	Super::HandleHealthChanged(DeltaValue, GameplayTags);
+	AGMAllMid* GameMode = GetWorld()->GetAuthGameMode<AGMAllMid>();
+	APCAllMid* PlayerController = GetController<APCAllMid>();
+	Super::HandleHealthChanged(DeltaValue, GameplayTags, SourcePlayer);
+	if (!HasAuthority()) return;
+
+	if (Attributes->GetHealth() == 0.f)
+	{
+		GameMode->StartPlayerRespawn(PlayerController);
+		const APSAllMid* ThisPlayerState = PlayerController->GetPlayerState<APSAllMid>();
+		const APSAllMid* SourcePlayerState = SourcePlayer->GetPlayerState<APSAllMid>();
+		ThisPlayerState->Attributes->SetDeaths(ThisPlayerState->Attributes->GetDeaths() + 1.f);
+		SourcePlayerState->Attributes->SetPlayersKilled(SourcePlayerState->Attributes->GetPlayersKilled() + 1.f);
+	}
 }
 
 int32 ACHPlayable::GetCharacterLevel() const
 {
-	APSAllMid* ThisPlayerState = GetPlayerState<APSAllMid>();
+	const APSAllMid* ThisPlayerState = GetPlayerState<APSAllMid>();
 	if (!ThisPlayerState) { return 0; }
 	return static_cast<int32>(ThisPlayerState->GetAttributeSet()->GetCharacterLevel());
 }

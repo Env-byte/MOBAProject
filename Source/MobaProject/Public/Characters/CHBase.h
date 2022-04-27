@@ -6,8 +6,10 @@
 #include "GameFramework/Character.h"
 #include "AbilitySystemInterface.h"
 #include "CHAbilitySystemComponent.h"
+#include "Interfaces/CanTakeDamage.h"
 #include "MobaProject/MobaProject.h"
 #include "CHBase.generated.h"
+
 class UCharacterNamePlate;
 struct FGameplayTagContainer;
 DECLARE_LOG_CATEGORY_EXTERN(LogCHBase, Log, All);
@@ -16,7 +18,7 @@ class UCHAttributeSet;
 class UGameplayEffect;
 
 UCLASS(Abstract, NotBlueprintable)
-class MOBAPROJECT_API ACHBase : public ACharacter, public IAbilitySystemInterface
+class MOBAPROJECT_API ACHBase : public ACharacter, public IAbilitySystemInterface, public ICanTakeDamage
 
 {
 	GENERATED_BODY()
@@ -25,18 +27,22 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE ETeam GetTeam() const { return Team; }
-	
+
+	virtual FActorHelper GetActorInfo() override;
+
+	FORCEINLINE virtual UCHAttributeSet* GetAttributeSet() override { return Attributes; }
+
+	FORCEINLINE virtual UCHAbilitySystemComponent* GetAbilitySystem_Implementation() override {return AbilitySystemComponent;}
+
 	/**
 	* Team this unit belongs too
 	*/
-	UPROPERTY(BlueprintReadWrite, Replicated)
+	UPROPERTY(BlueprintReadWrite, Replicated, meta = (ExposeOnSpawn="true"))
 	ETeam Team;
-	
+
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 protected:
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
-
-	
 
 
 	////////// Ability System //////////
@@ -68,8 +74,9 @@ protected:
 	/**
 	 * Used to set the NamePlateComponent Name. Ex PlayerName, or for Ai 'Minion' or 'Turret'
 	 */
-	virtual FName GetEntityName();
+	virtual FName GetEntityName() override;
 
+public:
 	/**
 	 * Get this Characters level to know what attribute values to spawn it with
 	 */
@@ -102,7 +109,7 @@ public:
 	void BP_OnHealthChanged(float DeltaValue, const struct FGameplayTagContainer& EventTags);
 	virtual void HandleDamage(float Damage, const FHitResult HitInfo, const FGameplayTagContainer& DamageTags,
 	                          ACHBase* InstigatorCharacter, AActor* DamageCauser);
-	virtual void HandleHealthChanged(float DeltaValue, const struct FGameplayTagContainer& EventTags);
+	virtual void HandleHealthChanged(float DeltaValue, const struct FGameplayTagContainer& EventTags,ACHPlayable* SourcePlayer) override;
 	////////// Server only //////////
 
 	/**

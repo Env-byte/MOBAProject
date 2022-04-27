@@ -30,6 +30,11 @@ ACHBase::ACHBase()
 	Attributes = CreateDefaultSubobject<UCHAttributeSet>("Attributes");
 }
 
+FActorHelper ACHBase::GetActorInfo()
+{
+	return FActorHelper{Team, this};
+}
+
 void ACHBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
@@ -105,6 +110,7 @@ void ACHBase::PossessedBy(AController* NewController)
 		UE_LOG(LogCHBase, Display, TEXT("PossessedBy: %s %f:%f"), *GetFullName(), Attributes->GetHealth(),
 		       Attributes->GetMaxHealth())
 	}
+	SetupNamePlateWidget();
 }
 
 void ACHBase::OnRep_PlayerState()
@@ -115,6 +121,7 @@ void ACHBase::OnRep_PlayerState()
 		InitializeOwningActor();
 		InitializeAbilityBinds();
 	}
+	SetupNamePlateWidget();
 }
 
 void ACHBase::HandleDamage(float Damage, const FHitResult HitInfo, const FGameplayTagContainer& DamageTags,
@@ -123,7 +130,7 @@ void ACHBase::HandleDamage(float Damage, const FHitResult HitInfo, const FGamepl
 	BP_OnDamaged(Damage, HitInfo, DamageTags, InstigatorCharacter, DamageCauser);
 }
 
-void ACHBase::HandleHealthChanged(float DeltaValue, const FGameplayTagContainer& EventTags)
+void ACHBase::HandleHealthChanged(float DeltaValue, const FGameplayTagContainer& EventTags, ACHPlayable* SourcePlayer)
 {
 	if (!HasAuthority()) return;
 

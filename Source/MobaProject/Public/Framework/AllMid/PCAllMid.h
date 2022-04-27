@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GMAllMid.h"
+#include "Characters/CHAttributeSet.h"
 #include "GameFramework/PlayerController.h"
 #include "Items/BaseItem.h"
 #include "PCAllMid.generated.h"
@@ -30,14 +31,10 @@ public:
 	UPROPERTY()
 	AGMAllMid* GameMode;
 
-	/**
-	 * Called straight after player state begin play. Only called for local player controllers
-	 */
-	void PlayerStateReady(APSAllMid* PS);
-protected:
-	UFUNCTION()
-	void OnPlayerInventoryUpdated(const TArray<UBaseItem*>& Items);
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSubclassOf<ACHPlayable> PlayerCharacterClass;
 
+protected:
 	virtual void SetupInputComponent() override;
 
 	////////// PLAYER MOVEMENT //////////
@@ -59,7 +56,9 @@ protected:
 	////////// Select //////////
 	void OnSelect();
 	////////// Select //////////
-
+public:
+	void UpdateTargetingWidget(const UCHAttributeSet* Attributes) const;
+protected:
 	////////// Scoreboard //////////
 	void OnScoreboardPressed();
 	void OnScoreboardReleased();
@@ -139,4 +138,17 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_OnGameStarted();
 	////////// Players Joining //////////
+
+public:
+	UFUNCTION(Client, Reliable)
+	void Client_GameEnded(ETeam WinningTeam);
+
+protected:
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_OnGameEnd(bool bWon);
+public:
+	////////// Player Respawn //////////
+	UFUNCTION(Client, Reliable)
+	void Client_ShowRespawnTimer(float Time);
+	////////// Player Respawn //////////
 };

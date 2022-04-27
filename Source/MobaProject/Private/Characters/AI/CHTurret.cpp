@@ -27,6 +27,16 @@ ACHTurret::ACHTurret()
 	Attributes = CreateDefaultSubobject<UCHAttributeSet>("Attributes");
 }
 
+FActorHelper ACHTurret::GetActorInfo()
+{
+	return FActorHelper{Team, this};
+}
+
+ETeam ACHTurret::GetTeam()
+{
+	return Team;
+}
+
 void ACHTurret::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
@@ -73,10 +83,6 @@ void ACHTurret::InitializeOwningActor()
 	AbilitySystemComponent->InitAbilityActorInfo(this, this);
 }
 
-void ACHTurret::InitializeAbilityBinds()
-{
-}
-
 void ACHTurret::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
@@ -93,7 +99,6 @@ void ACHTurret::OnRep_PlayerState()
 	if (AbilitySystemComponent && InputComponent)
 	{
 		InitializeOwningActor();
-		InitializeAbilityBinds();
 	}
 }
 
@@ -103,7 +108,7 @@ void ACHTurret::HandleDamage(float Damage, const FHitResult HitInfo, const FGame
 	BP_OnDamaged(Damage, HitInfo, DamageTags, InstigatorCharacter, DamageCauser);
 }
 
-void ACHTurret::HandleHealthChanged(float DeltaValue, const FGameplayTagContainer& EventTags)
+void ACHTurret::HandleHealthChanged(float DeltaValue, const FGameplayTagContainer& EventTags, ACHPlayable* SourcePlayer)
 {
 	if (!HasAuthority()) return;
 	BP_OnHealthChanged(DeltaValue, EventTags);
@@ -154,6 +159,7 @@ void ACHTurret::BeginPlay()
 {
 	Super::BeginPlay();
 	SetupNamePlateWidget();
+	Execute_SetColour(this, GetColour(GetClientTeam(GetWorld())));
 }
 
 // Called to bind functionality to input

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameMode.h"
+#include "MobaProject/MobaProject.h"
 #include "GMAllMid.generated.h"
 DECLARE_LOG_CATEGORY_EXTERN(LogArenaGM, Log, All);
 
@@ -62,5 +63,24 @@ public:
 
 	/** When clientside is finished setting up, this function is called from the playerController */
 	void PlayerControllerReady(const APCAllMid* PlayerController);
-	////////// Players Joining //////////
+
+	////////// Game Win condition //////////
+protected:
+	ETeam WinningTeam = ETeam::NeutralTeam;
+
+	bool bHasEnded = false;
+public:
+	void NexusDestroyed(ETeam WinningTeamIn);
+
+	FORCEINLINE bool GetHasEnded() const { return bHasEnded; }
+
+	FORCEINLINE ETeam GetWinningTeam() const { return WinningTeam; }
+	////////// Game Win condition //////////
+
+	////////// Player Respawn //////////
+	void StartPlayerRespawn(APCAllMid* PC);
+	////////// Player Respawn //////////
+protected:
+	UFUNCTION(BlueprintImplementableEvent)
+	AActor* BP_Respawn(APCAllMid* PC);
 };

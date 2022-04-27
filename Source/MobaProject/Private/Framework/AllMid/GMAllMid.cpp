@@ -3,8 +3,10 @@
 
 #include "Framework/AllMid/GMAllMid.h"
 
+#include "Framework/AllMid/GSAllMid.h"
 #include "Framework/AllMid/PCAllMid.h"
 #include "Framework/AllMid/PSAllMid.h"
+#include "Framework/AllMid/PSAttributeSet.h"
 DEFINE_LOG_CATEGORY(LogArenaGM);
 
 AGMAllMid::AGMAllMid()
@@ -16,14 +18,23 @@ AGMAllMid::AGMAllMid()
 
 void AGMAllMid::CountdownFinished()
 {
-	UE_LOG(LogArenaGM, Display, TEXT("CountdownFinished"));
+	UE_LOG(LogArenaGM, Display, TEXT("CountdownFinished. Players: %d "), PlayerControllers.Num());
 	for (int32 i = 0; i < PlayerControllers.Num(); i++)
 	{
-		if (PlayerControllers[i] != nullptr)
+		if (!IsValid(PlayerControllers[i]))
 		{
-			PlayerControllers[i]->Client_OnGameStarted();
+			UE_LOG(LogArenaGM, Display, TEXT("IsValid not PlayerControllers[%d]"), i);
+			continue;
 		}
+
+		PlayerControllers[i]->EnableInput(PlayerControllers[i]);
+		PlayerControllers[i]->Client_OnGameStarted();
+		
 	}
+	AGSAllMid* GS = GetGameState<AGSAllMid>();
+	GS->IncrementDestroyedTower(ETeam::BlueTeam);
+	GS->IncrementDestroyedTower(ETeam::RedTeam);
+	GS->IncrementDestroyedTower(ETeam::RedTeam);
 }
 
 void AGMAllMid::StartCountdown()
@@ -44,6 +55,20 @@ void AGMAllMid::HandlePlayerJoin(APCAllMid* PlayerController)
 {
 	PlayerControllers.Push(PlayerController);
 	UE_LOG(LogArenaGM, Display, TEXT("ClientController: %d"), PlayerControllers.Num());
+
+	APSAllMid* PS = PlayerController->GetPlayerState<APSAllMid>();
+	if (PlayerControllers.Num() == 1)
+	{
+		PS->Team = ETeam::BlueTeam;
+	}
+	else
+	{
+		PS->Team = ETeam::RedTeam;
+	}
+	BP_Respawn(PlayerController);
+	PS->UseTeamColours(PS->Team);
+
+
 	//start match if it has not already started
 	if (!HasMatchStarted())
 	{
@@ -53,7 +78,6 @@ void AGMAllMid::HandlePlayerJoin(APCAllMid* PlayerController)
 
 void AGMAllMid::PostLogin(APlayerController* NewPlayer)
 {
-	Super::PostLogin(NewPlayer);
 	Super::PostLogin(NewPlayer);
 	APCAllMid* ClientController = Cast<APCAllMid>(NewPlayer);
 	if (ClientController != nullptr)
@@ -86,4 +110,35 @@ void AGMAllMid::PlayerControllerReady(const APCAllMid* PlayerController)
 		//start match if it has not already started
 		StartCountdown();
 	}
+}
+
+void AGMAllMid::NexusDestroyed(ETeam WinningTeamIn)
+{
+	if (bHasEnded)
+	{
+		return;
+	}
+	WinningTeam = WinningTeamIn;
+	bHasEnded = true;
+	//do game ending logic here.
+
+	//tell all players who won/lost
+	for (int32 i = 0; i < PlayerControllers.Num(); i++)
+	{
+		if (PlayerControllers[i] != nullptr)
+		{
+			PlayerControllers[i]->Client_GameEnded(WinningTeam);
+		}
+	}
+}
+
+void AGMAllMid::StartPlayerRespawn(APCAllMid* PC)
+{
+	constexpr float RespawnTime = 10.f;
+	FTimerHandle UnusedHandle;
+	PC->Client_ShowRespawnTimer(RespawnTime);
+	GetWorldTimerManager().SetTimer(UnusedHandle, [this, PC]()
+	{
+		BP_Respawn(PC);
+	}, RespawnTime, false);
 }

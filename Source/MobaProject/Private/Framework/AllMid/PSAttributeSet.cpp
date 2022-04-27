@@ -51,7 +51,7 @@ void UPSAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
 	}
 }
 
-void UPSAttributeSet::On_RepCharacterLevel(const FGameplayAttributeData& OldCharacterLevel)
+void UPSAttributeSet::OnRep_CharacterLevel(const FGameplayAttributeData& OldCharacterLevel)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UPSAttributeSet, CharacterLevel, OldCharacterLevel)
 	APSAllMid* PlayerState = GetOwningActor();
@@ -61,7 +61,7 @@ void UPSAttributeSet::On_RepCharacterLevel(const FGameplayAttributeData& OldChar
 	}
 }
 
-void UPSAttributeSet::On_RepCharacterExperience(const FGameplayAttributeData& OldCharacterExperience)
+void UPSAttributeSet::OnRep_CharacterExperience(const FGameplayAttributeData& OldCharacterExperience)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UPSAttributeSet, CharacterExperience, OldCharacterExperience)
 	APSAllMid* PlayerState = GetOwningActor();
@@ -71,12 +71,42 @@ void UPSAttributeSet::On_RepCharacterExperience(const FGameplayAttributeData& Ol
 	}
 }
 
-void UPSAttributeSet::On_RepGold(const FGameplayAttributeData& OldGold)
+void UPSAttributeSet::OnRep_Gold(const FGameplayAttributeData& OldGold)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UPSAttributeSet, Gold, OldGold)
 	APSAllMid* PlayerState = GetOwningActor();
 	if (PlayerState)
 	{
 		PlayerState->OnRep_Attribute(GetGoldAttribute(), OldGold, Gold);
+	}
+}
+
+void UPSAttributeSet::OnRep_PlayersKilled(const FGameplayAttributeData& OldKills)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UPSAttributeSet, PlayersKilled, OldKills)
+	APSAllMid* PlayerState = GetOwningActor();
+	if (PlayerState)
+	{
+		PlayerState->OnRep_Attribute(GetPlayersKilledAttribute(), OldKills, PlayersKilled);
+	}
+}
+
+void UPSAttributeSet::OnRep_Deaths(const FGameplayAttributeData& OldDeaths)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UPSAttributeSet, Deaths, OldDeaths)
+	APSAllMid* PlayerState = GetOwningActor();
+	if (PlayerState)
+	{
+		PlayerState->OnRep_Attribute(GetDeathsAttribute(), OldDeaths, Deaths);
+	}
+}
+
+void UPSAttributeSet::OnRep_MinionsKilled(const FGameplayAttributeData& OldMinionsKilled)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UPSAttributeSet, MinionsKilled, OldMinionsKilled)
+	APSAllMid* PlayerState = GetOwningActor();
+	if (PlayerState)
+	{
+		PlayerState->OnRep_Attribute(GetMinionsKilledAttribute(), OldMinionsKilled, MinionsKilled);
 	}
 }

@@ -17,7 +17,17 @@ class MOBAPROJECT_API ACHPlayable : public ACHBase
 	GENERATED_BODY()
 
 protected:
+	UPROPERTY(EditDefaultsOnly, Category=Camera)
+	float CameraPitch = -60.f;
+
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
+
+	/**
+	 * Use Internally to handle team changing, such as changing camera angle etc
+	 */
+	void SetTeam(ETeam ThisTeam);
+
+	virtual FName GetEntityName() override;
 
 public:
 	ACHPlayable();
@@ -32,6 +42,8 @@ public:
 	FORCEINLINE class UDecalComponent* GetCursorToWorld() { return CursorToWorld; }
 
 	virtual void OnRep_PlayerState() override;
+
+
 private:
 	/**
 	 * Update the cursor decal
@@ -52,6 +64,7 @@ private:
 
 
 protected:
+	void PlayerSpawned();
 	virtual void BeginPlay() override;
 	////////// Ability System //////////
 	///
@@ -114,7 +127,7 @@ protected:
 	 * Tell server to CastPrimaryAttack
 	*/
 	UFUNCTION(Server, Reliable)
-	void Server_CastPrimaryAttack(ACHBase* Target);
+	void Server_CastPrimaryAttack(AActor* Target);
 public:
 	UFUNCTION(BlueprintPure, Category="Attack")
 	FORCEINLINE int32 GetNextAttackIndex() const { return NextPrimaryAttackIndex; };
@@ -126,17 +139,17 @@ public:
 	}
 
 
-	void CastPrimaryAttack(ACHBase* Target);
+	void CastPrimaryAttack(AActor* Target);
 
 	/**
 		 * The target of the primary attack
 		 */
 	UPROPERTY(BlueprintReadWrite, Replicated=OnRep_PrimaryAttackTarget)
-	ACHBase* PrimaryAttackTarget;
+	AActor* PrimaryAttackTarget;
 
 	UFUNCTION()
 	void OnRep_PrimaryAttackTarget();
-	
+
 	/**
 	 * For simplicity just going to minus armour from damage
 	 */
@@ -153,12 +166,12 @@ public:
 	 *
 	 */
 	UFUNCTION(BlueprintPure)
-	FORCEINLINE ACHBase* GetPrimaryAttackTarget() const { return PrimaryAttackTarget; };
+	FORCEINLINE AActor* GetPrimaryAttackTarget() const { return PrimaryAttackTarget; };
 
 	virtual void OnRep_Attribute(const FGameplayAttribute& Attribute, const FGameplayAttributeData& OldValue,
 	                             const FGameplayAttributeData& NewValue) override;
 
-	virtual void HandleHealthChanged(float DeltaValue, const FGameplayTagContainer& EventTags) override;
+	virtual void HandleHealthChanged(float DeltaValue, const FGameplayTagContainer& EventTags,ACHPlayable* SourcePlayer) override;
 
 	virtual int32 GetCharacterLevel() const override;
 	////////// Ability System //////////

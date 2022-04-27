@@ -16,3 +16,23 @@ void ACHNonPlayable::SetupNamePlateWidget()
 	}
 	Super::SetupNamePlateWidget();
 }
+
+FName ACHNonPlayable::GetEntityName()
+{
+	if (ActorName.GetStringLength() > 0)
+	{
+		return ActorName;
+	}
+	return Super::GetEntityName();
+}
+
+ETeam ACHNonPlayable::GetTeam()
+{
+	return Team;
+}
+
+void ACHNonPlayable::BeginPlay()
+{
+	Super::BeginPlay();
+	Execute_SetColour(this, GetColour(GetClientTeam(GetWorld())));
+}

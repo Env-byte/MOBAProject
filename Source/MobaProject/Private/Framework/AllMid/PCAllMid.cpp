@@ -2,6 +2,7 @@
 
 #include "Framework/AllMid/PCAllMid.h"
 #include "Blueprint/AIBlueprintHelperLibrary.h"
+#include "Characters/CHAttributeSet.h"
 #include "Characters/Playable/CHPlayable.h"
 #include "Components/InventoryComponent.h"
 #include "Framework/AllMid/GMAllMid.h"
@@ -12,6 +13,7 @@
 #include "Items/ConsumableItem.h"
 #include "Widgets/AllMid/WPlayerHud.h"
 #include "Widgets/AllMid/WPlayerInventory.h"
+#include "Widgets/AllMid/WSelectedTarget.h"
 #include "Widgets/Components/WItem.h"
 #include "World/Shop.h"
 DEFINE_LOG_CATEGORY(LogPCAllMid);
@@ -34,24 +36,31 @@ void APCAllMid::BeginPlay()
 {
 	Super::BeginPlay();
 	GameMode = GetWorld()->GetAuthGameMode<AGMAllMid>();
-	if(!HasAuthority())
+	if (!HasAuthority())
 	{
 		Server_ReadyToStart();
 	}
+	DisableInput(this);
 }
 
-void APCAllMid::PlayerStateReady(APSAllMid* PS)
+void APCAllMid::Client_GameEnded_Implementation(const ETeam Team)
 {
-	PS->InventoryComponent->OnInventoryUpdated.AddDynamic(this, &APCAllMid::OnPlayerInventoryUpdated);
-}
+	const APSAllMid* PS = GetPlayerState<APSAllMid>();
+	const bool bWon = PS->Team == Team;
+	const AHUDAllMid* Hud = GetHUD<AHUDAllMid>();
+	FText Message;
 
-void APCAllMid::OnPlayerInventoryUpdated(const TArray<UBaseItem*>& Items)
-{
-	AHUDAllMid* HUD = GetHUD<AHUDAllMid>();
-	if (HUD)
+	if (bWon)
 	{
-		HUD->GetPlayerHudWidget()->SetInventory(Items);
+		Message = FText::FromString("Victory");
 	}
+	else
+	{
+		Message = FText::FromString("Defeat");
+	}
+	Hud->GetPlayerHudWidget()->BP_ShowGameOverText(Message);
+	DisableInput(this);
+	BP_OnGameEnd(bWon);
 }
 
 void APCAllMid::PlayerTick(float DeltaTime)
@@ -106,13 +115,16 @@ void APCAllMid::MoveToMouseCursor()
 		if (Hit.Actor.IsValid())
 		{
 			AActor* HitActor = Hit.Actor.Get();
-			ACHBase* BaseCharacter = Cast<ACHBase>(HitActor);
+
 			ACHPlayable* MyPawn = GetPawn<ACHPlayable>();
 			UE_LOG(LogPCAllMid, Display, TEXT("OnClick hit actor HitActor: %s"), *HitActor->GetClass()->GetName())
-			if (IsValid(BaseCharacter) && IsValid(MyPawn))
+			if (HitActor && IsValid(MyPawn))
 			{
-				MyPawn->CastPrimaryAttack(BaseCharacter);
-				return;
+				if (HitActor->Implements<UCanTakeDamage>())
+				{
+					MyPawn->CastPrimaryAttack(HitActor);
+					return;
+				}
 			}
 		}
 		// We hit something, move there
@@ -155,17 +167,90 @@ void APCAllMid::OnSetDestinationReleased()
 void APCAllMid::OnSelect()
 {
 	FHitResult HitResult;
-	if (GetHitResultUnderCursorByChannel(TraceTypeQuery1, true, HitResult))
+
+	const ECollisionChannel SelectedChannel = UEngineTypes::ConvertToCollisionChannel(TraceTypeQuery15);
+	const FString ResourceString = StaticEnum<ECollisionChannel>()->GetValueAsString(SelectedChannel);
+	UE_LOG(LogPCAllMid, Display, TEXT("SelectedChannel: %s"), *ResourceString)
+
+	//TraceTypeQuery15 is my custom channel SelectTrace which is block all
+	if (!GetHitResultUnderCursorByChannel(TraceTypeQuery15, true, HitResult))
 	{
-		if (HitResult.Actor.IsValid())
+		return;
+	}
+	if (!HitResult.Actor.IsValid())
+	{
+		return;
+	}
+
+	GetHUD<AHUDAllMid>()->GetPlayerHudWidget()->GetSelectedTarget()->Hide();
+
+	AActor* HitActor = HitResult.Actor.Get();
+	const AShop* ShopActor = Cast<AShop>(HitActor);
+	UE_LOG(LogPCAllMid, Display, TEXT("OnSelect HitActor: %s"), *HitActor->GetClass()->GetName())
+
+	if (IsValid(ShopActor))
+	{
+		GetHUD<AHUDAllMid>()->GetPlayerHudWidget()->ShowShop();
+		return;
+	}
+
+	if (HitActor->Implements<UCanTakeDamage>())
+	{
+		UE_LOG(LogPCAllMid, Display, TEXT("HitActor->Implements<UCanTakeDamage>()"))
+		ICanTakeDamage* Target = Cast<ICanTakeDamage>(HitActor);
+		if (Target)
 		{
-			AActor* HitActor = HitResult.Actor.Get();
-			AShop* ShopActor = Cast<AShop>(HitActor);
-			if (IsValid(ShopActor))
+			UE_LOG(LogPCAllMid, Display, TEXT("Target is valid"))
+			UCHAttributeSet* Attributes = Target->GetAttributeSet();
+			if (Attributes)
 			{
-				GetHUD<AHUDAllMid>()->GetPlayerHudWidget()->ShowShop();
+				UE_LOG(LogPCAllMid, Display, TEXT("Attributes is valid"))
+				GetHUD<AHUDAllMid>()->GetPlayerHudWidget()->GetSelectedTarget()->SetTarget(
+					Attributes,
+					Target->GetEntityName()
+				);
+
+				GetHUD<AHUDAllMid>()->GetPlayerHudWidget()->GetSelectedTarget()->Show();
 			}
 		}
+	}
+}
+
+void APCAllMid::UpdateTargetingWidget(const UCHAttributeSet* Attributes) const
+{
+	if (HasAuthority()) { return; }
+	UE_LOG(LogPCAllMid, Display, TEXT("UpdateTargetingWidget"))
+
+	if (!IsValid(GetHUD<AHUDAllMid>()))
+	{
+		UE_LOG(LogPCAllMid, Display, TEXT("GetHUD"))
+		return;
+	}
+	if (!IsValid(GetHUD<AHUDAllMid>()->GetPlayerHudWidget()))
+	{
+		UE_LOG(LogPCAllMid, Display, TEXT("GetPlayerHudWidget"))
+		return;
+	}
+
+	UWSelectedTarget* SelectedTarget = GetHUD<AHUDAllMid>()
+	                                   ->GetPlayerHudWidget()
+	                                   ->GetSelectedTarget();
+	UE_LOG(LogPCAllMid, Display,
+	       TEXT("SelectedTarget->Attributes == Attributes %s"),
+	       SelectedTarget->Attributes == Attributes ? TEXT("TRUE") :
+	       TEXT("FALSE"));
+
+	UE_LOG(LogPCAllMid, Display, TEXT("SelectedTarget->Attributes %p"), SelectedTarget->Attributes);
+	UE_LOG(LogPCAllMid, Display, TEXT("Attributes %p"), Attributes);
+
+	if (IsValid(SelectedTarget) && SelectedTarget->Attributes == Attributes)
+	{
+		UE_LOG(LogPCAllMid, Display, TEXT("BP_OnAttributeChange"))
+		SelectedTarget->BP_OnAttributeChange();
+	}
+	else
+	{
+		UE_LOG(LogPCAllMid, Display, TEXT("SelectedTarget"))
 	}
 }
 
@@ -337,6 +422,15 @@ void APCAllMid::ConsumeItem(UConsumableItem* ConsumableItem)
 	UE_LOG(LogPCAllMid, Display, TEXT("ConsumableItem: %s"), Status ? TEXT("True") : TEXT("False"));
 }
 
+void APCAllMid::Client_ShowRespawnTimer_Implementation(const float Time)
+{
+	const AHUDAllMid* HUD = GetHUD<AHUDAllMid>();
+	if (IsValid(HUD))
+	{
+		HUD->GetPlayerHudWidget()->BP_StartRespawnCountdown(Time);
+	}
+}
+
 void APCAllMid::Client_ShowNotification_Implementation(const FText& Message)
 {
 	BP_ShowNotification(Message);
@@ -352,8 +446,8 @@ void APCAllMid::Server_ReadyToStart_Implementation()
 
 void APCAllMid::Client_StartGameCountdown_Implementation(float StartFrom)
 {
-	AHUDAllMid* HUD = GetHUD<AHUDAllMid>();
-	if(IsValid(HUD))
+	const AHUDAllMid* HUD = GetHUD<AHUDAllMid>();
+	if (IsValid(HUD))
 	{
 		HUD->GetPlayerHudWidget()->BP_StartGameCountdown(StartFrom);
 	}
@@ -362,6 +456,7 @@ void APCAllMid::Client_StartGameCountdown_Implementation(float StartFrom)
 void APCAllMid::Client_OnGameStarted_Implementation()
 {
 	UE_LOG(LogCHPlayable, Display, TEXT("Client_OnGameStarted"))
+	EnableInput(this);
 	BP_OnGameStarted();
 }
 

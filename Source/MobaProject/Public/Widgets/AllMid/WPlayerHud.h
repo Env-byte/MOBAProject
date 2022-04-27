@@ -24,10 +24,18 @@ protected:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	class UWPlayerInventory* PlayerInventory;
 
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	class UWGameOverview* GameOverview;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	class UWSelectedTarget* SelectedTarget;
+
 	bool bIsShopOpen;
 
 public:
 	UWPlayerInventory* GetPlayerInventory() const { return PlayerInventory; }
+	UWGameOverview* GetGameOverview() const { return GameOverview; }
+	UWSelectedTarget* GetSelectedTarget() const { return SelectedTarget; }
 
 	UFUNCTION(BlueprintCallable)
 	void ShowShop();
@@ -60,4 +68,10 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_StartGameCountdown(float StartFrom);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_StartRespawnCountdown(float StartFrom);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_ShowGameOverText(const FText& Message);
 };

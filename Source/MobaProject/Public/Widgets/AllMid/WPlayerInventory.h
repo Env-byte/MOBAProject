@@ -21,6 +21,7 @@ protected:
 	UWItem* FindItemSlot(FGuid UniqueId);
 public:
 	void OnInventoryUpdate(TArray<UBaseItem*> Items);
+	
 	UPROPERTY(BlueprintReadWrite, Category=Items)
 	TArray<UWItem*> ItemSlots;
 };
